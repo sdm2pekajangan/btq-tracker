@@ -17,35 +17,27 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
 
-/* LOGIN */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d3d29,#1a6b4a,#2d8f63);padding:20px}
-.login-card{background:#fff;border-radius:20px;padding:44px 36px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.2)}
-.login-logo{text-align:center;margin-bottom:28px}
-.login-logo .arabic{font-family:'Amiri',serif;font-size:34px;color:var(--em);display:block}
-.login-logo h1{font-size:22px;font-weight:700}
-.login-logo p{font-size:13px;color:var(--muted);margin-top:3px}
-.role-tabs{display:flex;gap:5px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:22px}
-.role-tab{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:7px;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
-.role-tab.active{background:#fff;color:var(--em);box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;color:var(--ink);background:#fff;outline:none;transition:border-color .2s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--em)}
-.form-group textarea{resize:vertical;min-height:50px}
-.btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-primary{background:var(--em);color:#fff}
-.btn-primary:hover{background:var(--eml)}
-.btn-sm{width:auto;padding:6px 13px;font-size:12px;font-weight:600;border-radius:8px}
-.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
-.btn-outline:hover{border-color:var(--em);color:var(--em)}
-.btn-danger{background:var(--redp);color:var(--red);border:none}
-.login-hint{margin-top:18px;background:var(--emp);border-radius:10px;padding:13px;font-size:11.5px;color:var(--em);line-height:1.7}
+/* LANDING GATE SCREEN */
+#gate-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d3d29,#1a6b4a,#2d8f63);padding:20px}
+.gate-card{background:#fff;border-radius:20px;padding:40px 30px;width:100%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,.2);text-align:center}
+.gate-logo{margin-bottom:24px}
+.gate-logo h1{font-size:24px;font-weight:700;margin-top:10px}
+.gate-logo p{font-size:13px;color:var(--muted);margin-top:4px}
+.gate-options{display:flex;flex-direction:column;gap:12px;margin-top:25px}
+.gate-btn{background:var(--bg);border:1.5px solid var(--border);padding:14px;border-radius:12px;text-align:left;display:flex;align-items:center;gap:15px;cursor:pointer;transition:all .2s;font-family:inherit}
+.gate-btn:hover{border-color:var(--em);background:var(--emp);transform:translateY(-2px)}
+.gate-btn-icon{font-size:24px}
+.gate-btn-text h3{font-size:15px;font-weight:700;color:var(--ink)}
+.gate-btn-text p{font-size:12px;color:var(--muted);margin-top:2px}
 
-/* TOPBAR */
+/* LOGIN SCREEN */
+#login-screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d3d29,#1a6b4a,#2d8f63);padding:20px}
+.back-to-gate{text-align:left;margin-bottom:15px;background:none;border:none;color:var(--em);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+/* INTERNAL APP */
 #app{display:none;min-height:100vh}
 .topbar{background:var(--em);color:#fff;padding:0 22px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .topbar-left{display:flex;align-items:center;gap:11px}
-.topbar-logo{font-family:'Amiri',serif;font-size:24px;opacity:.9}
 .topbar-title{font-size:15px;font-weight:700}
 .topbar-sub{font-size:11px;opacity:.7}
 .topbar-right{display:flex;align-items:center;gap:10px}
@@ -57,7 +49,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .nav-tab{padding:13px 15px;border:none;background:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .2s}
 .nav-tab.active{color:var(--em);border-bottom-color:var(--em)}
 
-/* MAIN */
+/* MAIN CONTAINER */
 .main{max-width:1100px;margin:0 auto;padding:26px 18px}
 .page{display:none}
 .page.active{display:block}
@@ -65,108 +57,151 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .page-header h2{font-size:20px;font-weight:700}
 .page-header p{font-size:13px;color:var(--muted);margin-top:3px}
 
-/* CARD */
+/* CARD & TABLES */
 .card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;margin-bottom:18px}
 .card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .card-title{font-size:14px;font-weight:700}
 .card-body{padding:18px}
-
-/* TABLE */
 table{width:100%;border-collapse:collapse}
 th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:9px 15px;background:var(--bg);border-bottom:1px solid var(--border)}
 td{padding:11px 15px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
-tr:hover td{background:var(--bg)}
+tr.clickable-row{cursor:pointer;transition:background .2s}
+tr.clickable-row:hover td{background:var(--emp)}
 
-/* BADGE */
+/* BADGES & PROGRESS BAR */
 .badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
 .bg{background:var(--emp);color:var(--em)}
 .bbl{background:var(--bluep);color:var(--blue)}
-
-/* PROGRESS BAR */
 .pbar{display:flex;align-items:center;gap:7px}
 .ptrack{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;max-width:80px}
 .pfill{height:100%;border-radius:99px;background:var(--em);transition:width .4s}
 
-/* PUBLIC ORTU */
-#public-screen{display:none;min-height:100vh;background:var(--bg)}
+/* PUBLIC ORTU AREA (INTEGRATED) */
+#public-ortu-screen{display:none;min-height:100vh;background:var(--bg)}
 .pub-header{background:var(--em);color:#fff;padding:18px 22px;display:flex;align-items:center;gap:12px}
-.pub-header .arabic{font-family:'Amiri',serif;font-size:26px;opacity:.9}
 .pub-title{font-size:16px;font-weight:700}
 .pub-sub{font-size:12px;opacity:.7}
-.pub-main{max-width:760px;margin:0 auto;padding:24px 18px}
-
+.pub-main{max-width:800px;margin:0 auto;padding:24px 18px}
 .siswa-hero{background:linear-gradient(135deg,var(--em),var(--eml));border-radius:14px;padding:22px;color:#fff;margin-bottom:18px;display:flex;align-items:center;gap:15px}
 .siswa-avatar{width:52px;height:52px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700}
 .siswa-info h3{font-size:17px;font-weight:700}
 .siswa-info p{font-size:12px;opacity:.8;margin-top:2px}
-
-.jilid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px}
-.jilid-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center;position:relative}
+.jilid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.jilid-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 12px;text-align:center}
 .jilid-card.selesai{border-color:var(--em);background:var(--emp)}
 .jilid-card.aktif{border-color:var(--gold);background:var(--goldp)}
 .jilid-icon{font-size:24px;margin-bottom:6px}
 .jilid-name{font-size:12px;font-weight:700}
 .jilid-hal{font-size:11px;color:var(--muted);margin-top:2px}
 .jilid-status{font-size:10px;font-weight:700;margin-top:5px}
-
 .setoran-item{display:flex;align-items:flex-start;gap:11px;padding:13px 0;border-bottom:1px solid var(--border)}
 .setoran-date{font-size:11px;font-weight:700;color:var(--muted);min-width:54px;text-align:center}
 .setoran-content{flex:1}
 .setoran-surat{font-size:14px;font-weight:600}
 .setoran-catatan{font-size:12px;color:var(--em);margin-top:4px;font-style:italic}
 
+/* GLOBAL UI ELEMENTS */
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--em)}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.btn-primary{background:var(--em);color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--muted)}
 select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none}
-.copy-btn{background:var(--em);color:#fff;border:none;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer}
-
-/* COMPACT INPUT TABLES */
 .in-input{padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;width:100%}
 .in-select{padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;background:#fff}
-
 #loading-overlay {
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center;
+  display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center;
   font-weight: 600; color: var(--em); font-size: 16px;
 }
 </style>
 </head>
 <body>
 
-<div id="loading-overlay">⏳ Sinkronisasi Data Cloud...</div>
+<div id="loading-overlay">⏳ Memuat Basis Data Sekolah...</div>
 
-<div id="public-screen">
-  <div class="pub-header">
-    <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Sekolah" style="height: 48px; width: auto; margin-right: 12px; object-fit: contain;">
-    <div>
-      <div class="pub-title">BTQ Tracker — Progress Anak</div>
-      <div class="pub-sub" id="pub-nama-header">Memuat data…</div>
+<div id="gate-screen">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Sekolah" style="height: 90px; width: auto; margin-bottom: 10px; object-fit: contain;">
+      <h1>BTQ Tracker</h1>
+      <p>Sistem Informasi & Progress Al-Qur'an</p>
+    </div>
+    <div class="gate-options">
+      <button class="gate-btn" onclick="goToOrtuLeaderboard()">
+        <span class="gate-btn-icon">👨‍👩‍👦</span>
+        <div class="gate-btn-text"><h3>Halaman Wali Murid</h3><p>Lihat ranking & progress mengaji anak</p></div>
+      </button>
+      <button class="gate-btn" onclick="showLoginScreen('guru')">
+        <span class="gate-btn-icon">📖</span>
+        <div class="gate-btn-text"><h3>Login Guru / Ustadz</h3><p>Input setoran harian massal se-kelas</p></div>
+      </button>
+      <button class="gate-btn" onclick="showLoginScreen('admin')">
+        <span class="gate-btn-icon">👑</span>
+        <div class="gate-btn-text"><h3>Login Admin Kepala</h3><p>Kelola data master & laporan sistem</p></div>
+      </button>
     </div>
   </div>
-  <div class="pub-main" id="pub-content"></div>
+</div>
+
+<div id="public-ortu-screen">
+  <div class="pub-header">
+    <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Sekolah" style="height: 45px; width: auto; margin-right: 8px; object-fit: contain;">
+    <div>
+      <div class="pub-title">Papan Informasi Jilid & Mengaji</div>
+      <div class="pub-sub">Silakan pilih kelas dan klik nama anak Anda untuk detail</div>
+    </div>
+  </div>
+  <div class="pub-main">
+    <div id="ortu-view-leaderboard">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🏆 Urutan Kelulusan Jilid Siswa</span>
+          <select class="filter" onchange="renderOrtuLeaderboard()" id="of-kelas">
+            <option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option>
+            <option value="Kelas 3">Kelas 3</option><option value="Kelas 4">Kelas 4</option>
+            <option value="Kelas 5">Kelas 5</option><option value="Kelas 6">Kelas 6</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Rank</th><th>Nama Siswa</th><th>Posisi Mengaji</th><th>Progress Kelulusan</th></tr></thead>
+            <tbody id="ortu-leaderboard-tbl"></tbody>
+          </table>
+        </div>
+      </div>
+      <button class="btn btn-outline" onclick="backToGate()">← Kembali ke Menu Utama</button>
+    </div>
+
+    <div id="ortu-view-detail" style="display:none">
+      <button class="back-to-gate" onclick="backToOrtuLeaderboard()" style="margin-bottom:15px; color:var(--em)">← Kembali ke Daftar Kelas</button>
+      <div id="detail-anak-box"></div>
+    </div>
+  </div>
 </div>
 
 <div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Mutu" style="height: 90px; width: auto; margin-bottom: 15px; object-fit: contain;">
-      <h1>BTQ Tracker</h1>
-      <p>Sistem Monitoring Progres BTQ SD MUTU</p>
+  <div class="gate-card">
+    <button class="back-to-gate" onclick="backToGate()">← Kembali</button>
+    <div class="gate-logo">
+      <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Sekolah" style="height: 70px; width: auto; margin-bottom: 5px; object-fit: contain;">
+      <h2 id="login-title">Login Internal</h2>
     </div>
-    <div class="role-tabs">
-      <button class="role-tab active" onclick="selectRole('admin')">👑 Admin</button>
-      <button class="role-tab" onclick="selectRole('guru')">📖 Guru</button>
-    </div>
-    <div class="form-group"><label>Username</label><input type="text" id="lu" placeholder="Username"></div>
-    <div class="form-group"><label>Password</label><input type="password" id="lp" placeholder="Password"></div>
-    <div id="lerr" class="alert-err" style="display:none; color:var(--red); font-size:12px; margin-bottom:10px;"></div>
-    <button class="btn btn-primary" onclick="doLogin()">Masuk →</button>
+    <div class="form-group"><label>Username</label><input type="text" id="lu" placeholder="Masukkan username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="lp" placeholder="Masukkan password"></div>
+    <div id="lerr" style="display:none; color:var(--red); font-size:12px; margin-bottom:12px; text-align:left;"></div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk Ke Sistem →</button>
   </div>
 </div>
 
 <div id="app">
   <div class="topbar">
     <div class="topbar-left">
-  <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Sekolah" style="height: 38px; width: auto; margin-right: 8px; object-fit: contain;">
-  <div><div class="topbar-title">BTQ Tracker</div>
+      <img src="https://lh3.googleusercontent.com/d/1MROwOO_WruVSfFvVk7XK0R55XTLWK6At" alt="Logo Sekolah" style="height: 38px; width: auto; margin-right: 5px; object-fit: contain;">
+      <div><div class="topbar-title">BTQ Tracker</div><div class="topbar-sub" id="tsub">—</div></div>
+    </div>
     <div class="topbar-right">
       <span class="role-badge" id="rbadge">—</span>
       <button class="logout-btn" onclick="doLogout()">Keluar</button>
@@ -176,18 +211,23 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
   <div class="main">
 
     <div class="page" id="page-dashboard">
-      <div class="page-header"><h2>Dashboard & Ranking</h2><p>Urutan progress jilid tertinggi siswa</p></div>
+      <div class="page-header"><h2>Dashboard Admin</h2><p>Monitoring urutan capaian jilid siswa</p></div>
       <div class="card">
         <div class="card-header">
-          <span class="card-title">🏆 Peringkat Kelulusan Jilid (Leaderboard)</span>
-          <select class="filter" onchange="renderDash()" id="df-kelas"><option value="">Semua Kelas</option></select>
+          <span class="card-title">🏆 Peringkat Jilid Internal</span>
+          <select class="filter" onchange="renderDash()" id="df-kelas">
+            <option value="">Semua Kelas</option>
+            <option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option>
+            <option value="Kelas 3">Kelas 3</option><option value="Kelas 4">Kelas 4</option>
+            <option value="Kelas 5">Kelas 5</option><option value="Kelas 6">Kelas 6</option>
+          </select>
         </div>
-        <div style="overflow-x:auto"><table><thead><tr><th>Peringkat</th><th>Siswa</th><th>Kelas</th><th>Jilid Saat Ini</th><th>Progress Bar</th></tr></thead><tbody id="dash-tbl"></tbody></table></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Rank</th><th>Siswa</th><th>Kelas</th><th>Jilid Saat Ini</th><th>Bar Progress</th></tr></thead><tbody id="dash-tbl"></tbody></table></div>
       </div>
     </div>
 
     <div class="page" id="page-siswa">
-      <div class="page-header"><h2>Data Siswa</h2><p>Kelola siswa & bagikan link ortu</p></div>
+      <div class="page-header"><h2>Kelola Siswa</h2><p>Tambah dan hapus daftar santri/siswa master</p></div>
       <div class="card">
         <div class="card-header"><span class="card-title">Tambah Siswa Baru</span></div>
         <div class="card-body">
@@ -212,27 +252,35 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
       </div>
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Daftar Semua Siswa</span>
-          <select class="filter" onchange="renderSiswaTbl()" id="sf-kelas"><option value="">Semua Kelas</option></select>
+          <span class="card-title">Daftar Siswa Master</span>
+          <select class="filter" onchange="renderSiswaTbl()" id="sf-kelas">
+            <option value="">Semua Kelas</option>
+            <option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option>
+            <option value="Kelas 3">Kelas 3</option><option value="Kelas 4">Kelas 4</option>
+            <option value="Kelas 5">Kelas 5</option><option value="Kelas 6">Kelas 6</option>
+          </select>
         </div>
-        <div style="overflow-x:auto"><table><thead><tr><th>Nama</th><th>Kelas</th><th>Posisi Saat Ini</th><th>Total Setoran</th><th>Link Ortu</th></tr></thead><tbody id="siswa-tbl"></tbody></table></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Nama</th><th>Kelas</th><th>Jilid</th><th>Halaman</th></tr></thead><tbody id="siswa-tbl"></tbody></table></div>
       </div>
     </div>
 
     <div class="page" id="page-laporan">
-      <div class="page-header"><h2>Laporan Histori</h2><p>Rekap semua setoran siswa</p></div>
+      <div class="page-header"><h2>Laporan Histori Setoran</h2><p>Rekap riwayat harian mengaji</p></div>
       <div class="card">
         <div class="card-header">
-          <div style="display:flex; gap:10px">
-            <select class="filter" onchange="renderLaporan()" id="lf-kelas"><option value="">Semua Kelas</option></select>
-          </div>
+          <select class="filter" onchange="renderLaporan()" id="lf-kelas">
+            <option value="">Semua Kelas</option>
+            <option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option>
+            <option value="Kelas 3">Kelas 3</option><option value="Kelas 4">Kelas 4</option>
+            <option value="Kelas 5">Kelas 5</option><option value="Kelas 6">Kelas 6</option>
+          </select>
         </div>
-        <div style="overflow-x:auto"><table><thead><tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Jilid</th><th>Hal/Ayat</th><th>Nilai</th><th>Status</th><th>Catatan Guru</th></tr></thead><tbody id="lap-tbl"></tbody></table></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Tgl</th><th>Siswa</th><th>Kelas</th><th>Jilid</th><th>Hal</th><th>Nilai</th><th>Status</th><th>Catatan</th></tr></thead><tbody id="lap-tbl"></tbody></table></div>
       </div>
     </div>
 
     <div class="page" id="page-inputmassal">
-      <div class="page-header"><h2>Input Setoran Harian</h2><p>Nilai & Absensi Langsung 1 Kelas Sekaligus</p></div>
+      <div class="page-header"><h2>Input Setoran Harian</h2><p>Pilih kelas dan isi progress mengaji anak sekaligus</p></div>
       <div class="card">
         <div class="card-header">
           <div style="display:flex; align-items:center; gap:14px; width:100%; flex-wrap:wrap;">
@@ -258,18 +306,16 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
                 <th style="width:25%">Nama Siswa</th>
                 <th style="width:20%">Jilid Aktif</th>
                 <th style="width:12%">Halaman Baru</th>
-                <th style="width:10%">Nilai (0-100)</th>
+                <th style="width:10%">Nilai</th>
                 <th style="width:13%">Status</th>
-                <th style="width:20%">Catatan / Evaluasi</th>
+                <th style="width:20%">Catatan Guru</th>
               </tr>
             </thead>
-            <tbody id="massal-tbl">
-              <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas terlebih dahulu untuk memunculkan daftar siswa.</td></tr>
-            </tbody>
+            <tbody id="massal-tbl"></tbody>
           </table>
         </div>
         <div class="card-body" id="massal-action-box" style="display:none; text-align:right; border-top:1px solid var(--border)">
-          <button class="btn btn-primary" style="max-width:280px" onclick="simpanSetoranMassal()">🚀 Simpan Semua Setoran Kelas</button>
+          <button class="btn btn-primary" style="max-width:280px" onclick="simpanSetoranMassal()">🚀 Simpan Setoran Kelas</button>
         </div>
       </div>
     </div>
@@ -278,7 +324,7 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
 </div>
 
 <script>
-// ==================== PASTE URL GOOGLE APPS SCRIPT ANDA DI SINI ====================
+// ==================== PASTE URL APPS SCRIPT ANDA DI SINI ====================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd_wzJvsPwyP8_Ex6rnwUtXj4MN1dGKpPO07kziYTPR0o5_VlxWXEsx3h0L4LyBbgK4Q/exec"; 
 
 const JILID_LABEL = { jilid1:'Jilid 1', jilid2:'Jilid 2', jilid3:'Jilid 3', jilid4:'Jilid 4', jilid5:'Jilid 5', jilid6:'Jilid 6', alquran:"Al-Qur'an" };
@@ -286,92 +332,77 @@ const JILID_ICON = { jilid1:'📗', jilid2:'📘', jilid3:'📙', jilid4:'📕',
 const JILID_WEIGHT = { jilid1:1, jilid2:2, jilid3:3, jilid4:4, jilid5:5, jilid6:6, alquran:7 };
 
 let db = { users:[], siswa: [], setoran: [] };
-let currentUser = null; let selectedRole = 'admin';
+let currentUser = null; let activeLoginRole = 'admin';
 
 async function muatDataDariCloud() {
   if(!SCRIPT_URL || SCRIPT_URL.includes("URL_WEB_APP")) return;
-  
-  // LOGIKA BARU: Cek di detik pertama, jika ini link wali murid, langsung sembunyikan kotak login secara instan!
-  const params = new URLSearchParams(location.search);
-  if (params.get('siswa')) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('loading-overlay').style.display = 'flex'; // Tampilkan loading sinkronisasi
-  }
-
   try {
     let res = await fetch(SCRIPT_URL + "?action=read");
     let data = await res.json();
     db.siswa = data.siswa || [];
     db.setoran = data.setoran || [];
     db.users = data.users || [];
-    
-    document.getElementById('loading-overlay').style.display = 'none'; // Matikan loading jika sudah selesai
-    
-    // Jalankan pengecekan rute wali murid SETELAH data siswa dari Google Sheets sukses terdownload
-    if(checkPublicRoute()) {
-      return; 
-    }
-    
-    if(currentUser) {
-      initApp();
-    }
+    document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) { 
     console.error("Gagal sinkronisasi data cloud: ", e); 
     document.getElementById('loading-overlay').style.display = 'none';
   }
 }
-  
-async function simpanMassalKeCloud(payload) {
-  document.getElementById('loading-overlay').style.display = 'flex';
-  try {
-    await fetch(SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    // Delay sedikit agar Google Apps Script selesai memproses di server
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    await muatDataDariCloud();
-    alert("✅ Seluruh data setoran berhasil disimpan ke Cloud!");
-  } catch(e) { alert("Gagal menyimpan data."); }
-  document.getElementById('loading-overlay').style.display = 'none';
-}
 
 function hitungPersen(jilidKey) {
-  let bobot = JILID_WEIGHT[jilidKey] || 0;
-  return Math.round((bobot / 7) * 100);
+  return Math.round(((JILID_WEIGHT[jilidKey] || 0) / 7) * 100);
 }
 
-function checkPublicRoute() {
-  const params = new URLSearchParams(location.search);
-  const sid = params.get('siswa');
-  if (sid) { 
-    // Memastikan perbaikan penulisan display agar tidak eror (menghilangkan dobel style)
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('public-screen').style.display = 'block';
-    
-    showPublicPage(sid); 
-    return true; 
-  }
-  return false;
-}
-
-function showPublicPage(siswaId) {
+/* FUNGSI ROUTING UTAMA HALAMAN DEPAN */
+function backToGate() {
+  document.getElementById('gate-screen').style.display = 'flex';
   document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('public-ortu-screen').style.display = 'none';
   document.getElementById('app').style.display = 'none';
-  document.getElementById('public-screen').style.display = 'block';
-  const siswa = db.siswa.find(s => s.id === siswaId);
-  if (!siswa) {
-    document.getElementById('pub-content').innerHTML = '<div class="alert alert-err">Data siswa tidak ditemukan...</div>';
-    return;
-  }
-  document.getElementById('pub-nama-header').textContent = 'Progress ' + siswa.nama;
-  renderPublicContent(siswa);
+}
+function showLoginScreen(role) {
+  activeLoginRole = role;
+  document.getElementById('gate-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-title').textContent = role === 'admin' ? 'Login Admin Kepala' : 'Login Guru / Ustadz';
+  document.getElementById('lu').value = ''; document.getElementById('lp').value = '';
+  document.getElementById('lerr').style.display = 'none';
 }
 
-function renderPublicContent(siswa) {
+/* LOGIKA ALUR HALAMAN WALI MURID (REVISI PERMINTAAN ANDA) */
+function goToOrtuLeaderboard() {
+  document.getElementById('gate-screen').style.display = 'none';
+  document.getElementById('public-ortu-screen').style.display = 'block';
+  backToOrtuLeaderboard();
+}
+function backToOrtuLeaderboard() {
+  document.getElementById('ortu-view-leaderboard').style.display = 'block';
+  document.getElementById('ortu-view-detail').style.display = 'none';
+  renderOrtuLeaderboard();
+}
+function renderOrtuLeaderboard() {
+  const kelasDipilih = document.getElementById('of-kelas').value;
+  let list = db.siswa.filter(s => s.kelas === kelasDipilih);
+  list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni] || 0) - (JILID_WEIGHT[a.jilidSaatIni] || 0));
+
+  document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
+    let persen = hitungPersen(s.jilidSaatIni);
+    return `<tr class="clickable-row" onclick="lihatDetailAnakOrtu('${s.id}')">
+      <td><strong>#${idx + 1}</strong></td>
+      <td><strong>${s.nama}</strong></td>
+      <td>${JILID_ICON[s.jilidSaatIni]} ${JILID_LABEL[s.jilidSaatIni]} (Hal ${s.halTerakhir})</td>
+      <td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td>
+    </tr>`;
+  }).join('') : `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--muted)">Belum ada data siswa di kelas ini.</td></tr>`;
+}
+
+function lihatDetailAnakOrtu(siswaId) {
+  const siswa = db.siswa.find(s => s.id === siswaId);
+  if (!siswa) return;
+
+  document.getElementById('ortu-view-leaderboard').style.display = 'none';
+  document.getElementById('ortu-view-detail').style.display = 'block';
+
   const setoranSiswa = db.setoran.filter(s => s.siswaId === siswa.id).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
   const jilidKeys = ['jilid1','jilid2','jilid3','jilid4','jilid5','jilid6','alquran'];
   const currentIdx = jilidKeys.indexOf(siswa.jilidSaatIni);
@@ -384,7 +415,7 @@ function renderPublicContent(siswa) {
     return `<div class="jilid-card ${cls}">
       <div class="jilid-icon">${JILID_ICON[jk]}</div>
       <div class="jilid-name">${JILID_LABEL[jk]}</div>
-      ${i === currentIdx ? `<div class="jilid-hal">Hal/Ayat: <strong>${siswa.halTerakhir}</strong></div>` : ''}
+      ${i === currentIdx ? `<div class="jilid-hal">Hal: <strong>${siswa.halTerakhir}</strong></div>` : ''}
       <div class="jilid-status">${status}</div>
     </div>`;
   }).join('');
@@ -394,17 +425,17 @@ function renderPublicContent(siswa) {
       <div class="setoran-date">${s.tanggal}</div>
       <div class="setoran-content">
         <div class="setoran-surat">${JILID_LABEL[s.jilid]} · Hal ${s.halaman} &nbsp; <span style="font-size:11px; font-weight:normal; color:var(--muted)">(${s.status==='lancar'?'Lancar':'Mengulang'})</span></div>
-        ${s.catatan?`<div class="setoran-catatan">💬 Catatan: ${s.catatan}</div>`:''}
+        ${s.catatan?`<div class="setoran-catatan">💬 Evaluasi Guru: ${s.catatan}</div>`:''}
       </div>
     </div>`;
-  }).join('') : '<div class="empty-state">Belum ada riwayat mengaji</div>';
+  }).join('') : '<div class="card-body" style="color:var(--muted); text-align:center;">Belum ada catatan mengaji harian</div>';
 
-  document.getElementById('pub-content').innerHTML = `
+  document.getElementById('detail-anak-box').innerHTML = `
     <div class="siswa-hero">
       <div class="siswa-avatar">${siswa.nama[0]}</div>
-      <div class="siswa-info"><h3>${siswa.nama}</h3><p>Kelas ${siswa.kelas} · ${setoranSiswa.length} Total Presensi Mengaji</p></div>
+      <div class="siswa-info"><h3>${siswa.nama}</h3><p>Kelas ${siswa.kelas} · Total ${setoranSiswa.length} Presensi Mengaji</p></div>
     </div>
-    <div class="card"><div class="card-header"><span class="card-title">Progress Kelulusan Jilid</span></div>
+    <div class="card"><div class="card-header"><span class="card-title">Grafik Kelulusan Jilid</span></div>
       <div class="card-body">
         <div class="pbar" style="margin-bottom:20px;">
           <div class="ptrack" style="max-width:100%; height:12px;"><div class="pfill" style="width:${hitungPersen(siswa.jilidSaatIni)}%"></div></div>
@@ -413,38 +444,36 @@ function renderPublicContent(siswa) {
         <div class="jilid-grid">${jilidCards}</div>
       </div>
     </div>
-    <div class="card"><div class="card-header"><span class="card-title">Riwayat Mengaji Harian</span></div>
+    <div class="card"><div class="card-header"><span class="card-title">Riwayat Buku Setoran Harian</span></div>
       <div class="card-body">${setoranHTML}</div>
     </div>`;
 }
 
-function selectRole(r) {
-  selectedRole = r;
-  document.querySelectorAll('.role-tab').forEach((t,i)=>t.classList.toggle('active',['admin','guru'][i]===r));
-}
+/* SISTEM LOGIN DAN LOGOUT */
 function doLogin() {
-  const u=document.getElementById('lu').value.trim();
-  const p=document.getElementById('lp').value.trim();
-  const user=db.users.find(x=>x.username===u&&x.password===p&&x.role===selectedRole);
-  const err=document.getElementById('lerr');
-  if(!user){err.style.display='block';err.textContent='Username atau Password salah.';return;}
+  const u = document.getElementById('lu').value.trim();
+  const p = document.getElementById('lp').value.trim();
+  const user = db.users.find(x => x.username === u && x.password === p && x.role === activeLoginRole);
+  const err = document.getElementById('lerr');
+  
+  if(!user){ err.style.display='block'; err.textContent='Username atau Password akun salah.'; return; }
   err.style.display='none'; currentUser=user; initApp();
 }
-function doLogout() { currentUser=null; location.reload(); }
+function doLogout() { currentUser=null; backToGate(); }
 
 function initApp() {
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
-  document.getElementById('tsub').textContent=currentUser.nama;
-  document.getElementById('rbadge').textContent={admin:'👑 Admin',guru:'📖 Guru'}[currentUser.role];
-  buildNav(); showPage(currentUser.role=='admin'?'dashboard':'inputmassal');
+  document.getElementById('tsub').textContent = currentUser.nama;
+  document.getElementById('rbadge').textContent = currentUser.role === 'admin' ? '👑 Admin' : '📖 Guru';
+  buildNav(); showPage(currentUser.role === 'admin' ? 'dashboard' : 'inputmassal');
 }
 function buildNav() {
-  const navs={
+  const navs = {
     admin:[{id:'dashboard',l:'🏆 Ranking Jilid'},{id:'siswa',l:'👦 Data Siswa'},{id:'laporan',l:'📋 Laporan Histori'}],
     guru:[{id:'inputmassal',l:'✏️ Input Setoran Kelas'}]
   };
-  document.getElementById('nav-tabs').innerHTML=(navs[currentUser.role]||[])
+  document.getElementById('nav-tabs').innerHTML = (navs[currentUser.role] || [])
     .map(t=>`<button class="nav-tab" onclick="showPage('${t.id}')" id="tab-${t.id}">${t.l}</button>`).join('');
 }
 function showPage(id) {
@@ -456,10 +485,10 @@ function showPage(id) {
   if(renders[id]) renders[id]();
 }
 
+/* ENGINE AKUN INTERNAL (ADMIN & GURU) */
 function renderDash() {
-  const fk=document.getElementById('df-kelas')?.value||'';
-  let list = [...db.siswa];
-  if(fk) list = list.filter(s=>s.kelas===fk);
+  const fk=document.getElementById('df-kelas').value;
+  let list = fk ? db.siswa.filter(s=>s.kelas===fk) : [...db.siswa];
   list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni] || 0) - (JILID_WEIGHT[a.jilidSaatIni] || 0));
 
   document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
@@ -467,16 +496,13 @@ function renderDash() {
     return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${JILID_ICON[s.jilidSaatIni]} ${JILID_LABEL[s.jilidSaatIni]} (Hal ${s.halTerakhir})</td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td></tr>`;
   }).join('') : `<tr><td colspan="5"><div class="empty-state">Tidak ada data</div></td></tr>`;
 }
-
 function renderSiswaTbl() {
-  const fk=document.getElementById('sf-kelas')?.value||'';
-  let list=fk?db.siswa.filter(s=>s.kelas===fk):db.siswa;
-  document.getElementById('siswa-tbl').innerHTML=list.length?list.map(s=>{
-    const st=db.setoran.filter(x=>x.siswaId===s.id);
-    return `<tr><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${JILID_ICON[s.jilidSaatIni]} <strong>${JILID_LABEL[s.jilidSaatIni]}</strong></td><td>Hal ${s.halTerakhir}</td><td><button class="copy-btn" onclick="copyLink('${s.id}')">📋 Copy Link Ortu</button></td></tr>`;
-  }).join(''):`<tr><td colspan="5"><div class="empty-state">Tidak ada siswa</div></td></tr>`;
+  const fk=document.getElementById('sf-kelas').value;
+  let list = fk ? db.siswa.filter(s=>s.kelas===fk) : db.siswa;
+  document.getElementById('siswa-tbl').innerHTML = list.length ? list.map(s=>{
+    return `<tr><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${JILID_ICON[s.jilidSaatIni]} <strong>${JILID_LABEL[s.jilidSaatIni]}</strong></td><td>Hal ${s.halTerakhir}</td></tr>`;
+  }).join('') : `<tr><td colspan="4">Tidak ada data</td></tr>`;
 }
-
 function tambahSiswa() {
   const nama=document.getElementById('sn').value.trim();
   const kelas=document.getElementById('sk').value;
@@ -487,81 +513,49 @@ function tambahSiswa() {
   db.siswa.push(rawData);
   document.getElementById('loading-overlay').style.display = 'flex';
   fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "single", table: "Siswa", data: rawData }) })
-    .then(()=>{ alert("Siswa Berhasil Ditambahkan!"); document.getElementById('sn').value=''; muatDataDariCloud(); });
+    .then(()=>{ alert("Siswa Baru Berhasil Terdaftar!"); document.getElementById('sn').value=''; muatDataDariCloud(); });
 }
-
-function copyLink(siswaId) {
-  const url = location.origin + location.pathname + '?siswa=' + siswaId;
-  navigator.clipboard.writeText(url).then(()=>alert('✅ Link disalin! Tempel di WhatsApp Wali Murid:\n\n' + url));
-}
-
 function renderLaporan() {
-  const fk=document.getElementById('lf-kelas')?.value||'';
+  const fk=document.getElementById('lf-kelas').value;
   let list=[...db.setoran].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
   if(fk) list=list.filter(s=>db.siswa.find(x=>x.id===s.siswaId)?.kelas===fk);
 
   document.getElementById('lap-tbl').innerHTML=list.length?list.map(s=>{
     const siswa=db.siswa.find(x=>x.id===s.siswaId);
     return `<tr><td>${s.tanggal}</td><td><strong>${siswa?.nama||'—'}</strong></td><td>${siswa?.kelas||'—'}</td><td>${JILID_LABEL[s.jilid]}</td><td>${s.halaman}</td><td>${s.nilai}</td><td><span class="badge">${s.status==='lancar'?'✅ Lancar':'🔄 Ulang'}</span></td><td>${s.catatan||''}</td></tr>`;
-  }).join(''):`<tr><td colspan="8"><div class="empty-state">Tidak ada histori</div></td></tr>`;
+  }).join(''):`<tr><td colspan="8">Tidak ada data riwayat laporan</td></tr>`;
 }
-
-// ==================== ENGINE REVISI: FITUR INPUT MASSAL 1 KELAS ====================
 function initInputMassal() {
   document.getElementById('im-tgl').value = new Date().toISOString().slice(0,10);
   document.getElementById('im-kelas').value = "";
-  document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas terlebih dahulu untuk memunculkan daftar siswa.</td></tr>`;
+  document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas terlebih dahulu.</td></tr>`;
   document.getElementById('massal-action-box').style.display = 'none';
 }
-
 function loadSiswaMassal() {
   const kelasDipilih = document.getElementById('im-kelas').value;
   if(!kelasDipilih) { initInputMassal(); return; }
-
   let siswaKelas = db.siswa.filter(s => s.kelas === kelasDipilih).sort((a,b)=>a.nama.localeCompare(b.nama));
-  
   if(siswaKelas.length === 0) {
-    document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--red)">Tidak ada siswa terdaftar di ${kelasDipilih}</td></tr>`;
-    document.getElementById('massal-action-box').style.display = 'none';
-    return;
+    document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--red)">Tidak ada siswa di ${kelasDipilih}</td></tr>`;
+    document.getElementById('massal-action-box').style.display = 'none'; return;
   }
-
-  let html = siswaKelas.map(s => {
-    return `<tr class="massal-row" data-siswaid="${s.id}">
+  document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => `
+    <tr class="massal-row" data-siswaid="${s.id}">
       <td><strong>${s.nama}</strong></td>
-      <td>
-        <select class="in-select row-jilid">
-          <option value="jilid1" ${s.jilidSaatIni==='jilid1'?'selected':''}>Jilid 1</option>
-          <option value="jilid2" ${s.jilidSaatIni==='jilid2'?'selected':''}>Jilid 2</option>
-          <option value="jilid3" ${s.jilidSaatIni==='jilid3'?'selected':''}>Jilid 3</option>
-          <option value="jilid4" ${s.jilidSaatIni==='jilid4'?'selected':''}>Jilid 4</option>
-          <option value="jilid5" ${s.jilidSaatIni==='jilid5'?'selected':''}>Jilid 5</option>
-          <option value="jilid6" ${s.jilidSaatIni==='jilid6'?'selected':''}>Jilid 6</option>
-          <option value="alquran" ${s.jilidSaatIni==='alquran'?'selected':''}>Al-Qur'an</option>
-        </select>
-      </td>
-      <td><input type="text" class="in-input row-hal" value="${s.halTerakhir}" placeholder="Cth: 12"></td>
-      <td><input type="number" class="in-input row-nilai" value="85" min="0" max="100"></td>
-      <td>
-        <select class="in-select row-status">
-          <option value="lancar">✅ Lancar</option>
-          <option value="perlu_ulang">🔄 Ulang</option>
-          <option value="tidak_hadir">❌ Absen</option>
-        </select>
-      </td>
-      <td><input type="text" class="in-input row-catatan" placeholder="Opsional (Catatan guru)"></td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('massal-tbl').innerHTML = html;
+      <td><select class="in-select row-jilid">
+          <option value="jilid1" ${s.jilidSaatIni==='jilid1'?'selected':''}>Jilid 1</option><option value="jilid2" ${s.jilidSaatIni==='jilid2'?'selected':''}>Jilid 2</option><option value="jilid3" ${s.jilidSaatIni==='jilid3'?'selected':''}>Jilid 3</option><option value="jilid4" ${s.jilidSaatIni==='jilid4'?'selected':''}>Jilid 4</option><option value="jilid5" ${s.jilidSaatIni==='jilid5'?'selected':''}>Jilid 5</option><option value="jilid6" ${s.jilidSaatIni==='jilid6'?'selected':''}>Jilid 6</option><option value="alquran" ${s.jilidSaatIni==='alquran'?'selected':''}>Al-Qur'an</option>
+      </select></td>
+      <td><input type="text" class="in-input row-hal" value="${s.halTerakhir}"></td>
+      <td><input type="number" class="in-input row-nilai" value="85"></td>
+      <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
+      <td><input type="text" class="in-input row-catatan" placeholder="Tambahkan catatan"></td>
+    </tr>`).join('');
   document.getElementById('massal-action-box').style.display = 'block';
 }
-
 function simpanSetoranMassal() {
   const tanggal = document.getElementById('im-tgl').value;
   const rows = document.querySelectorAll('.massal-row');
   let dataSetoranBaru = [];
-
   rows.forEach(row => {
     const siswaId = row.getAttribute('data-siswaid');
     const jilid = row.querySelector('.row-jilid').value;
@@ -569,36 +563,14 @@ function simpanSetoranMassal() {
     const nilai = row.querySelector('.row-nilai').value;
     const status = row.querySelector('.row-status').value;
     const catatan = row.querySelector('.row-catatan').value.trim();
-
-    // Jika siswa absen mengaji, kita tidak perlu membuat log performa berat/skip opsional sesuai kebutuhan Anda
     if (halaman !== "") {
-      dataSetoranBaru.push({
-        id: 'st' + Date.now() + Math.floor(Math.random()*1000),
-        siswaId: siswaId,
-        guruId: currentUser.id,
-        tanggal: tanggal,
-        jilid: jilid,
-        halaman: halaman,
-        nilai: nilai,
-        status: status,
-        catatan: catatan
-      });
+      dataSetoranBaru.push({ id:'st'+Date.now()+Math.floor(Math.random()*1000), siswaId, guruId:currentUser.id, tanggal, jilid, halaman, nilai, status, catatan });
     }
   });
-
-  if (dataSetoranBaru.length === 0) {
-    alert("Tidak ada data halaman mengaji yang diisi.");
-    return;
-  }
-
-  // Kirim bungkusan besar paket data massal ke Google Sheets agar performa ringan (Optimasi)
-  const payload = {
-    type: "massal",
-    table: "Setoran",
-    data: dataSetoranBaru
-  };
-
-  simpanMassalKeCloud(payload);
+  if (dataSetoranBaru.length === 0) return;
+  document.getElementById('loading-overlay').style.display = 'flex';
+  fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "massal", table: "Setoran", data: dataSetoranBaru }) })
+    .then(async ()=>{ await new Promise(r=>setTimeout(r,1500)); await muatDataDariCloud(); alert("✅ Sukses Menyimpan Semua Data Setoran Kelas!"); });
 }
 
 window.onload = () => { muatDataDariCloud(); };
