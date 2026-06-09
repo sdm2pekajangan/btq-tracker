@@ -298,11 +298,18 @@ async function muatDataDariCloud() {
     db.setoran = data.setoran || [];
     db.users = data.users || [];
     
-    if(checkPublicRoute()) return;
-    if(currentUser) initApp();
+    // LOGIKA BARU: Cek dulu apakah ini link Wali Murid. Jika ya, langsung buka tanpa syarat login!
+    if(checkPublicRoute()) {
+      return; 
+    }
+    
+    // Jika bukan wali murid dan sudah ada session user login, buka dashboard internal
+    if(currentUser) {
+      initApp();
+    }
   } catch (e) { console.error("Gagal sinkronisasi data cloud: ", e); }
 }
-
+  
 async function simpanMassalKeCloud(payload) {
   document.getElementById('loading-overlay').style.display = 'flex';
   try {
@@ -328,7 +335,14 @@ function hitungPersen(jilidKey) {
 function checkPublicRoute() {
   const params = new URLSearchParams(location.search);
   const sid = params.get('siswa');
-  if (sid) { showPublicPage(sid); return true; }
+  if (sid) { 
+    // Sembunyikan halaman login dan dashboard internal secara paksa
+    document.getElementById('login-screen').style.style.display = 'none';
+    document.getElementById('app').style.display = 'none';
+    
+    showPublicPage(sid); 
+    return true; 
+  }
   return false;
 }
 
