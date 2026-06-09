@@ -291,6 +291,14 @@ let currentUser = null; let selectedRole = 'admin';
 
 async function muatDataDariCloud() {
   if(!SCRIPT_URL || SCRIPT_URL.includes("URL_WEB_APP")) return;
+  
+  // LOGIKA BARU: Cek di detik pertama, jika ini link wali murid, langsung sembunyikan kotak login secara instan!
+  const params = new URLSearchParams(location.search);
+  if (params.get('siswa')) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('loading-overlay').style.display = 'flex'; // Tampilkan loading sinkronisasi
+  }
+
   try {
     let res = await fetch(SCRIPT_URL + "?action=read");
     let data = await res.json();
@@ -298,16 +306,20 @@ async function muatDataDariCloud() {
     db.setoran = data.setoran || [];
     db.users = data.users || [];
     
-    // LOGIKA BARU: Cek dulu apakah ini link Wali Murid. Jika ya, langsung buka tanpa syarat login!
+    document.getElementById('loading-overlay').style.display = 'none'; // Matikan loading jika sudah selesai
+    
+    // Jalankan pengecekan rute wali murid SETELAH data siswa dari Google Sheets sukses terdownload
     if(checkPublicRoute()) {
       return; 
     }
     
-    // Jika bukan wali murid dan sudah ada session user login, buka dashboard internal
     if(currentUser) {
       initApp();
     }
-  } catch (e) { console.error("Gagal sinkronisasi data cloud: ", e); }
+  } catch (e) { 
+    console.error("Gagal sinkronisasi data cloud: ", e); 
+    document.getElementById('loading-overlay').style.display = 'none';
+  }
 }
   
 async function simpanMassalKeCloud(payload) {
@@ -336,9 +348,10 @@ function checkPublicRoute() {
   const params = new URLSearchParams(location.search);
   const sid = params.get('siswa');
   if (sid) { 
-    // Sembunyikan halaman login dan dashboard internal secara paksa
-    document.getElementById('login-screen').style.style.display = 'none';
+    // Memastikan perbaikan penulisan display agar tidak eror (menghilangkan dobel style)
+    document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'none';
+    document.getElementById('public-screen').style.display = 'block';
     
     showPublicPage(sid); 
     return true; 
