@@ -158,7 +158,7 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
     <div id="ortu-view-leaderboard">
       <div class="card">
         <div class="card-header">
-          <span class="card-title">🏆 Urutan Kelulusan Jilid Siswa</span>
+          <span class="card-title">🏆 Progress BTQ Siswa</span>
           <select class="filter" onchange="renderOrtuLeaderboard()" id="of-kelas">
             <option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option>
             <option value="Kelas 3">Kelas 3</option><option value="Kelas 4">Kelas 4</option>
@@ -167,7 +167,7 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Rank</th><th>Nama Siswa</th><th>Posisi Mengaji</th><th>Progress Kelulusan</th></tr></thead>
+            <thead><tr><th>Rank</th><th>Nama Siswa</th><th>Posisi Mengaji</th><th>Progress BTQ</th></tr></thead>
             <tbody id="ortu-leaderboard-tbl"></tbody>
           </table>
         </div>
@@ -382,15 +382,29 @@ function backToOrtuLeaderboard() {
 }
 function renderOrtuLeaderboard() {
   const kelasDipilih = document.getElementById('of-kelas').value;
+  // Memastikan filter kelas berjalan aman
   let list = db.siswa.filter(s => s.kelas === kelasDipilih);
-  list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni] || 0) - (JILID_WEIGHT[a.jilidSaatIni] || 0));
+  
+  // Urutkan berdasarkan bobot jilid tertinggi
+  list.sort((a,b) => {
+    let jilidA = a.jilidSaatIni || a.jilid || 'jilid1';
+    let jilidB = b.jilidSaatIni || b.jilid || 'jilid1';
+    return (JILID_WEIGHT[jilidB] || 0) - (JILID_WEIGHT[jilidA] || 0);
+  });
 
   document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
-    let persen = hitungPersen(s.jilidSaatIni);
+    // Ambil jilid & hal secara aman, antisipasi jika nama kolom di sheets berbeda
+    let jilidAktif = s.jilidSaatIni || s.jilid || 'jilid1';
+    let halAktif = s.halTerakhir || s.halaman || '1';
+    
+    let persen = hitungPersen(jilidAktif);
+    let labelJilid = JILID_LABEL[jilidAktif] || 'Jilid 1';
+    let iconJilid = JILID_ICON[jilidAktif] || '📗';
+
     return `<tr class="clickable-row" onclick="lihatDetailAnakOrtu('${s.id}')">
       <td><strong>#${idx + 1}</strong></td>
       <td><strong>${s.nama}</strong></td>
-      <td>${JILID_ICON[s.jilidSaatIni]} ${JILID_LABEL[s.jilidSaatIni]} (Hal ${s.halTerakhir})</td>
+      <td>${iconJilid} ${labelJilid} (Hal ${halAktif})</td>
       <td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td>
     </tr>`;
   }).join('') : `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--muted)">Belum ada data siswa di kelas ini.</td></tr>`;
@@ -398,16 +412,26 @@ function renderOrtuLeaderboard() {
 
 function lihatDetailAnakOrtu(siswaId) {
   const siswa = db.siswa.find(s => s.id === siswaId);
-  if (!siswa) return;
+  if (!siswa) {
+    alert("Data siswa tidak ditemukan.");
+    return;
+  }
 
   document.getElementById('ortu-view-leaderboard').style.display = 'none';
   document.getElementById('ortu-view-detail').style.display = 'block';
 
+  // Ambil jilid & hal secara aman
+  let jilidAktif = siswa.jilidSaatIni || siswa.jilid || 'jilid1';
+  let halAktif = siswa.halTerakhir || siswa.halaman || '1';
+
   const setoranSiswa = db.setoran.filter(s => s.siswaId === siswa.id).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
   const jilidKeys = ['jilid1','jilid2','jilid3','jilid4','jilid5','jilid6','alquran'];
-  const currentIdx = jilidKeys.indexOf(siswa.jilidSaatIni);
+  
+  // Ambil posisi index, jika tidak ditemukan paksa ke jilid1 (index 0) agar tidak eror minus
+  let currentIdx = jilidKeys.indexOf(jilidAktif);
+  if (currentIdx === -1) currentIdx = 0; 
 
-  const jilidCards = jilidKeys.map((jk,i) => {
+  const jilidCards = jilidKeys.map((jk, i) => {
     let cls = '', status = '';
     if (i < currentIdx) { cls = 'selesai'; status = '✅ Selesai'; }
     else if (i === currentIdx) { cls = 'aktif'; status = '📍 Sedang'; }
@@ -415,31 +439,32 @@ function lihatDetailAnakOrtu(siswaId) {
     return `<div class="jilid-card ${cls}">
       <div class="jilid-icon">${JILID_ICON[jk]}</div>
       <div class="jilid-name">${JILID_LABEL[jk]}</div>
-      ${i === currentIdx ? `<div class="jilid-hal">Hal: <strong>${siswa.halTerakhir}</strong></div>` : ''}
+      ${i === currentIdx ? `<div class="jilid-hal">Hal: <strong>${halAktif}</strong></div>` : ''}
       <div class="jilid-status">${status}</div>
     </div>`;
   }).join('');
 
   const setoranHTML = setoranSiswa.length ? setoranSiswa.map(s => {
+    let jld = s.jilid || 'jilid1';
     return `<div class="setoran-item">
       <div class="setoran-date">${s.tanggal}</div>
       <div class="setoran-content">
-        <div class="setoran-surat">${JILID_LABEL[s.jilid]} · Hal ${s.halaman} &nbsp; <span style="font-size:11px; font-weight:normal; color:var(--muted)">(${s.status==='lancar'?'Lancar':'Mengulang'})</span></div>
+        <div class="setoran-surat">${JILID_LABEL[jld] || 'Jilid'} · Hal ${s.halaman || '1'}   <span style="font-size:11px; font-weight:normal; color:var(--muted)">(${s.status==='lancar'?'Lancar':'Mengulang'})</span></div>
         ${s.catatan?`<div class="setoran-catatan">💬 Evaluasi Guru: ${s.catatan}</div>`:''}
       </div>
     </div>`;
-  }).join('') : '<div class="card-body" style="color:var(--muted); text-align:center;">Belum ada catatan mengaji harian</div>';
+  }).join('') : '<div style="color:var(--muted); text-align:center; padding: 20px 0;">Belum ada riwayat setoran hafalan harian untuk siswa ini.</div>';
 
   document.getElementById('detail-anak-box').innerHTML = `
     <div class="siswa-hero">
-      <div class="siswa-avatar">${siswa.nama[0]}</div>
-      <div class="siswa-info"><h3>${siswa.nama}</h3><p>Kelas ${siswa.kelas} · Total ${setoranSiswa.length} Presensi Mengaji</p></div>
+      <div class="siswa-avatar">${siswa.nama ? siswa.nama[0] : 'S'}</div>
+      <div class="siswa-info"><h3>${siswa.nama || 'Tanpa Nama'}</h3><p>Kelas ${siswa.kelas || '—'} · Total ${setoranSiswa.length} Presensi Mengaji</p></div>
     </div>
     <div class="card"><div class="card-header"><span class="card-title">Grafik Kelulusan Jilid</span></div>
       <div class="card-body">
         <div class="pbar" style="margin-bottom:20px;">
-          <div class="ptrack" style="max-width:100%; height:12px;"><div class="pfill" style="width:${hitungPersen(siswa.jilidSaatIni)}%"></div></div>
-          <span class="badge bg">${hitungPersen(siswa.jilidSaatIni)}%</span>
+          <div class="ptrack" style="max-width:100%; height:12px;"><div class="pfill" style="width:${hitungPersen(jilidAktif)}%"></div></div>
+          <span class="badge bg">${hitungPersen(jilidAktif)}%</span>
         </div>
         <div class="jilid-grid">${jilidCards}</div>
       </div>
