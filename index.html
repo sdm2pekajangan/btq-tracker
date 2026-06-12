@@ -411,9 +411,14 @@ function renderOrtuLeaderboard() {
 }
 
 function lihatDetailAnakOrtu(siswaId) {
-  const siswa = db.siswa.find(s => s.id === siswaId);
+  // PENCARIAN SUPER KEBAL: Mengantisipasi segala jenis format ID dan nama kolom di Sheets
+  const siswa = db.siswa.find(s => {
+    let idDariSheets = s.id || s.ID || s.Id || '';
+    return String(idDariSheets).trim() === String(siswaId).trim();
+  });
+
   if (!siswa) {
-    alert("Data siswa tidak ditemukan.");
+    alert("Sistem sedang mencocokkan data... Silakan coba klik sekali lagi atau refresh halaman.");
     return;
   }
 
