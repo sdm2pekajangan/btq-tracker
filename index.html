@@ -590,22 +590,65 @@ function initInputMassal() {
 function loadSiswaMassal() {
   const kelasDipilih = document.getElementById('im-kelas').value;
   if(!kelasDipilih) { initInputMassal(); return; }
+  
   let siswaKelas = db.siswa.filter(s => s.kelas === kelasDipilih).sort((a,b)=>a.nama.localeCompare(b.nama));
+  
   if(siswaKelas.length === 0) {
     document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--red)">Tidak ada siswa di ${kelasDipilih}</td></tr>`;
     document.getElementById('massal-action-box').style.display = 'none'; return;
   }
-  document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => `
+  
+  document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => {
+    // CARI RECORD SETORAN TERAKHIR ANAK INI
+    const historiAnak = db.setoran.filter(x => x.siswaId === s.id);
+    // Urutkan berdasarkan tanggal terbaru untuk mendapat setoran terakhir
+    historiAnak.sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+    const lastRecord = historiAnak[0] || null;
+
+    // Tentukan nilai default berdasarkan setoran terakhir, jika belum pernah setoran gunakan nilai awal
+    let defJilid = lastRecord ? lastRecord.jilid : (s.jilidSaatIni || s.jilid || 'jilid1');
+    let defHal = lastRecord ? lastRecord.halaman : (s.halTerakhir || s.halaman || '1');
+    let defNilai = lastRecord ? (lastRecord.nilai || '85') : '85';
+    let defStatus = lastRecord ? lastRecord.status : 'lancar';
+    
+    // Siapkan teks intip kecil untuk mempermudah ingatan guru di bawah nama anak
+    let infoKemarin = "";
+    if (lastRecord) {
+      let tglRapi = formatTanggalIndonesia(lastRecord.tanggal);
+      let statusTeks = lastRecord.status === 'lancar' ? '✅ Lancar' : (lastRecord.status === 'perlu_ulang' ? '🔄 Ulang' : '❌ Absen');
+      infoKemarin = `<div style="font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: normal;">
+        ⏮️ Terakhir (${tglRapi}): ${JILID_LABEL[defJilid] || 'Jilid'} · Hal ${defHal} (${statusTeks})
+      </div>`;
+    } else {
+      infoKemarin = `<div style="font-size: 11px; color: var(--gold); margin-top: 4px; font-weight: normal;">✨ Santri Baru (Belum ada setoran)</div>`;
+    }
+
+    return `
     <tr class="massal-row" data-siswaid="${s.id}">
-      <td><strong>${s.nama}</strong></td>
+      <td>
+        <strong>${s.nama}</strong>
+        ${infoKemarin}
+      </td>
       <td><select class="in-select row-jilid">
-          <option value="jilid1" ${s.jilidSaatIni==='jilid1'?'selected':''}>Jilid 1</option><option value="jilid2" ${s.jilidSaatIni==='jilid2'?'selected':''}>Jilid 2</option><option value="jilid3" ${s.jilidSaatIni==='jilid3'?'selected':''}>Jilid 3</option><option value="jilid4" ${s.jilidSaatIni==='jilid4'?'selected':''}>Jilid 4</option><option value="jilid5" ${s.jilidSaatIni==='jilid5'?'selected':''}>Jilid 5</option><option value="jilid6" ${s.jilidSaatIni==='jilid6'?'selected':''}>Jilid 6</option><option value="alquran" ${s.jilidSaatIni==='alquran'?'selected':''}>Al-Qur'an</option>
+          <option value="jilid1" ${defJilid==='jilid1'?'selected':''}>Jilid 1</option>
+          <option value="jilid2" ${defJilid==='jilid2'?'selected':''}>Jilid 2</option>
+          <option value="jilid3" ${defJilid==='jilid3'?'selected':''}>Jilid 3</option>
+          <option value="jilid4" ${defJilid==='jilid4'?'selected':''}>Jilid 4</option>
+          <option value="jilid5" ${defJilid==='jilid5'?'selected':''}>Jilid 5</option>
+          <option value="jilid6" ${defJid==='jilid6'?'selected':''}>Jilid 6</option>
+          <option value="alquran" ${defJilid==='alquran'?'selected':''}>Al-Qur'an</option>
       </select></td>
-      <td><input type="text" class="in-input row-hal" value="${s.halTerakhir}"></td>
-      <td><input type="number" class="in-input row-nilai" value="85"></td>
-      <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
-      <td><input type="text" class="in-input row-catatan" placeholder="Tambahkan catatan"></td>
-    </tr>`).join('');
+      <td><input type="text" class="in-input row-hal" value="${defHal}"></td>
+      <td><input type="number" class="in-input row-nilai" value="${defNilai}"></td>
+      <td><select class="in-select row-status">
+          <option value="lancar" ${defStatus==='lancar'?'selected':''}>✅ Lancar</option>
+          <option value="perlu_ulang" ${defStatus==='perlu_ulang'?'selected':''}>🔄 Ulang</option>
+          <option value="tidak_hadir" ${defStatus==='tidak_hadir'?'selected':''}>❌ Absen</option>
+      </select></td>
+      <td><input type="text" class="in-input row-catatan" placeholder="Tambahkan catatan baru"></td>
+    </tr>`;
+  }).join('');
+  
   document.getElementById('massal-action-box').style.display = 'block';
 }
 function simpanSetoranMassal() {
