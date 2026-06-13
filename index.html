@@ -326,7 +326,27 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
 <script>
 // ==================== PASTE URL APPS SCRIPT ANDA DI SINI ====================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwd_wzJvsPwyP8_Ex6rnwUtXj4MN1dGKpPO07kziYTPR0o5_VlxWXEsx3h0L4LyBbgK4Q/exec"; 
-
+// Fungsi pintar untuk mengubah tanggal cloud/UTC menjadi format tanggal Indonesia (WIB) yang rapi
+function formatTanggalIndonesia(tanggalMentah) {
+  if (!tanggalMentah) return '—';
+  try {
+    // Membuat objek tanggal baru secara aman
+    const d = new Date(tanggalMentah);
+    
+    // Jika tanggal tidak valid, kembalikan teks aslinya saja
+    if (isNaN(d.getTime())) return tanggalMentah;
+    
+    // Paksa konversi ke zona waktu Indonesia (Asia/Jakarta) dengan format DD-MM-YYYY
+    return d.toLocaleDateString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  } catch (e) {
+    return tanggalMentah;
+  }
+}
 const JILID_LABEL = { jilid1:'Jilid 1', jilid2:'Jilid 2', jilid3:'Jilid 3', jilid4:'Jilid 4', jilid5:'Jilid 5', jilid6:'Jilid 6', alquran:"Al-Qur'an" };
 const JILID_ICON = { jilid1:'📗', jilid2:'📘', jilid3:'📙', jilid4:'📕', jilid5:'📓', jilid6:'📔', alquran:'📖' };
 const JILID_WEIGHT = { jilid1:1, jilid2:2, jilid3:3, jilid4:4, jilid5:5, jilid6:6, alquran:7 };
@@ -451,8 +471,11 @@ function lihatDetailAnakOrtu(siswaId) {
 
   const setoranHTML = setoranSiswa.length ? setoranSiswa.map(s => {
     let jld = s.jilid || 'jilid1';
+   // Gunakan fungsi konversi agar terkunci ke zona waktu WIB/Indonesia
+    let tanggalRapi = formatTanggalIndonesia(s.tanggal);
+    
     return `<div class="setoran-item">
-      <div class="setoran-date">${s.tanggal}</div>
+      <div class="setoran-date" style="min-width:85px; text-align:left;">${tanggalRapi}</div>
       <div class="setoran-content">
         <div class="setoran-surat">${JILID_LABEL[jld] || 'Jilid'} · Hal ${s.halaman || '1'}   <span style="font-size:11px; font-weight:normal; color:var(--muted)">(${s.status==='lancar'?'Lancar':'Mengulang'})</span></div>
         ${s.catatan?`<div class="setoran-catatan">💬 Evaluasi Guru: ${s.catatan}</div>`:''}
@@ -552,7 +575,10 @@ function renderLaporan() {
 
   document.getElementById('lap-tbl').innerHTML=list.length?list.map(s=>{
     const siswa=db.siswa.find(x=>x.id===s.siswaId);
-    return `<tr><td>${s.tanggal}</td><td><strong>${siswa?.nama||'—'}</strong></td><td>${siswa?.kelas||'—'}</td><td>${JILID_LABEL[s.jilid]}</td><td>${s.halaman}</td><td>${s.nilai}</td><td><span class="badge">${s.status==='lancar'?'✅ Lancar':'🔄 Ulang'}</span></td><td>${s.catatan||''}</td></tr>`;
+    // Gunakan fungsi konversi di sini juga
+    let tanggalRapi = formatTanggalIndonesia(s.tanggal);
+    
+    return `<tr><td>${tanggalRapi}</td><td><strong>${siswa?.nama||'—'}</strong></td><td>${siswa?.kelas||'—'}</td><td>${JILID_LABEL[s.jilid]}</td><td>${s.halaman}</td><td>${s.nilai}</td><td><span class="badge">${s.status==='lancar'?'✅ Lancar':'🔄 Ulang'}</span></td><td>${s.catatan||''}</td></tr>`;
   }).join(''):`<tr><td colspan="8">Tidak ada data riwayat laporan</td></tr>`;
 }
 function initInputMassal() {
