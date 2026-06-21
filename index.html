@@ -111,6 +111,7 @@ tr.clickable-row:hover td{background:var(--emp)}
 select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;outline:none}
 .in-input{padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;width:100%}
 .in-select{padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;background:#fff}
+.riwayat-terakhir{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
 #loading-overlay {
   display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center;
@@ -350,6 +351,8 @@ function formatTanggalIndonesia(tanggalMentah) {
 const JILID_LABEL = { jilid1:'Jilid 1', jilid2:'Jilid 2', jilid3:'Jilid 3', jilid4:'Jilid 4', jilid5:'Jilid 5', jilid6:'Jilid 6', alquran:"Al-Qur'an" };
 const JILID_ICON = { jilid1:'📗', jilid2:'📘', jilid3:'📙', jilid4:'📕', jilid5:'📓', jilid6:'📔', alquran:'📖' };
 const JILID_WEIGHT = { jilid1:1, jilid2:2, jilid3:3, jilid4:4, jilid5:5, jilid6:6, alquran:7 };
+const STATUS_LABEL = { lancar:'✅ Lancar', perlu_ulang:'🔄 Mengulang', tidak_hadir:'❌ Tidak Hadir' };
+const STATUS_COLOR = { lancar:'var(--em)', perlu_ulang:'var(--red)', tidak_hadir:'var(--muted)' };
 
 let db = { users:[], siswa: [], setoran: [] };
 let currentUser = null; let activeLoginRole = 'admin';
@@ -371,6 +374,26 @@ async function muatDataDariCloud() {
 
 function hitungPersen(jilidKey) {
   return Math.round(((JILID_WEIGHT[jilidKey] || 0) / 7) * 100);
+}
+
+// Mengambil setoran paling baru milik seorang siswa (atau null jika belum pernah setoran)
+function getSetoranTerakhir(siswaId) {
+  const list = db.setoran.filter(s => s.siswaId === siswaId).sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+  return list.length ? list[0] : null;
+}
+
+// Membentuk teks/HTML keterangan pertemuan terakhir, dipakai di tabel Input Setoran Massal
+function infoPertemuanTerakhirHTML(siswaId) {
+  const last = getSetoranTerakhir(siswaId);
+  if (!last) return `Belum ada riwayat setoran sebelumnya.`;
+
+  const tgl = formatTanggalIndonesia(last.tanggal);
+  const labelJilid = JILID_LABEL[last.jilid] || last.jilid;
+  const statusTxt = STATUS_LABEL[last.status] || last.status;
+  const statusWarna = STATUS_COLOR[last.status] || 'var(--muted)';
+  const catatanTxt = last.catatan ? ` · "${last.catatan}"` : '';
+
+  return `Terakhir (${tgl}): ${labelJilid} Hal ${last.halaman} · <span style="color:${statusWarna};font-weight:700">${statusTxt}</span>${catatanTxt}`;
 }
 
 /* FUNGSI ROUTING UTAMA HALAMAN DEPAN */
@@ -597,7 +620,10 @@ function loadSiswaMassal() {
   }
   document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => `
     <tr class="massal-row" data-siswaid="${s.id}">
-      <td><strong>${s.nama}</strong></td>
+      <td>
+        <strong>${s.nama}</strong>
+        <div class="riwayat-terakhir">${infoPertemuanTerakhirHTML(s.id)}</div>
+      </td>
       <td><select class="in-select row-jilid">
           <option value="jilid1" ${s.jilidSaatIni==='jilid1'?'selected':''}>Jilid 1</option><option value="jilid2" ${s.jilidSaatIni==='jilid2'?'selected':''}>Jilid 2</option><option value="jilid3" ${s.jilidSaatIni==='jilid3'?'selected':''}>Jilid 3</option><option value="jilid4" ${s.jilidSaatIni==='jilid4'?'selected':''}>Jilid 4</option><option value="jilid5" ${s.jilidSaatIni==='jilid5'?'selected':''}>Jilid 5</option><option value="jilid6" ${s.jilidSaatIni==='jilid6'?'selected':''}>Jilid 6</option><option value="alquran" ${s.jilidSaatIni==='alquran'?'selected':''}>Al-Qur'an</option>
       </select></td>
