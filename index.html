@@ -137,7 +137,7 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
       </button>
       <button class="gate-btn" onclick="showLoginScreen('guru')">
         <span class="gate-btn-icon">📖</span>
-        <div class="gate-btn-text"><h3>Login Guru / Ustadz</h3><p>Input setoran harian massal se-kelas</p></div>
+        <div class="gate-btn-text"><h3>Login Guru / Ustadz</h3><p>Input setoran harian per nama siswa</p></div>
       </button>
       <button class="gate-btn" onclick="showLoginScreen('admin')">
         <span class="gate-btn-icon">👑</span>
@@ -281,13 +281,13 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
     </div>
 
     <div class="page" id="page-inputmassal">
-      <div class="page-header"><h2>Input Setoran Harian</h2><p>Pilih kelas dan isi progress mengaji anak sekaligus</p></div>
+      <div class="page-header"><h2>Input Setoran Harian</h2><p>Pilih kelas, lalu pilih nama siswa untuk mengisi setoran satu per satu</p></div>
       <div class="card">
         <div class="card-header">
           <div style="display:flex; align-items:center; gap:14px; width:100%; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:8px">
               <label style="font-size:13px; font-weight:600">Pilih Kelas:</label>
-              <select class="filter" id="im-kelas" onchange="loadSiswaMassal()">
+              <select class="filter" id="im-kelas" onchange="loadSiswaDropdown()">
                 <option value="">-- Pilih --</option>
                 <option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option>
                 <option value="Kelas 3">Kelas 3</option><option value="Kelas 4">Kelas 4</option>
@@ -295,28 +295,19 @@ select.filter{padding:7px 11px;border:1.5px solid var(--border);border-radius:8p
               </select>
             </div>
             <div style="display:flex; align-items:center; gap:8px">
+              <label style="font-size:13px; font-weight:600">Nama Siswa:</label>
+              <select class="filter" id="im-siswa" onchange="tampilkanFormSiswa()">
+                <option value="">-- Pilih Kelas Dulu --</option>
+              </select>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px">
               <label style="font-size:13px; font-weight:600">Tanggal:</label>
-              <input type="date" id="im-tgl" class="filter">
+              <input type="date" id="im-tgl" class="filter" onchange="loadSiswaDropdown()">
             </div>
           </div>
         </div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:25%">Nama Siswa</th>
-                <th style="width:20%">Jilid Aktif</th>
-                <th style="width:12%">Halaman Baru</th>
-                <th style="width:10%">Nilai</th>
-                <th style="width:13%">Status</th>
-                <th style="width:20%">Catatan Guru</th>
-              </tr>
-            </thead>
-            <tbody id="massal-tbl"></tbody>
-          </table>
-        </div>
-        <div class="card-body" id="massal-action-box" style="display:none; text-align:right; border-top:1px solid var(--border)">
-          <button class="btn btn-primary" style="max-width:280px" onclick="simpanSetoranMassal()">🚀 Simpan Setoran Kelas</button>
+        <div class="card-body" id="im-form-area">
+          <div style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas dan nama siswa terlebih dahulu.</div>
         </div>
       </div>
     </div>
@@ -607,52 +598,95 @@ function renderLaporan() {
 function initInputMassal() {
   document.getElementById('im-tgl').value = new Date().toISOString().slice(0,10);
   document.getElementById('im-kelas').value = "";
-  document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas terlebih dahulu.</td></tr>`;
-  document.getElementById('massal-action-box').style.display = 'none';
+  document.getElementById('im-siswa').innerHTML = `<option value="">-- Pilih Kelas Dulu --</option>`;
+  document.getElementById('im-form-area').innerHTML = `<div style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas dan nama siswa terlebih dahulu.</div>`;
 }
-function loadSiswaMassal() {
+
+// Mengisi dropdown nama siswa berdasarkan kelas yang dipilih.
+// Siswa yang sudah disetor hari (tanggal) yang dipilih diberi tanda ✅ agar guru tahu siapa yang belum.
+function loadSiswaDropdown() {
   const kelasDipilih = document.getElementById('im-kelas').value;
-  if(!kelasDipilih) { initInputMassal(); return; }
+  const tglDipilih = document.getElementById('im-tgl').value;
+  const selSiswa = document.getElementById('im-siswa');
+
+  if(!kelasDipilih) {
+    selSiswa.innerHTML = `<option value="">-- Pilih Kelas Dulu --</option>`;
+    document.getElementById('im-form-area').innerHTML = `<div style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih kelas dan nama siswa terlebih dahulu.</div>`;
+    return;
+  }
+
   let siswaKelas = db.siswa.filter(s => s.kelas === kelasDipilih).sort((a,b)=>a.nama.localeCompare(b.nama));
   if(siswaKelas.length === 0) {
-    document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--red)">Tidak ada siswa di ${kelasDipilih}</td></tr>`;
-    document.getElementById('massal-action-box').style.display = 'none'; return;
+    selSiswa.innerHTML = `<option value="">-- Tidak Ada Siswa --</option>`;
+    document.getElementById('im-form-area').innerHTML = `<div style="text-align:center; padding:30px; color:var(--red)">Tidak ada siswa di ${kelasDipilih}</div>`;
+    return;
   }
-  document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => `
-    <tr class="massal-row" data-siswaid="${s.id}">
-      <td>
-        <strong>${s.nama}</strong>
-        <div class="riwayat-terakhir">${infoPertemuanTerakhirHTML(s.id)}</div>
-      </td>
-      <td><select class="in-select row-jilid">
-          <option value="jilid1" ${s.jilidSaatIni==='jilid1'?'selected':''}>Jilid 1</option><option value="jilid2" ${s.jilidSaatIni==='jilid2'?'selected':''}>Jilid 2</option><option value="jilid3" ${s.jilidSaatIni==='jilid3'?'selected':''}>Jilid 3</option><option value="jilid4" ${s.jilidSaatIni==='jilid4'?'selected':''}>Jilid 4</option><option value="jilid5" ${s.jilidSaatIni==='jilid5'?'selected':''}>Jilid 5</option><option value="jilid6" ${s.jilidSaatIni==='jilid6'?'selected':''}>Jilid 6</option><option value="alquran" ${s.jilidSaatIni==='alquran'?'selected':''}>Al-Qur'an</option>
-      </select></td>
-      <td><input type="text" class="in-input row-hal" value="${s.halTerakhir}"></td>
-      <td><input type="number" class="in-input row-nilai" value="85"></td>
-      <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
-      <td><input type="text" class="in-input row-catatan" placeholder="Tambahkan catatan"></td>
-    </tr>`).join('');
-  document.getElementById('massal-action-box').style.display = 'block';
+
+  selSiswa.innerHTML = `<option value="">-- Pilih Siswa --</option>` + siswaKelas.map(s => {
+    const sudahSetorHariIni = db.setoran.some(x => x.siswaId === s.id && x.tanggal === tglDipilih);
+    return `<option value="${s.id}">${sudahSetorHariIni ? '✅ ' : ''}${s.nama}</option>`;
+  }).join('');
+  document.getElementById('im-form-area').innerHTML = `<div style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih nama siswa.</div>`;
 }
-function simpanSetoranMassal() {
+
+// Menampilkan riwayat setoran terakhir + form input untuk 1 siswa terpilih
+function tampilkanFormSiswa() {
+  const siswaId = document.getElementById('im-siswa').value;
+  const area = document.getElementById('im-form-area');
+  if(!siswaId) { area.innerHTML = `<div style="text-align:center; padding:30px; color:var(--muted)">Silakan pilih nama siswa.</div>`; return; }
+
+  const s = db.siswa.find(x => x.id === siswaId);
+  if(!s) return;
+
+  area.innerHTML = `
+    <div style="background:var(--emp); border:1px solid var(--em); border-radius:10px; padding:12px 15px; margin-bottom:18px; font-size:13px; line-height:1.5;">
+      📖 <strong>Setoran Terakhir:</strong> ${infoPertemuanTerakhirHTML(s.id)}
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px;">
+      <div class="form-group"><label>Jilid Aktif</label>
+        <select id="im-f-jilid">
+          <option value="jilid1" ${s.jilidSaatIni==='jilid1'?'selected':''}>Jilid 1</option>
+          <option value="jilid2" ${s.jilidSaatIni==='jilid2'?'selected':''}>Jilid 2</option>
+          <option value="jilid3" ${s.jilidSaatIni==='jilid3'?'selected':''}>Jilid 3</option>
+          <option value="jilid4" ${s.jilidSaatIni==='jilid4'?'selected':''}>Jilid 4</option>
+          <option value="jilid5" ${s.jilidSaatIni==='jilid5'?'selected':''}>Jilid 5</option>
+          <option value="jilid6" ${s.jilidSaatIni==='jilid6'?'selected':''}>Jilid 6</option>
+          <option value="alquran" ${s.jilidSaatIni==='alquran'?'selected':''}>Al-Qur'an</option>
+        </select></div>
+      <div class="form-group"><label>Halaman Baru</label><input type="text" class="in-input" id="im-f-hal" value="${s.halTerakhir}"></div>
+      <div class="form-group"><label>Nilai</label><input type="number" class="in-input" id="im-f-nilai" value="85"></div>
+      <div class="form-group"><label>Status</label>
+        <select id="im-f-status">
+          <option value="lancar">✅ Lancar</option>
+          <option value="perlu_ulang">🔄 Mengulang</option>
+          <option value="tidak_hadir">❌ Tidak Hadir</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label>Catatan Guru</label><input type="text" class="in-input" id="im-f-catatan" placeholder="Tambahkan catatan (opsional)"></div>
+    <button class="btn btn-primary" style="max-width:280px" onclick="simpanSetoranSatuSiswa('${s.id}')">🚀 Simpan Setoran ${s.nama}</button>
+  `;
+}
+
+function simpanSetoranSatuSiswa(siswaId) {
   const tanggal = document.getElementById('im-tgl').value;
-  const rows = document.querySelectorAll('.massal-row');
-  let dataSetoranBaru = [];
-  rows.forEach(row => {
-    const siswaId = row.getAttribute('data-siswaid');
-    const jilid = row.querySelector('.row-jilid').value;
-    const halaman = row.querySelector('.row-hal').value.trim();
-    const nilai = row.querySelector('.row-nilai').value;
-    const status = row.querySelector('.row-status').value;
-    const catatan = row.querySelector('.row-catatan').value.trim();
-    if (halaman !== "") {
-      dataSetoranBaru.push({ id:'st'+Date.now()+Math.floor(Math.random()*1000), siswaId, guruId:currentUser.id, tanggal, jilid, halaman, nilai, status, catatan });
-    }
-  });
-  if (dataSetoranBaru.length === 0) return;
+  const jilid = document.getElementById('im-f-jilid').value;
+  const halaman = document.getElementById('im-f-hal').value.trim();
+  const nilai = document.getElementById('im-f-nilai').value;
+  const status = document.getElementById('im-f-status').value;
+  const catatan = document.getElementById('im-f-catatan').value.trim();
+
+  if(halaman === "") { alert("Halaman wajib diisi."); return; }
+
+  const dataBaru = [{ id:'st'+Date.now()+Math.floor(Math.random()*1000), siswaId, guruId:currentUser.id, tanggal, jilid, halaman, nilai, status, catatan }];
+
   document.getElementById('loading-overlay').style.display = 'flex';
-  fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "massal", table: "Setoran", data: dataSetoranBaru }) })
-    .then(async ()=>{ await new Promise(r=>setTimeout(r,1500)); await muatDataDariCloud(); alert("✅ Sukses Menyimpan Semua Data Setoran Kelas!"); });
+  fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type: "massal", table: "Setoran", data: dataBaru }) })
+    .then(async ()=>{
+      await new Promise(r=>setTimeout(r,1200));
+      await muatDataDariCloud();
+      alert("✅ Setoran berhasil disimpan!");
+      loadSiswaDropdown(); // refresh dropdown (tanda ✅) & kosongkan form untuk siswa berikutnya
+    });
 }
 
 window.onload = () => { muatDataDariCloud(); };
