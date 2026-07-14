@@ -517,12 +517,23 @@ function lihatDetailAnakOrtu(siswaId) {
   const setoranNgaji = db.setoran.filter(s => String(s.siswaId).trim() === String(siswa.id).trim());
   const setoranHafalan = db.hafalan.filter(s => String(s.siswaId).trim() === String(siswa.id).trim());
 
-  // Gabungkan riwayat aktivitas mengaji dan hafalan agar wali murid bisa melihat seluruh histori kronologis
+  // PERBAIKAN: Pastikan progress bar akurat dari catatan terakhir yang 'lancar'
+  const hafalanLancar = setoranHafalan.filter(x => x.status === 'lancar').sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+  if (hafalanLancar.length > 0) {
+      suratAktif = hafalanLancar[0].surat;
+  }
+  const ngajiLancar = setoranNgaji.filter(x => x.status === 'lancar').sort((a,b) => b.tanggal.localeCompare(a.tanggal));
+  if (ngajiLancar.length > 0) {
+      jilidAktif = ngajiLancar[0].jilid;
+  }
+
+  // Gabungkan riwayat aktivitas mengaji dan hafalan
   let gabungHistori = [];
   setoranNgaji.forEach(x => { gabungHistori.push({ tgl: x.tanggal, tipe: 'Ngaji', desc: `${JILID_LABEL[x.jilid]} · Hal ${x.halaman}`, st: x.status, cat: x.catatan }); });
   setoranHafalan.forEach(x => { gabungHistori.push({ tgl: x.tanggal, tipe: 'Hafalan', desc: `Surat ${x.surat} · Ayat ${x.ayat}`, st: x.status, cat: x.catatan }); });
   gabungHistori.sort((a,b) => b.tgl.localeCompare(a.tgl));
 
+  // PERBAIKAN: Ternary sintaks pada s.cat telah diperbaiki agar tidak menghasilkan error
   const setoranHTML = gabungHistori.length ? gabungHistori.map(s => {
     let tglRapi = formatTanggalIndonesia(s.tgl);
     let stBadge = s.st === 'lancar' ? 'bg' : (s.st === 'perlu_ulang' ? 'bgl' : 'brl');
@@ -533,7 +544,7 @@ function lihatDetailAnakOrtu(siswaId) {
       <div class="setoran-date">${tglRapi}</div>
       <div class="setoran-content">
         <div class="setoran-surat"><span class="badge ${tpBadge}">${s.tipe}</span> ${s.desc} &nbsp;&nbsp;<span class="badge ${stBadge}">${stText}</span></div>
-        ${s.cat: `<div class="setoran-catatan">💬 Evaluasi: ${s.cat}</div>`}
+        ${s.cat ? `<div class="setoran-catatan">💬 Evaluasi: ${s.cat}</div>` : ''}
       </div>
     </div>`;
   }).join('') : '<div style="color:var(--text-muted); text-align:center; padding: 20px 0;">Belum ada riwayat aktivitas.</div>';
@@ -743,6 +754,7 @@ function loadSiswaMassal() {
   document.getElementById('massal-action-box').style.display = 'block';
 }
 
+// PERBAIKAN FUNGSI SIMPAN MASSAL (Bug kode terputus, dan initInputMassal yang diubah ke loadSiswaMassal)
 function eksekusiSimpanMassal() {
   const tanggal = document.getElementById('im-tgl').value;
   const rows = document.querySelectorAll('.massal-row');
@@ -763,7 +775,12 @@ function eksekusiSimpanMassal() {
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
     fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ table: "Setoran", data: dataKirim }) })
-      .then(async ()=>{ await new Promise(r=>setTimeout(r,1500)); await muatDataDariCloud(); alert("✅ Sinkronisasi Berhasil: Log Buku Ngaji Diperbarui!"); initInputMassal(); });
+      .then(async ()=>{ 
+         await new Promise(r=>setTimeout(r,1500)); 
+         await muatDataDariCloud(); 
+         alert("✅ Sinkronisasi Berhasil: Log Buku Ngaji Diperbarui!"); 
+         loadSiswaMassal(); 
+      });
   } else {
     // SIMPAN HAFALAN MASSAL
     rows.forEach(row => {
@@ -780,7 +797,12 @@ function eksekusiSimpanMassal() {
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
     fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ table: "Hafalan", data: dataKirim }) })
-      .then(async ()=>{ await new Promise(r=>setTimeout(r,1500)); await muatDataDariCloud(); alert("✅ Sinkronisasi Berhasil: Log Jurnal Hafalan Juz 30 Terunggah!"); initInputMassal(); });
+      .then(async ()=>{ 
+         await new Promise(r=>setTimeout(r,1500)); 
+         await muatDataDariCloud(); 
+         alert("✅ Sinkronisasi Berhasil: Log Jurnal Hafalan Juz 30 Terunggah!"); 
+         loadSiswaMassal(); 
+      });
   }
 }
 
