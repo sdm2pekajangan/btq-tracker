@@ -126,6 +126,18 @@ tr.clickable-row:hover td { background-color: var(--green-light); }
 select.filter { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 13px; background: #ffffff; outline: none; }
 .in-input, .in-select { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 13px; background: #ffffff; outline: none; }
 
+/* RIWAYAT SESI SEBELUMNYA (LEMBAR PENILAIAN GURU) */
+.riwayat-box { margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--bg-main); border: 1px solid var(--border-color); border-left: 3px solid var(--border-color); font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
+.riwayat-box.st-lancar { border-left-color: var(--islamic-green); background: var(--green-light); }
+.riwayat-box.st-perlu_ulang { border-left-color: var(--soft-gold); background: var(--gold-light); }
+.riwayat-box.st-tidak_hadir { border-left-color: var(--red-absen); background: var(--red-light); }
+.riwayat-box.st-baru { border-left-color: var(--blue-badge); background: var(--blue-light); }
+.riwayat-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 3px; }
+.riwayat-when { font-weight: 600; color: var(--charcoal); }
+.riwayat-materi { color: var(--text-main); font-weight: 500; }
+.riwayat-catatan { margin-top: 3px; font-style: italic; color: var(--text-main); }
+.riwayat-box .badge { padding: 2px 8px; font-size: 10.5px; }
+
 #loading-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.92); z-index: 9999; justify-content: center; align-items: center; font-weight: 600; color: var(--charcoal); font-size: 15px; }
 </style>
 </head>
@@ -319,7 +331,7 @@ select.filter { padding: 8px 12px; border: 1px solid var(--border-color); border
             </div>
             <div style="display:flex; align-items:center; gap:8px">
               <label style="font-size:13px; font-weight:600">Tanggal Input:</label>
-              <input type="date" id="im-tgl" class="filter">
+              <input type="date" id="im-tgl" class="filter" onchange="loadSiswaMassal()">
             </div>
           </div>
         </div>
@@ -688,6 +700,66 @@ function renderLaporan() {
   }
 }
 
+// ==================== RIWAYAT SESI SEBELUMNYA ====================
+const STATUS_INFO = {
+  lancar:      { teks: 'Lancar',    badge: 'bg',  ikon: '✅' },
+  perlu_ulang: { teks: 'Mengulang', badge: 'bgl', ikon: '🔄' },
+  tidak_hadir: { teks: 'Absen',     badge: 'brl', ikon: '❌' }
+};
+
+function escapeHtml(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+// Ubah tanggal apa pun dari sheet (YYYY-MM-DD / ISO / Date) menjadi kunci "YYYY-MM-DD" zona Jakarta
+function tglKey(t) {
+  if (!t) return '';
+  const s = String(t).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s.slice(0, 10);
+  return d.toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
+}
+
+function idUrut(id) {
+  return parseInt(String(id || '').replace(/\D/g, '').slice(0, 13), 10) || 0;
+}
+
+// Catatan terakhir milik siswa SEBELUM tanggal yang sedang diinput.
+// Bila ada beberapa rekaman di tanggal terakhir yang sama (tombol simpan terklik berulang), ambil yang paling baru.
+function ambilRiwayatSebelum(daftar, siswaId, tglBatas) {
+  const sid = String(siswaId).trim();
+  const kandidat = daftar.filter(x => String(x.siswaId).trim() === sid && (!tglBatas || tglKey(x.tanggal) < tglBatas));
+  kandidat.sort((a, b) => tglKey(b.tanggal).localeCompare(tglKey(a.tanggal)) || idUrut(b.id) - idUrut(a.id));
+  return kandidat[0] || null;
+}
+
+function labelSelisihHari(tglRiwayat, tglBatas) {
+  if (!tglRiwayat || !tglBatas) return '';
+  const selisih = Math.round((new Date(tglBatas + 'T00:00:00Z') - new Date(tglRiwayat + 'T00:00:00Z')) / 86400000);
+  if (selisih <= 1) return 'Kemarin';
+  return selisih + ' hari lalu';
+}
+
+function riwayatHTML(rec, materiTeks, tglBatas) {
+  if (!rec) {
+    return `<div class="riwayat-box st-baru"><div class="riwayat-head"><span class="riwayat-when">✨ Belum ada riwayat</span></div><div>Setoran pertama santri ini.</div></div>`;
+  }
+  const st = STATUS_INFO[rec.status] || { teks: rec.status || '—', badge: 'bbl', ikon: '•' };
+  const key = tglKey(rec.tanggal);
+  const rel = labelSelisihHari(key, tglBatas);
+  const nilaiTeks = (rec.status !== 'tidak_hadir' && rec.nilai !== '' && rec.nilai != null) ? ` · Nilai ${escapeHtml(rec.nilai)}` : '';
+  const catatan = rec.catatan ? `<div class="riwayat-catatan">💬 ${escapeHtml(rec.catatan)}</div>` : '';
+  return `<div class="riwayat-box st-${escapeHtml(rec.status)}">
+    <div class="riwayat-head">
+      <span class="riwayat-when">⏮️ ${rel ? rel + ' · ' : ''}${formatTanggalIndonesia(rec.tanggal)}</span>
+      <span class="badge ${st.badge}">${st.ikon} ${st.teks}</span>
+    </div>
+    <div class="riwayat-materi">${materiTeks}${nilaiTeks}</div>
+    ${catatan}
+  </div>`;
+}
+
 // MANAGEMENT INPUT MASSAL GURU (DINAMIS 2 MODE)
 function loadSiswaMassal() {
   const kelasDipilih = document.getElementById('im-kelas').value;
@@ -704,20 +776,24 @@ function loadSiswaMassal() {
     document.getElementById('massal-action-box').style.display = 'none'; return;
   }
 
+  // Riwayat yang ditampilkan = catatan terakhir SEBELUM tanggal input
+  const tglBatas = document.getElementById('im-tgl').value || new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
+
   // ATUR HEADER TABEL DINAMIS BERDASARKAN MODE
   if (currentInputMode === 'ngaji') {
-    thHead.innerHTML = `<th style="width:30%">Nama Lengkap Siswa</th><th style="width:20%">Jilid Diuji</th><th style="width:12%">Halaman Baru</th><th style="width:10%">Nilai</th><th style="width:13%">Hasil Capaian</th><th style="width:15%">Evaluasi Guru</th>`;
+    thHead.innerHTML = `<th style="width:34%; min-width:230px">Nama Lengkap Siswa</th><th style="width:20%">Jilid Diuji</th><th style="width:12%">Halaman Baru</th><th style="width:10%">Nilai</th><th style="width:13%">Hasil Capaian</th><th style="width:15%">Evaluasi Guru</th>`;
     
     document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => {
-      const histori = db.setoran.filter(x => String(x.siswaId).trim() === String(s.id).trim()).sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+      const histori = db.setoran.filter(x => String(x.siswaId).trim() === String(s.id).trim()).sort((a,b)=>tglKey(b.tanggal).localeCompare(tglKey(a.tanggal)) || idUrut(b.id) - idUrut(a.id));
       const last = histori[0] || null;
       let defJilid = last ? last.jilid : (s.jilidSaatIni || 'jilid1');
       let defHal = last ? last.halaman : (s.halTerakhir || '1');
-      
-      let infoKemarin = last ? `⏮️ Terakhir (${formatTanggalIndonesia(last.tanggal)}): ${JILID_LABEL[defJilid]} Hal ${defHal}` : `✨ Santri Baru (Belum ada rekap)`;
-      
+
+      const riwayat = ambilRiwayatSebelum(db.setoran, s.id, tglBatas);
+      const infoKemarin = riwayatHTML(riwayat, riwayat ? `${escapeHtml(JILID_LABEL[riwayat.jilid] || riwayat.jilid)} · Hal ${escapeHtml(riwayat.halaman)}` : '', tglBatas);
+
       return `<tr class="massal-row" data-siswaid="${s.id}">
-        <td><strong>${s.nama}</strong><div style="font-size:11px; color:var(--text-muted); margin-top:4px;">${infoKemarin}</div></td>
+        <td><strong>${s.nama}</strong>${infoKemarin}</td>
         <td><select class="in-select row-jilid">
           ${Object.keys(JILID_LABEL).map(k=>`<option value="${k}" ${defJilid===k?'selected':''}>${JILID_LABEL[k]}</option>`).join('')}
         </select></td>
@@ -729,18 +805,19 @@ function loadSiswaMassal() {
     }).join('');
   } else {
     // MODE HAFALAN JUZ 30
-    thHead.innerHTML = `<th style="width:30%">Nama Lengkap Siswa</th><th style="width:25%">Surat Juz 30</th><th style="width:12%">Ayat Terkini</th><th style="width:10%">Nilai</th><th style="width:13%">Hasil Capaian</th><th style="width:15%">Evaluasi Guru</th>`;
+    thHead.innerHTML = `<th style="width:34%; min-width:230px">Nama Lengkap Siswa</th><th style="width:25%">Surat Juz 30</th><th style="width:12%">Ayat Terkini</th><th style="width:10%">Nilai</th><th style="width:13%">Hasil Capaian</th><th style="width:15%">Evaluasi Guru</th>`;
     
     document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => {
-      const histori = db.hafalan.filter(x => String(x.siswaId).trim() === String(s.id).trim()).sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
+      const histori = db.hafalan.filter(x => String(x.siswaId).trim() === String(s.id).trim()).sort((a,b)=>tglKey(b.tanggal).localeCompare(tglKey(a.tanggal)) || idUrut(b.id) - idUrut(a.id));
       const last = histori[0] || null;
       let defSurat = last ? last.surat : (s.suratTerakhir || 'Belum Hafal');
       let defAyat = last ? last.ayat : (s.ayatTerakhir || '0');
-      
-      let infoKemarin = last ? `⏮️ Terakhir (${formatTanggalIndonesia(last.tanggal)}): Surat ${defSurat} Ayat ${defAyat}` : `✨ Belum ada rekap hafalan cloud`;
-      
+
+      const riwayat = ambilRiwayatSebelum(db.hafalan, s.id, tglBatas);
+      const infoKemarin = riwayatHTML(riwayat, riwayat ? `Surat ${escapeHtml(riwayat.surat)} · Ayat ${escapeHtml(riwayat.ayat)}` : '', tglBatas);
+
       return `<tr class="massal-row" data-siswaid="${s.id}">
-        <td><strong>${s.nama}</strong><div style="font-size:11px; color:var(--text-muted); margin-top:4px;">${infoKemarin}</div></td>
+        <td><strong>${s.nama}</strong>${infoKemarin}</td>
         <td><select class="in-select row-surat">
           ${JUZ30_LIST.map(surat => `<option value="${surat}" ${defSurat===surat?'selected':''}>${surat}</option>`).join('')}
         </select></td>
@@ -807,7 +884,7 @@ function eksekusiSimpanMassal() {
 }
 
 window.onload = () => { 
-  document.getElementById('im-tgl').value = new Date().toISOString().slice(0,10);
+  document.getElementById('im-tgl').value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
   muatDataDariCloud(); 
 };
 </script>
