@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#343a40">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#08382a">
 <title>BTQ Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   /* Palet asli dipertahankan (putih, emas lembut, hijau, charcoal) */
@@ -366,6 +366,72 @@ table.massal th:nth-child(6) { width: 19% !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ============ V2: ROMBAK VISUAL ============ */
+:root{--g1:#08382a;--g2:#0f6b4a;--gold:#e3b75a;--fd:'Plus Jakarta Sans',Inter,system-ui,sans-serif}
+html{overscroll-behavior:none}
+button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.btn,.gate-btn,.mode-btn,.nav-tab{position:relative;overflow:hidden}
+.rip{position:absolute;border-radius:50%;background:currentColor;opacity:.18;transform:scale(0);animation:rip .65s var(--ease) forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+@keyframes flow{to{background-position:200% 0}}
+@keyframes shim{to{background-position:-150% 0}}
+@keyframes orb{to{transform:translate3d(-40px,50px,0) scale(1.18)}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(227,183,90,.55)}100%{box-shadow:0 0 0 24px rgba(227,183,90,0)}}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes rise{from{transform:scaleY(0)}}
+#gate-screen,#login-screen{background:radial-gradient(120% 90% at 50% 0,var(--g2) 0,var(--g1) 55%,#041f17)}
+.orb{position:absolute;z-index:-1;border-radius:50%;filter:blur(50px);opacity:.5;animation:orb 14s ease-in-out infinite alternate;pointer-events:none}
+.orb.o1{width:320px;height:320px;background:var(--gold);top:-90px;right:-80px}
+.orb.o2{width:380px;height:380px;background:#1fb57a;bottom:-140px;left:-100px;animation-delay:-5s}
+.orb.o3{width:190px;height:190px;background:var(--gold);bottom:18%;right:10%;opacity:.28;animation-delay:-9s}
+.gate-card{background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.55)}
+.gate-card::before{background:linear-gradient(90deg,#198754,var(--gold),#198754);background-size:200% 100%;animation:flow 4s linear infinite}
+.logo-mark{position:relative}
+.logo-mark::after{content:'';position:absolute;inset:0;border-radius:inherit;animation:pulse 2.4s ease-out infinite}
+.gate-logo h1,.gate-logo h2{font-family:var(--fd);font-weight:800;background:linear-gradient(100deg,var(--g1) 30%,#c9943a 50%,var(--g1) 70%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 5s linear infinite}
+.gate-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(180px circle at var(--mx,50%) var(--my,50%),rgba(227,183,90,.24),transparent 70%);opacity:0;transition:opacity .25s;pointer-events:none}
+.gate-stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.gs{background:var(--green-light);color:var(--green-text);border-radius:12px;padding:6px 12px;font-size:11px;font-weight:600;line-height:1.25;animation:fadeUp .5s var(--ease) backwards}
+.gs b{display:block;font:800 17px var(--fd);font-variant-numeric:tabular-nums}
+.pw{position:relative}.pw input{padding-right:50px}
+.pw-t{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer;opacity:.65}
+.caps{display:none;font-size:11.5px;color:var(--gold-text);margin-top:6px}.caps.on{display:block;animation:pop .25s var(--spring)}
+.remember{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--text-muted);margin:0 0 12px;min-height:44px;cursor:pointer}
+.remember input{width:18px;height:18px;accent-color:var(--islamic-green)}
+.shake{animation:shake .45s}
+#lbtn{display:flex;align-items:center;justify-content:center}
+#lbtn .spin{display:none;width:16px;height:16px;margin-right:8px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+#lbtn.busy{pointer-events:none;opacity:.85}#lbtn.busy .spin{display:inline-block}
+.topbar{background:linear-gradient(135deg,var(--g1),#0f5a41)}
+.pub-header{background:linear-gradient(135deg,var(--g1),#0f5a41);border-bottom-color:var(--gold)}
+.page-header h2,.pub-title{font-family:var(--fd);font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.stats:empty{display:none}
+.stat{position:relative;overflow:hidden;border-radius:18px;padding:16px 16px 14px;color:#fff;background:linear-gradient(135deg,var(--g2),var(--g1));box-shadow:var(--shadow-md);animation:cardIn .6s var(--ease) backwards;animation-delay:calc(var(--i,0)*80ms)}
+.stat::after{content:'';position:absolute;inset:0;background-image:var(--pattern);background-size:60px;-webkit-mask-image:linear-gradient(135deg,transparent 40%,#000);mask-image:linear-gradient(135deg,transparent 40%,#000);pointer-events:none}
+.stat.gold{background:linear-gradient(135deg,var(--gold),#b8812a);color:#2e2000}
+.stat.dark{background:linear-gradient(135deg,#3a424a,#1f2327)}
+.stat.blue{background:linear-gradient(135deg,#1e7be6,#0a4aa8)}
+.stat i{font-style:normal;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;opacity:.85;display:block}
+.stat b{display:block;font:800 30px/1.1 var(--fd);margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.stat small{font-size:11.5px;opacity:.85}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin-bottom:20px;padding:18px 10px 0;border-radius:18px;background:linear-gradient(180deg,#fff8e7,#fff);border:1px solid var(--border-color);overflow:hidden}
+.pod{flex:1;max-width:150px;min-width:0;text-align:center;animation:fadeUp .6s var(--ease) backwards;animation-delay:calc(var(--i)*120ms + .2s)}
+.pod b{display:block;font-size:12.5px;line-height:1.25;margin:6px 2px 2px;overflow-wrap:anywhere}
+.pod small{display:block;font-size:11px;color:var(--text-muted);margin-bottom:8px}
+.pod-av{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;font-weight:800;color:#3b2900;background:linear-gradient(135deg,#f6d77a,#c9943a)}
+.pod-bar{display:grid;place-items:start center;padding-top:8px;border-radius:12px 12px 0 0;color:#fff;font:800 20px var(--fd);transform-origin:bottom;animation:rise .8s var(--ease) backwards;animation-delay:calc(var(--i)*120ms + .3s)}
+.p1 .pod-bar{height:96px;background:linear-gradient(180deg,var(--gold),#b8812a)}
+.p2 .pod-bar{height:68px;background:linear-gradient(180deg,#b9c0c7,#8a939c)}
+.p3 .pod-bar{height:48px;background:linear-gradient(180deg,#d39a63,#a2662c)}
+.p1 .pod-av{width:56px;height:56px;font-size:20px;box-shadow:0 0 0 4px rgba(227,183,90,.35)}
+.p2 .pod-av{background:linear-gradient(135deg,#eef0f2,#aab2ba)}.p3 .pod-av{background:linear-gradient(135deg,#efc59d,#b9773a)}
+@media (hover:hover) and (pointer:fine){
+  .gate-btn:hover::before{opacity:1}
+  .stat{transition:transform .3s var(--spring)}.stat:hover{transform:translateY(-3px)}
+}
+@media (max-width:720px){.stats{grid-template-columns:1fr 1fr}.stat b{font-size:26px}}
 </style>
 </head>
 <body>
@@ -374,12 +440,12 @@ table.massal th:nth-child(6) { width: 19% !important; }
 <div id="toast-wrap" aria-live="polite"></div>
 
 <!-- GATES -->
-<div id="gate-screen">
+<div id="gate-screen"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
   <div class="gate-card">
     <div class="gate-logo">
       <div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div>
       <h1>BTQ & Hafalan Tracker</h1>
-      <p>Sistem Informasi Progress Jilid & Juz 30</p>
+      <p>Sistem Informasi Progress Jilid & Juz 30</p><div class="gate-stats" id="gate-stats"></div>
     </div>
     <div class="gate-options">
       <button class="gate-btn" onclick="goToOrtuLeaderboard()">
@@ -409,6 +475,7 @@ table.massal th:nth-child(6) { width: 19% !important; }
   <div class="pub-main">
     
     <div id="ortu-view-leaderboard">
+      <div class="stats" id="ortu-stats"></div><div id="ortu-podium"></div>
       <div class="mode-switcher">
         <button class="mode-btn active" id="btn-ortu-ngaji" onclick="switchOrtuTab('ngaji')">📗 Capaian Jilid</button>
         <button class="mode-btn" id="btn-ortu-hafalan" onclick="switchOrtuTab('hafalan')">🏆 Peringkat Hafalan</button>
@@ -445,14 +512,17 @@ table.massal th:nth-child(6) { width: 19% !important; }
 </div>
 
 <!-- LOGIN -->
-<div id="login-screen">
+<div id="login-screen"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
   <div class="gate-card">
-    <button class="back-to-gate" onclick="backToGate()">← Kembali</button>
-    <div class="gate-logo"><div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div><h2 id="login-title">Autentikasi Pengguna</h2></div>
-    <div class="form-group"><label for="lu">Akun Pengguna</label><input type="text" id="lu" placeholder="Username admin/guru" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
-    <div class="form-group"><label for="lp">Kata Sandi</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password"></div>
-    <div id="lerr" class="login-err" role="alert"></div>
-    <button class="btn btn-primary" onclick="doLogin()">Masuk Dashboard →</button>
+    <button class="back-to-gate" type="button" onclick="backToGate()">← Kembali</button>
+    <div class="gate-logo"><div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div><h2 id="login-title">Autentikasi Pengguna</h2><p>Masuk dengan akun yang diberikan sekolah</p></div>
+    <form id="login-form" onsubmit="doLogin();return false" novalidate>
+      <div class="form-group"><label for="lu">Akun Pengguna</label><input type="text" id="lu" placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
+      <div class="form-group"><label for="lp">Kata Sandi</label><div class="pw"><input type="password" id="lp" placeholder="Kata sandi" autocomplete="current-password" enterkeyhint="go"><button type="button" class="pw-t" id="pw-t" aria-label="Tampilkan kata sandi" onclick="togglePw()">👁</button></div><div class="caps" id="caps">⇪ Caps Lock sedang aktif</div></div>
+      <label class="remember"><input type="checkbox" id="lr" checked> Ingat username di perangkat ini</label>
+      <div id="lerr" class="login-err" role="alert"></div>
+      <button class="btn btn-primary" id="lbtn" type="submit"><span class="spin" aria-hidden="true"></span><span>Masuk Dashboard →</span></button>
+    </form>
   </div>
 </div>
 
@@ -471,6 +541,7 @@ table.massal th:nth-child(6) { width: 19% !important; }
     <!-- PAGE RANKING (ADMIN) -->
     <div class="page" id="page-dashboard">
       <div class="page-header"><h2>Dashboard Analisis</h2><p>Peringkat urutan kemajuan belajar dan hafalan santri aktif</p></div>
+      <div class="stats" id="dash-stats"></div><div id="dash-podium"></div>
       <div class="mode-switcher">
         <button class="mode-btn active" id="btn-dash-ngaji" onclick="switchDashTab('ngaji')">📗 Urutan Jilid</button>
         <button class="mode-btn" id="btn-dash-hafalan" onclick="switchDashTab('hafalan')">🏆 Urutan Hafalan</button>
@@ -722,7 +793,7 @@ function renderOrtuLeaderboard() {
   let list = db.siswa.filter(s => String(s.kelas).trim() === String(kelasDipilih).trim());
   
   if(currentOrtuTab === 'ngaji') {
-    list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni || 'jilid1'] || 0) - (JILID_WEIGHT[a.jilidSaatIni || 'jilid1'] || 0));
+    list.sort((a,b) => skorNgaji(b) - skorNgaji(a));
     document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let jilidAktif = s.jilidSaatIni || 'jilid1';
       let persen = hitungPersenNgaji(jilidAktif);
@@ -733,7 +804,7 @@ function renderOrtuLeaderboard() {
       </tr>`;
     }).join('') : `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted)">Tidak ada data siswa.</td></tr>`;
   } else {
-    list.sort((a,b) => (JUZ30_LIST.indexOf(b.suratTerakhir || "Belum Hafal")) - (JUZ30_LIST.indexOf(a.suratTerakhir || "Belum Hafal")));
+    list.sort((a,b) => skorHaf(b) - skorHaf(a));
     document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let sTerakhir = s.suratTerakhir || "Belum Hafal";
       let persen = hitungPersenHafalan(sTerakhir);
@@ -822,35 +893,79 @@ function lihatDetailAnakOrtu(siswaId) {
     </div>`;
 }
 
-// BACKEND CORE SYSTEM LOGIN
-async function doLogin() {
-  const u = document.getElementById('lu').value.trim();
-  const p = document.getElementById('lp').value.trim();
-  const err = document.getElementById('lerr');
-  const showErr = msg => { err.style.display = 'block'; err.textContent = msg; };
-  if (!u || !p) { showErr('Isi username dan password terlebih dahulu.'); return; }
-  // Login diperiksa di server; kata sandi tidak pernah dikirim ke browser
-  document.getElementById('loading-overlay').style.display = 'flex';
-  try {
-    const res = await fetch(SCRIPT_URL + '?action=login&role=' + encodeURIComponent(activeLoginRole) + '&u=' + encodeURIComponent(u) + '&p=' + encodeURIComponent(p));
-    const data = await res.json();
-    if (data && data.ok && data.user) {
-      err.style.display = 'none';
-      currentUser = data.user;
-      await muatDataDariCloud();
-      initApp();
-      return;
-    }
-    if (data && data.error === 'terkunci') showErr('Terlalu banyak percobaan gagal. Coba lagi dalam 10 menit.');
-    else if (data && data.error === 'salah') showErr('Username/Password akun internal salah.');
-    else showErr('Server belum mendukung login aman. Perbarui skrip Apps Script terlebih dahulu.');
-  } catch (e) {
-    showErr('Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.');
-  } finally {
-    document.getElementById('loading-overlay').style.display = 'none';
-  }
+// ==================== LOGIN V2 ====================
+let authToken = '';
+// Apps Script: POST text/plain (tanpa preflight) agar balasan JSON bisa dibaca
+async function apiPost(body) {
+  const res = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+  return await res.json();
 }
-function doLogout() { currentUser=null; backToGate(); }
+// Kirim data tulis + token; gagal -> toast, lalu hentikan rantai .then dengan error "handled"
+async function kirim(table, data) {
+  try {
+    const r = await apiPost({ table, data, token: authToken });
+    if (r.ok) return r;
+    toast(r.error || 'Gagal menyimpan.', 'err');
+    if (r.auth) doLogout();
+  } catch (e) { toast('Gagal terhubung ke server. Data belum tersimpan.', 'err'); }
+  document.getElementById('loading-overlay').style.display = 'none';
+  throw { handled: true };
+}
+window.addEventListener('unhandledrejection', e => { if (e.reason && e.reason.handled) e.preventDefault(); });
+let _gagal = 0, _kunci = 0;
+const _nmRole = r => r === 'admin' ? 'Administrator' : 'Pengajar';
+function _tampilErr(m) {
+  const e = document.getElementById('lerr'), c = document.querySelector('#login-screen .gate-card');
+  e.textContent = m; e.style.display = 'block';
+  c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+}
+async function doLogin() {
+  const btn = document.getElementById('lbtn');
+  const u = document.getElementById('lu').value.trim().toLowerCase();
+  const p = document.getElementById('lp').value.trim();
+  if (Date.now() < _kunci) return _tampilErr('Terlalu banyak percobaan. Coba lagi ' + Math.ceil((_kunci - Date.now()) / 1000) + ' detik.');
+  if (!u || !p) return _tampilErr('Isi username dan kata sandi dulu ya.');
+  btn.classList.add('busy'); btn.disabled = true;
+  let r; try { r = await apiPost({ action: 'login', username: u, password: p }); } catch (e) { r = { ok: false, error: 'Tidak bisa terhubung ke server. Cek internet lalu coba lagi.' }; }
+  btn.classList.remove('busy'); btn.disabled = false;
+  if (!r.ok) return _tampilErr(r.error || 'Login gagal.');
+  const user = r.user; authToken = r.token;
+  document.getElementById('lerr').style.display = 'none';
+  try {
+    if (document.getElementById('lr').checked) localStorage.setItem('btq_u', u); else localStorage.removeItem('btq_u');
+    sessionStorage.setItem('btq_t', authToken); sessionStorage.setItem('btq_s', JSON.stringify(user));
+  } catch (e) {}
+  currentUser = user; initApp();
+  toast((user.role !== activeLoginRole ? 'Masuk sebagai ' + _nmRole(user.role) + '. ' : '') + "Assalamu'alaikum, " + user.nama);
+}
+function doLogout() {
+  if (authToken) apiPost({ action: 'logout', token: authToken }).catch(() => {});
+  authToken = ''; currentUser = null;
+  try { sessionStorage.removeItem('btq_s'); sessionStorage.removeItem('btq_t'); } catch (e) {}
+  document.getElementById('lp').value = ''; backToGate();
+}
+function togglePw() {
+  const i = document.getElementById('lp'), t = document.getElementById('pw-t'), show = i.type === 'password';
+  i.type = show ? 'text' : 'password'; t.textContent = show ? '🙈' : '👁';
+  t.setAttribute('aria-label', show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+}
+function pulihSesi() {
+  try {
+    const t = sessionStorage.getItem('btq_t'), u = JSON.parse(sessionStorage.getItem('btq_s') || 'null');
+    if (!t || !u || !u.role) return;
+    authToken = t; currentUser = u; document.getElementById('gate-screen').style.display = 'none'; initApp();
+  } catch (e) {}
+}
+const _sls = showLoginScreen;
+showLoginScreen = function (r) {
+  _sls(r);
+  let saved = ''; try { saved = localStorage.getItem('btq_u') || ''; } catch (e) {}
+  document.getElementById('lu').value = saved; document.getElementById('lerr').style.display = 'none';
+  if (matchMedia('(pointer:fine)').matches) setTimeout(() => document.getElementById(saved ? 'lp' : 'lu').focus(), 350);
+};
+document.addEventListener('keyup', e => {
+  if (e.target.id === 'lp' && e.getModifierState) document.getElementById('caps').classList.toggle('on', e.getModifierState('CapsLock'));
+});
 
 function initApp() {
   document.getElementById('login-screen').style.display='none';
@@ -892,13 +1007,13 @@ function renderDash() {
   let list = fk ? db.siswa.filter(s=>String(s.kelas).trim()===String(fk).trim()) : [...db.siswa];
   
   if (currentDashTab === 'ngaji') {
-    list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni || 'jilid1'] || 0) - (JILID_WEIGHT[a.jilidSaatIni || 'jilid1'] || 0));
+    list.sort((a,b) => skorNgaji(b) - skorNgaji(a));
     document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let persen = hitungPersenNgaji(s.jilidSaatIni || 'jilid1');
       return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${JILID_ICON[s.jilidSaatIni || 'jilid1']} ${JILID_LABEL[s.jilidSaatIni || 'jilid1']} (Hal ${s.halTerakhir || '1'})</td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td></tr>`;
     }).join('') : `<tr><td colspan="5"><div class="empty-state">Data kosong</div></td></tr>`;
   } else {
-    list.sort((a,b) => (JUZ30_LIST.indexOf(b.suratTerakhir || "Belum Hafal")) - (JUZ30_LIST.indexOf(a.suratTerakhir || "Belum Hafal")));
+    list.sort((a,b) => skorHaf(b) - skorHaf(a));
     document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let sTerakhir = s.suratTerakhir || "Belum Hafal";
       let persen = hitungPersenHafalan(sTerakhir);
@@ -924,9 +1039,9 @@ function tambahSiswa() {
   const jilid=document.getElementById('sj').value; const hal=document.getElementById('shal').value||'1';
   if(!nama) return;
   const rawData = { id:'s'+Date.now(), nama, kelas, jilidSaatIni:jilid, halTerakhir:hal, suratTerakhir:'Belum Hafal', ayatTerakhir:'0' };
-  db.siswa.push(rawData);
+  
   document.getElementById('loading-overlay').style.display = 'flex';
-  fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ table: "Siswa", data: rawData }) })
+  kirim("Siswa", rawData)
     .then(()=>{ toast("Siswa berhasil terdaftar!"); document.getElementById('sn').value=''; return muatDataDariCloud(); })
     .then(()=>renderSiswaTbl());
 }
@@ -1108,9 +1223,9 @@ function eksekusiSimpanMassal() {
     });
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
-    fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ table: "Setoran", data: dataKirim }) })
+    kirim("Setoran", dataKirim)
       .then(async ()=>{ 
-         await new Promise(r=>setTimeout(r,1500)); 
+          
          await muatDataDariCloud(); 
          toast("Sinkronisasi berhasil: log buku ngaji diperbarui!");
          loadSiswaMassal(); 
@@ -1130,9 +1245,9 @@ function eksekusiSimpanMassal() {
     });
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
-    fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ table: "Hafalan", data: dataKirim }) })
+    kirim("Hafalan", dataKirim)
       .then(async ()=>{ 
-         await new Promise(r=>setTimeout(r,1500)); 
+          
          await muatDataDariCloud(); 
          toast("Sinkronisasi berhasil: jurnal hafalan Juz 30 terunggah!");
          loadSiswaMassal(); 
@@ -1175,13 +1290,96 @@ document.addEventListener('change', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  if (e.target.id === 'lu' || e.target.id === 'lp') doLogin();
-  else if (e.target.matches && e.target.matches('tr.clickable-row')) e.target.click();
+  if (e.target.matches && e.target.matches('tr.clickable-row')) e.target.click();
+});
+
+
+// ==================== V2: STATISTIK, PODIUM, EFEK ====================
+const q = id => document.getElementById(id);
+const hariIni = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
+const numHal = h => { h = String(h == null ? '' : h).trim(); if (/^\d+/.test(h)) return parseInt(h); const m = h.match(/(\d+)\D*$/); return m ? parseInt(m[1]) : 0; };
+const skorNgaji = s => (JILID_WEIGHT[s.jilidSaatIni || 'jilid1'] || 0) * 1e4 + numHal(s.halTerakhir);
+const skorHaf = s => Math.max(0, JUZ30_LIST.indexOf(s.suratTerakhir || 'Belum Hafal')) * 1e4 + numHal(s.ayatTerakhir);
+
+function statsHTML(items) {
+  return items.map((x, i) => `<div class="stat ${x.c || ''}" style="--i:${i}"><i>${x.l}</i><b data-to="${x.v}" data-suf="${x.s || ''}">0${x.s || ''}</b><small>${x.d}</small></div>`).join('');
+}
+function countUp(root) {
+  const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  root.querySelectorAll('[data-to]').forEach(el => {
+    const to = +el.dataset.to, suf = el.dataset.suf || '';
+    if (calm) { el.textContent = to + suf; return; }
+    const t0 = performance.now();
+    (function f(t) { const p = Math.min(1, (t - t0) / 900); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + suf; if (p < 1) requestAnimationFrame(f); })(t0);
+  });
+}
+function podiumHTML(top) {
+  return '<div class="podium">' + [1, 0, 2].map((k, pos) => `<div class="pod p${k + 1}" style="--i:${pos}"><span class="pod-av">${escapeHtml(String(top[k].nama || 'S')[0])}</span><b>${escapeHtml(top[k].nama)}</b><small>${escapeHtml(top[k].sub)}</small><div class="pod-bar">${k + 1}</div></div>`).join('') + '</div>';
+}
+function infoPanel(p, L, tab) {
+  if (!L.length) { q(p + '-stats').innerHTML = ''; q(p + '-podium').innerHTML = ''; return; }
+  const ids = new Set(L.map(s => String(s.id).trim()));
+  const avg = f => Math.round(L.reduce((a, s) => a + f(s), 0) / L.length);
+  const lim = new Date(Date.now() - 30 * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' }), t = hariIni();
+  const rec = [...db.setoran, ...db.hafalan].filter(r => ids.has(String(r.siswaId).trim()));
+  const r30 = rec.filter(r => tglKey(r.tanggal) >= lim && r.status !== 'tidak_hadir');
+  const lancar = r30.length ? Math.round(r30.filter(r => r.status === 'lancar').length / r30.length * 100) : 0;
+  const n = rec.filter(r => tglKey(r.tanggal) === t && r.status !== 'tidak_hadir').length;
+  q(p + '-stats').innerHTML = statsHTML([
+    { l: 'Santri', v: L.length, d: 'terdaftar aktif' },
+    { l: 'Rata-rata Jilid', v: avg(s => hitungPersenNgaji(s.jilidSaatIni || 'jilid1')), s: '%', d: 'capaian BTQ', c: 'gold' },
+    { l: 'Rata-rata Juz 30', v: avg(s => hitungPersenHafalan(s.suratTerakhir || 'Belum Hafal')), s: '%', d: 'progres hafalan', c: 'blue' },
+    { l: 'Lancar 30 hari', v: lancar, s: '%', d: n + ' setoran hari ini', c: 'dark' }]);
+  countUp(q(p + '-stats'));
+  const haf = tab === 'hafalan';
+  const top = [...L].sort((a, b) => haf ? skorHaf(b) - skorHaf(a) : skorNgaji(b) - skorNgaji(a)).slice(0, 3)
+    .map(s => ({ nama: s.nama, sub: haf ? (s.suratTerakhir || 'Belum Hafal') : (JILID_LABEL[s.jilidSaatIni || 'jilid1'] + ' · Hal ' + (s.halTerakhir || 1)) }));
+  q(p + '-podium').innerHTML = top.length >= 3 ? podiumHTML(top) : '';
+}
+const _rd = renderDash;
+renderDash = function () { _rd(); const fk = q('df-kelas').value; infoPanel('dash', fk ? db.siswa.filter(s => String(s.kelas).trim() === fk) : db.siswa, currentDashTab); };
+const _ro = renderOrtuLeaderboard;
+renderOrtuLeaderboard = function () { _ro(); const k = q('of-kelas').value; infoPanel('ortu', db.siswa.filter(s => String(s.kelas).trim() === String(k).trim()), currentOrtuTab); };
+const _ld = lihatDetailAnakOrtu;
+lihatDetailAnakOrtu = function (id) {
+  _ld(id);
+  const sid = String(id).trim(), rec = [...db.setoran, ...db.hafalan].filter(r => String(r.siswaId).trim() === sid), n = rec.length;
+  const hero = document.querySelector('#detail-anak-box .siswa-hero'); if (!n || !hero) return;
+  const c = k => rec.filter(r => r.status === k).length;
+  hero.insertAdjacentHTML('afterend', '<div class="stats" id="dt-stats"></div>');
+  q('dt-stats').innerHTML = statsHTML([
+    { l: 'Total Sesi', v: n, d: 'ngaji + hafalan' },
+    { l: 'Lancar', v: Math.round(c('lancar') / n * 100), s: '%', d: c('lancar') + ' sesi', c: 'gold' },
+    { l: 'Kehadiran', v: Math.round((n - c('tidak_hadir')) / n * 100), s: '%', d: c('tidak_hadir') + ' absen', c: 'blue' },
+    { l: 'Mengulang', v: c('perlu_ulang'), d: 'perlu penguatan', c: 'dark' }]);
+  countUp(q('dt-stats'));
+};
+function renderGateStats() {
+  const el = q('gate-stats'); if (!el || !db.siswa.length) return;
+  const m = hariIni().slice(0, 7);
+  const sesi = [...db.setoran, ...db.hafalan].filter(r => tglKey(r.tanggal).startsWith(m) && r.status !== 'tidak_hadir').length;
+  el.innerHTML = [['Santri', db.siswa.length], ['Kelas', new Set(db.siswa.map(s => s.kelas)).size], ['Setoran bulan ini', sesi]].map(([l, v]) => `<div class="gs"><b data-to="${v}">0</b>${l}</div>`).join('');
+  countUp(el);
+}
+const _mc = muatDataDariCloud;
+muatDataDariCloud = async function () { await _mc(); renderGateStats(); };
+
+// Efek sentuh: ripple + spotlight kartu gerbang
+document.addEventListener('pointerdown', e => {
+  const b = e.target.closest && e.target.closest('.btn,.gate-btn,.mode-btn,.nav-tab');
+  if (!b || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, sp = document.createElement('span');
+  sp.className = 'rip'; sp.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  b.appendChild(sp); setTimeout(() => sp.remove(), 650);
+});
+document.addEventListener('pointermove', e => {
+  const b = e.target.closest && e.target.closest('.gate-btn'); if (!b) return;
+  const r = b.getBoundingClientRect(); b.style.setProperty('--mx', (e.clientX - r.left) + 'px'); b.style.setProperty('--my', (e.clientY - r.top) + 'px');
 });
 
 window.onload = () => {
   document.getElementById('im-tgl').value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
-  muatDataDariCloud(); 
+  muatDataDariCloud().then(pulihSesi);
 };
 </script>
 </body>
