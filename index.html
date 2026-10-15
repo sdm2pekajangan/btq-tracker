@@ -432,6 +432,7 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
   .stat{transition:transform .3s var(--spring)}.stat:hover{transform:translateY(-3px)}
 }
 @media (max-width:720px){.stats{grid-template-columns:1fr 1fr}.stat b{font-size:26px}}
+.massal-row.need{background:var(--red-light)}.massal-row.need .row-nilai{border-color:var(--red-absen)}
 </style>
 </head>
 <body>
@@ -1170,7 +1171,7 @@ function loadSiswaMassal() {
           ${Object.keys(JILID_LABEL).map(k=>`<option value="${k}" ${defJilid===k?'selected':''}>${JILID_LABEL[k]}</option>`).join('')}
         </select></td>
         <td><input type="text" class="in-input row-hal" value="${defHal}"></td>
-        <td><input type="number" class="in-input row-nilai" value="85"></td>
+        <td><select class="in-select row-nilai"><option value="">Nilai…</option><option value="65">65</option><option value="75">75</option><option value="85">85</option></select></td>
         <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi baru"></td>
       </tr>`;
@@ -1194,7 +1195,7 @@ function loadSiswaMassal() {
           ${JUZ30_LIST.map(surat => `<option value="${surat}" ${defSurat===surat?'selected':''}>${surat}</option>`).join('')}
         </select></td>
         <td><input type="text" class="in-input row-ayat" value="${defAyat}"></td>
-        <td><input type="number" class="in-input row-nilai" value="85"></td>
+        <td><select class="in-select row-nilai"><option value="">Nilai…</option><option value="65">65</option><option value="75">75</option><option value="85">85</option></select></td>
         <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi hafalan"></td>
       </tr>`;
@@ -1205,6 +1206,16 @@ function loadSiswaMassal() {
 
 // PERBAIKAN FUNGSI SIMPAN MASSAL (Bug kode terputus, dan initInputMassal yang diubah ke loadSiswaMassal)
 function eksekusiSimpanMassal() {
+  // Nilai wajib dipilih (65/75/85) kecuali santri absen
+  document.querySelectorAll('.massal-row.need').forEach(r => r.classList.remove('need'));
+  const kurang = [...document.querySelectorAll('.massal-row')].filter(r => {
+    const isi = (r.querySelector('.row-hal') || r.querySelector('.row-ayat')).value.trim();
+    return isi !== '' && r.querySelector('.row-status').value !== 'tidak_hadir' && !r.querySelector('.row-nilai').value;
+  });
+  if (kurang.length) {
+    kurang.forEach(r => r.classList.add('need')); kurang[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    toast(kurang.length + ' santri belum diberi nilai (65 / 75 / 85).', 'err'); return;
+  }
   const tanggal = document.getElementById('im-tgl').value;
   const rows = document.querySelectorAll('.massal-row');
   let dataKirim = [];
@@ -1214,7 +1225,7 @@ function eksekusiSimpanMassal() {
       const siswaId = row.getAttribute('data-siswaid');
       const jilid = row.querySelector('.row-jilid').value;
       const halaman = row.querySelector('.row-hal').value.trim();
-      const nilai = row.querySelector('.row-nilai').value;
+      const nilai = row.querySelector('.row-status').value === 'tidak_hadir' ? '' : row.querySelector('.row-nilai').value;
       const status = row.querySelector('.row-status').value;
       const catatan = row.querySelector('.row-catatan').value.trim();
       if(halaman !== "") {
@@ -1236,7 +1247,7 @@ function eksekusiSimpanMassal() {
       const siswaId = row.getAttribute('data-siswaid');
       const surat = row.querySelector('.row-surat').value;
       const ayat = row.querySelector('.row-ayat').value.trim();
-      const nilai = row.querySelector('.row-nilai').value;
+      const nilai = row.querySelector('.row-status').value === 'tidak_hadir' ? '' : row.querySelector('.row-nilai').value;
       const status = row.querySelector('.row-status').value;
       const catatan = row.querySelector('.row-catatan').value.trim();
       if(ayat !== "") {
