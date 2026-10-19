@@ -238,12 +238,14 @@ tr.massal-row[data-st="perlu_ulang"] { --st: var(--soft-gold); }
 tr.massal-row[data-st="tidak_hadir"] { --st: var(--red-absen); }
 tr.massal-row td:first-child { box-shadow: inset 4px 0 0 var(--st); transition: box-shadow .3s var(--ease); }
 table.massal th, table.massal td { padding-left: 12px; padding-right: 12px; }
-table.massal th:nth-child(1) { width: 28% !important; }
-table.massal th:nth-child(2) { width: 20% !important; }
-table.massal th:nth-child(3) { width: 11% !important; }
+table.massal th:nth-child(1) { width: 26% !important; }
+table.massal th:nth-child(2) { width: 17% !important; }
+table.massal th:nth-child(3) { width: 19% !important; }
 table.massal th:nth-child(4) { width: 9% !important; }
 table.massal th:nth-child(5) { width: 13% !important; }
-table.massal th:nth-child(6) { width: 19% !important; }
+table.massal th:nth-child(6) { width: 16% !important; }
+.q-wrap { gap: 6px; align-items: center; flex-wrap: wrap; } .q-wrap .row-qsurat { flex: 1 1 130px; min-width: 0; } .q-wrap .row-qayat { flex: 0 0 74px; width: 74px; }
+@media (max-width: 720px) { table.massal tr.massal-row.is-q td:nth-child(3) { grid-column: 1 / -1; } }
 .action-box { position: sticky; bottom: 0; z-index: 20; padding: 12px 20px calc(12px + var(--safe-b)); background: rgba(255,255,255,.95); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-top: 1px solid var(--border-color); text-align: right; }
 
 /* Riwayat sesi sebelumnya */
@@ -632,6 +634,27 @@ table.massal.target th:nth-child(3) { width: 32% !important; }
 .mj-body.hafal .kd-ayat:not(.buka) { filter: blur(9px); cursor: pointer; user-select: none; }
 .mj-nav { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
 .mj-nav .sp { flex: 1; text-align: center; font-size: 12px; color: var(--text-muted); }
+/* ===== Gabungan dari versi lama: login, statistik gerbang, efek sentuh ===== */
+button, .gate-btn, .nav-tab, .mode-btn { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.btn, .gate-btn, .mode-btn { position: relative; overflow: hidden; }
+.rip { position: absolute; border-radius: 50%; background: currentColor; opacity: .18; transform: scale(0); animation: rip .65s var(--ease) forwards; pointer-events: none; }
+@keyframes rip { to { transform: scale(1); opacity: 0; } }
+@keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.shake { animation: shake .45s; }
+.gate-btn::before { content: ''; position: absolute; inset: 0; background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgba(227,183,90,.24), transparent 70%); opacity: 0; transition: opacity .25s; pointer-events: none; }
+.gate-btn:hover::before { opacity: 1; }
+.gate-stats { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+.gs { background: var(--green-light); color: var(--green-text); border-radius: 12px; padding: 6px 12px; font-size: 11px; font-weight: 600; line-height: 1.25; animation: fadeUp .5s var(--ease) backwards; text-align: center; }
+.gs b { display: block; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pw { position: relative; } .pw input { padding-right: 50px; }
+.pw-t { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; background: none; font-size: 18px; cursor: pointer; opacity: .65; }
+.caps { display: none; font-size: 11.5px; color: var(--gold-text); margin-top: 6px; } .caps.on { display: block; animation: pop .25s var(--spring); }
+.remember { display: flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--text-muted); margin: 0 0 12px; min-height: 44px; cursor: pointer; }
+.remember input { width: 18px; height: 18px; accent-color: var(--islamic-green); }
+#lbtn { display: flex; align-items: center; justify-content: center; }
+#lbtn .spin { display: none; width: 16px; height: 16px; margin-right: 8px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+#lbtn.busy { pointer-events: none; opacity: .85; } #lbtn.busy .spin { display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .rip, .gs, .shake { animation: none !important; } }
 .tgt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .tgt-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; line-height: 1.3; border: 1px solid var(--border-color); background: #faf9f6; color: var(--text-muted); animation: pop .4s var(--spring) backwards; }
 .tgt-chip b { font-size: 12px; }
@@ -661,7 +684,7 @@ table.massal.target th:nth-child(3) { width: 32% !important; }
     <div class="gate-logo">
       <div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div>
       <h1>BTQ & Hafalan Tracker</h1>
-      <p>Sistem Informasi Progress Jilid & Juz 30</p>
+      <p>Sistem Informasi Progress Jilid & Juz 30</p><div class="gate-stats" id="gate-stats"></div>
     </div>
     <div class="gate-options">
       <button class="gate-btn" onclick="goToOrtuLeaderboard()">
@@ -731,10 +754,13 @@ table.massal.target th:nth-child(3) { width: 32% !important; }
   <div class="gate-card">
     <button class="back-to-gate" onclick="backToGate()">← Kembali</button>
     <div class="gate-logo"><div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div><h2 id="login-title">Autentikasi Pengguna</h2></div>
-    <div class="form-group"><label for="lu">Akun Pengguna</label><input type="text" id="lu" placeholder="Username admin/guru" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
-    <div class="form-group"><label for="lp">Kata Sandi</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password"></div>
-    <div id="lerr" class="login-err" role="alert"></div>
-    <button class="btn btn-primary" onclick="doLogin()">Masuk Dashboard →</button>
+    <form id="login-form" onsubmit="doLogin(); return false" novalidate>
+      <div class="form-group"><label for="lu">Akun Pengguna</label><input type="text" id="lu" placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
+      <div class="form-group"><label for="lp">Kata Sandi</label><div class="pw"><input type="password" id="lp" placeholder="Kata sandi" autocomplete="current-password" enterkeyhint="go"><button type="button" class="pw-t" id="pw-t" aria-label="Tampilkan kata sandi" onclick="togglePw()">👁</button></div><div class="caps" id="caps">⇪ Caps Lock sedang aktif</div></div>
+      <label class="remember"><input type="checkbox" id="lr" checked> Ingat username di perangkat ini</label>
+      <div id="lerr" class="login-err" role="alert"></div>
+      <button class="btn btn-primary" id="lbtn" type="submit"><span class="spin" aria-hidden="true"></span><span>Masuk Dashboard →</span></button>
+    </form>
   </div>
 </div>
 
@@ -927,7 +953,7 @@ async function muatDataDariCloud() {
     db.users = data.users || [];
     db.capaian = data.capaian || [];
   } catch (e) { console.error("Gagal sinkronisasi data cloud: ", e); }
-  finally { document.getElementById('loading-overlay').style.display = 'none'; }
+  finally { document.getElementById('loading-overlay').style.display = 'none'; try { renderGateStats(); } catch (e) {} }
 }
 
 function hitungPersenNgaji(jilidKey) {
@@ -938,6 +964,81 @@ function hitungPersenHafalan(suratNama) {
   let idx = JUZ30_LIST.indexOf(suratNama);
   if (idx === -1 || idx === 0) return 0;
   return Math.round((idx / (JUZ30_LIST.length - 1)) * 100);
+}
+
+// Jumlah ayat tiap surat Juz 30, urutannya sama dengan JUZ30_LIST (tanpa "Belum Hafal")
+const AYAT_JUZ30 = [0, 6,5,4,5,3,6,3,7,4,5,9,3,8,11,11,8,8,5,19,8,8,11,21,15,20,30,26,19,17,22,25,36,19,29,42,46,40];
+const AYAT_KUM = AYAT_JUZ30.reduce((a, n, i) => (a.push((a[i - 1] || 0) + n), a), []);   // total ayat sampai surat ke-i
+const TOTAL_AYAT_JUZ30 = AYAT_KUM[AYAT_KUM.length - 1];
+const _normSurat = t => String(t || '').toLowerCase().replace(/[^a-z]/g, '');
+const _suratIdx = {}; JUZ30_LIST.forEach((n, i) => { _suratIdx[_normSurat(n)] = i; });
+function _posisi(suratNama, ayat, selesaiBilaKosong) {
+  const i = _suratIdx[_normSurat(suratNama)] || 0;
+  if (!i) return { pos: 0, idx: 0, ayat: 0 };
+  const angka = String(ayat == null ? '' : ayat).match(/\d+/g);
+  let a = angka ? parseInt(angka[angka.length - 1], 10) : (selesaiBilaKosong ? AYAT_JUZ30[i] : 0);
+  a = Math.max(0, Math.min(a, AYAT_JUZ30[i]));
+  return { pos: AYAT_KUM[i - 1] + a, idx: i, ayat: a };
+}
+// Titik hafalan terjauh santri (dihitung dalam jumlah ayat): dari riwayat setoran berstatus lancar, dan catatan di data santri
+function hafalanInfo(siswa) {
+  let best = _posisi(siswa.suratTerakhir, siswa.ayatTerakhir, true);
+  db.hafalan.forEach(h => {
+    if (String(h.siswaId).trim() !== String(siswa.id).trim() || h.status !== 'lancar') return;
+    const p = _posisi(h.surat, h.ayat, false);
+    if (p.pos > best.pos) best = p;
+  });
+  best.persen = Math.round(best.pos / TOTAL_AYAT_JUZ30 * 100);
+  best.label = best.idx ? JUZ30_LIST[best.idx] : 'Belum Hafal';
+  best.ayatLabel = best.idx ? `(Ayat ${best.ayat} dari ${AYAT_JUZ30[best.idx]})` : '';
+  return best;
+}
+function urutkanHafalan(list) {
+  const info = new Map(list.map(s => [s, hafalanInfo(s)]));
+  list.sort((a, b) => info.get(b).pos - info.get(a).pos || String(a.nama).localeCompare(String(b.nama)));
+  return info;
+}
+
+// Daftar 114 surat Al-Qur'an (urutan mushaf) beserta jumlah ayatnya, untuk Jilid "Al-Qur'an"
+const QURAN_NAMA = ["Al-Fatihah", "Al-Baqarah", "Ali 'Imran", "An-Nisa'", "Al-Ma'idah", "Al-An'am", "Al-A'raf", "Al-Anfal", "At-Taubah", "Yunus", "Hud", "Yusuf", "Ar-Ra'd", "Ibrahim", "Al-Hijr", "An-Nahl", "Al-Isra'", "Al-Kahfi", "Maryam", "Thaha", "Al-Anbiya'", "Al-Hajj", "Al-Mu'minun", "An-Nur", "Al-Furqan", "Asy-Syu'ara'", "An-Naml", "Al-Qashash", "Al-'Ankabut", "Ar-Rum", "Luqman", "As-Sajdah", "Al-Ahzab", "Saba'", "Fathir", "Yasin", "Ash-Shaffat", "Shad", "Az-Zumar", "Ghafir", "Fushshilat", "Asy-Syura", "Az-Zukhruf", "Ad-Dukhan", "Al-Jatsiyah", "Al-Ahqaf", "Muhammad", "Al-Fath", "Al-Hujurat", "Qaf", "Adz-Dzariyat", "Ath-Thur", "An-Najm", "Al-Qamar", "Ar-Rahman", "Al-Waqi'ah", "Al-Hadid", "Al-Mujadilah", "Al-Hasyr", "Al-Mumtahanah", "Ash-Shaff", "Al-Jumu'ah", "Al-Munafiqun", "At-Taghabun", "Ath-Thalaq", "At-Tahrim", "Al-Mulk", "Al-Qalam", "Al-Haqqah", "Al-Ma'arij", "Nuh", "Al-Jinn", "Al-Muzzammil", "Al-Muddatstsir", "Al-Qiyamah", "Al-Insan", "Al-Mursalat"].concat(JUZ30_LIST.slice(1).reverse());
+const QURAN_AYAT = [7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111, 43, 52, 99, 128, 111, 110, 98, 135, 112, 78, 118, 64, 77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83, 182, 88, 75, 85, 54, 53, 89, 59, 37, 35, 38, 29, 18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13, 14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28, 20, 56, 40, 31, 50].concat(AYAT_JUZ30.slice(1).reverse());
+const QURAN_KUM = QURAN_AYAT.reduce((a, n, i) => (a.push((a[i - 1] || 0) + n), a), []);
+const _quranIdx = {}; QURAN_NAMA.forEach((n, i) => { _quranIdx[_normSurat(n)] = i; });
+// "Al-Baqarah ayat 25" -> { idx, ayat, pos }; pos = urutan ayat dalam mushaf
+function parseQuran(teks) {
+  const m = String(teks == null ? '' : teks).match(/^(.*?)\s*ayat\s*(\d+)\s*$/i);
+  if (!m) return null;
+  const idx = _quranIdx[_normSurat(m[1])];
+  if (idx === undefined) return null;
+  const ayat = Math.max(0, Math.min(parseInt(m[2], 10), QURAN_AYAT[idx]));
+  return { idx, ayat, pos: (QURAN_KUM[idx - 1] || 0) + ayat };
+}
+function halLabel(jilid, halaman) { return jilid === 'alquran' ? String(halaman == null ? '' : halaman) : 'Hal ' + halaman; }
+
+// Posisi mengaji santri: jilid terjauh, lalu halaman terjauh di jilid itu (dari setoran lancar dan data santri)
+function _halNum(h) { const m = String(h == null ? '' : h).match(/\d+/g); return m ? parseInt(m[m.length - 1], 10) : 0; }
+function ngajiInfo(siswa) {
+  const mulai = k => JILID_WEIGHT[k] ? k : 'jilid1';
+  const qp = t => (parseQuran(t) || { pos: 0 });
+  let best = { key: mulai(siswa.jilidSaatIni), hal: _halNum(siswa.halTerakhir), q: parseQuran(siswa.halTerakhir), qpos: qp(siswa.halTerakhir).pos };
+  db.setoran.forEach(x => {
+    if (String(x.siswaId).trim() !== String(siswa.id).trim() || x.status !== 'lancar' || !JILID_WEIGHT[x.jilid]) return;
+    const c = { key: x.jilid, hal: _halNum(x.halaman), q: parseQuran(x.halaman), qpos: qp(x.halaman).pos };
+    const lebih = c.key === 'alquran' ? c.qpos > best.qpos : c.hal > best.hal;
+    if (JILID_WEIGHT[c.key] > JILID_WEIGHT[best.key] || (c.key === best.key && lebih)) best = c;
+  });
+  best.persen = hitungPersenNgaji(best.key);
+  best.label = `${JILID_ICON[best.key] || '📗'} ${JILID_LABEL[best.key] || 'Jilid 1'}${best.key === 'alquran' ? (best.q ? ` · ${QURAN_NAMA[best.q.idx]} ayat ${best.q.ayat}` : '') : ` (Hal ${best.hal || 1})`}`;
+  return best;
+}
+// Jilid 1-6 diurutkan dengan halaman; Al-Qur'an dengan urutan surat dan ayat di mushaf
+function urutkanNgaji(list) {
+  const info = new Map(list.map(s => [s, ngajiInfo(s)]));
+  list.sort((a, b) => {
+    const x = info.get(a), y = info.get(b);
+    return (JILID_WEIGHT[y.key] - JILID_WEIGHT[x.key]) || (y.key !== 'alquran' ? y.hal - x.hal : y.qpos - x.qpos) || String(a.nama).localeCompare(String(b.nama));
+  });
+  return info;
 }
 
 function backToGate() {
@@ -952,6 +1053,9 @@ function showLoginScreen(role) {
   document.getElementById('gate-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-title').textContent = role === 'admin' ? 'Login Administrasi' : 'Login Tenaga Pengajar';
+  let saved = ''; try { saved = localStorage.getItem('btq_u') || ''; } catch (e) {}
+  document.getElementById('lu').value = saved; document.getElementById('lerr').style.display = 'none';
+  if (matchMedia('(pointer:fine)').matches) setTimeout(() => document.getElementById(saved ? 'lp' : 'lu').focus(), 350);
 }
 
 async function goToOrtuLeaderboard() {
@@ -1024,24 +1128,22 @@ function renderOrtuLeaderboardTabel() {
   let list = db.siswa.filter(s => String(s.kelas).trim() === String(kelasDipilih).trim());
   
   if(currentOrtuTab === 'ngaji') {
-    list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni || 'jilid1'] || 0) - (JILID_WEIGHT[a.jilidSaatIni || 'jilid1'] || 0));
+    const nInfo = urutkanNgaji(list);
     document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
-      let jilidAktif = s.jilidSaatIni || 'jilid1';
-      let persen = hitungPersenNgaji(jilidAktif);
+      const ni = nInfo.get(s), persen = ni.persen;
       return `<tr class="clickable-row" onclick="lihatDetailAnakOrtu('${s.id}')">
         <td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td>
-        <td>${JILID_ICON[jilidAktif] || '📗'} ${JILID_LABEL[jilidAktif] || 'Jilid 1'} (Hal ${s.halTerakhir || '1'})</td>
+        <td>${ni.label}</td>
         <td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td>
       </tr>`;
     }).join('') : `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted)">Tidak ada data siswa.</td></tr>`;
   } else {
-    list.sort((a,b) => (JUZ30_LIST.indexOf(b.suratTerakhir || "Belum Hafal")) - (JUZ30_LIST.indexOf(a.suratTerakhir || "Belum Hafal")));
+    const hInfo = urutkanHafalan(list);
     document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
-      let sTerakhir = s.suratTerakhir || "Belum Hafal";
-      let persen = hitungPersenHafalan(sTerakhir);
+      const hi = hInfo.get(s), sTerakhir = hi.label, persen = hi.persen;
       return `<tr class="clickable-row" onclick="lihatDetailAnakOrtu('${s.id}')">
         <td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td>
-        <td>🏆 ${sTerakhir} ${s.ayatTerakhir ? `(Ayat ${s.ayatTerakhir})` : ''}</td>
+        <td>🏆 ${escapeHtml(sTerakhir)} ${hi.ayatLabel}</td>
         <td><div class="pbar"><div class="ptrack"><div class="pfill gold-bar" style="width:${persen}%"></div></div><span class="badge bgl">${persen}%</span></div></td>
       </tr>`;
     }).join('') : `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted)">Tidak ada data siswa.</td></tr>`;
@@ -1073,7 +1175,7 @@ function lihatDetailAnakOrtu(siswaId) {
 
   // Gabungkan riwayat aktivitas mengaji dan hafalan
   let gabungHistori = [];
-  setoranNgaji.forEach(x => { gabungHistori.push({ tgl: x.tanggal, tipe: 'Ngaji', desc: `${JILID_LABEL[x.jilid]} · Hal ${x.halaman}`, st: x.status, cat: x.catatan }); });
+  setoranNgaji.forEach(x => { gabungHistori.push({ tgl: x.tanggal, tipe: 'Ngaji', desc: `${JILID_LABEL[x.jilid]} · ${halLabel(x.jilid, x.halaman)}`, st: x.status, cat: x.catatan }); });
   setoranHafalan.forEach(x => { gabungHistori.push({ tgl: x.tanggal, tipe: 'Hafalan', desc: `Surat ${x.surat} · Ayat ${x.ayat}`, st: x.status, cat: x.catatan }); });
   gabungHistori.sort((a,b) => b.tgl.localeCompare(a.tgl));
 
@@ -1093,8 +1195,8 @@ function lihatDetailAnakOrtu(siswaId) {
     </div>`;
   }).join('') : '<div style="color:var(--text-muted); text-align:center; padding: 20px 0;">Belum ada riwayat aktivitas.</div>';
 
-  let persenNgaji = hitungPersenNgaji(jilidAktif);
-  let persenHafalan = hitungPersenHafalan(suratAktif);
+  jilidAktif = ngajiInfo(siswa).key; let persenNgaji = hitungPersenNgaji(jilidAktif);
+  const hiDetail = hafalanInfo(siswa); suratAktif = hiDetail.label; let persenHafalan = hiDetail.persen;
 
   // Statistik ringkas per santri
   const semuaCatatan = [...setoranNgaji, ...setoranHafalan];
@@ -1118,7 +1220,7 @@ function lihatDetailAnakOrtu(siswaId) {
           </div>
           <div class="ring-card">
             ${ringHTML(persenHafalan, { size: 104, th: 11, gold: true, label: 'Progres hafalan Juz 30', inner: `<b data-count="${persenHafalan}" data-suffix="%">${persenHafalan}%</b>` })}
-            <div><div class="rc-t">Progres Hafalan Juz 30</div><div class="rc-v">Terakhir: ${escapeHtml(suratAktif)}</div></div>
+            <div><div class="rc-t">Progres Hafalan Juz 30</div><div class="rc-v">Terjauh: ${escapeHtml(suratAktif)} ${hiDetail.ayatLabel}</div></div>
           </div>
         </div>
         <div class="chips">
@@ -1137,45 +1239,93 @@ function lihatDetailAnakOrtu(siswaId) {
 }
 
 // BACKEND CORE SYSTEM LOGIN
+let _gagalLogin = 0, _kunciLogin = 0;
+function _errLogin(msg) {
+  const e = document.getElementById('lerr'), c = document.querySelector('#login-screen .gate-card');
+  e.textContent = msg; e.style.display = 'block';
+  if (c && !reduceMotion()) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+}
 async function doLogin() {
   if (loginBusy) return;
+  const btn = document.getElementById('lbtn');
   const u = document.getElementById('lu').value.trim();
   const p = document.getElementById('lp').value.trim();
-  const err = document.getElementById('lerr');
-  const showErr = msg => { err.style.display = 'block'; err.textContent = msg; };
-  if (!u || !p) { showErr('Isi username dan password terlebih dahulu.'); return; }
-  // Login diperiksa di server. Dikirim lewat POST (tanpa header khusus) sehingga kata sandi
-  // tidak muncul di URL dan balasan server tetap bisa dibaca.
-  loginBusy = true;
-  document.getElementById('loading-overlay').style.display = 'flex';
+  if (Date.now() < _kunciLogin) return _errLogin('Terlalu banyak percobaan. Coba lagi ' + Math.ceil((_kunciLogin - Date.now()) / 1000) + ' detik.');
+  if (!u || !p) return _errLogin('Isi username dan kata sandi terlebih dahulu.');
+  // Login diperiksa di server lewat POST, sehingga kata sandi tidak muncul di URL
+  loginBusy = true; btn.classList.add('busy'); btn.disabled = true;
   try {
     const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: u, password: p, role: activeLoginRole }) });
     const data = await res.json();
     if (data && data.ok && data.user) {
-      err.style.display = 'none';
-      currentUser = data.user;
-      authToken = data.token || null;
+      document.getElementById('lerr').style.display = 'none';
+      _gagalLogin = 0;
+      currentUser = data.user; authToken = data.token || null;
+      try {
+        if (document.getElementById('lr').checked) localStorage.setItem('btq_u', u); else localStorage.removeItem('btq_u');
+        sessionStorage.setItem('btq_t', authToken || ''); sessionStorage.setItem('btq_s', JSON.stringify(currentUser));
+      } catch (e) { /* penyimpanan tidak tersedia: tetap lanjut */ }
       document.getElementById('lp').value = '';
       await muatDataDariCloud();
       initApp();
       return;
     }
-    if (data && data.error === 'terkunci') showErr('Terlalu banyak percobaan gagal. Coba lagi dalam 10 menit.');
-    else if (data && data.error === 'salah') showErr('Username/Password akun internal salah.');
-    else showErr('Server belum mendukung login aman. Perbarui skrip Apps Script terlebih dahulu.');
+    if (++_gagalLogin >= 5) { _kunciLogin = Date.now() + 30000; _gagalLogin = 0; }
+    if (data && data.error === 'terkunci') _errLogin('Terlalu banyak percobaan gagal. Coba lagi dalam 10 menit.');
+    else if (data && data.error === 'salah') _errLogin('Username/Password akun internal salah.');
+    else _errLogin('Server belum mendukung login aman. Perbarui skrip Apps Script terlebih dahulu.');
   } catch (e) {
-    showErr('Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.');
+    _errLogin('Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.');
   } finally {
-    loginBusy = false;
-    document.getElementById('loading-overlay').style.display = 'none';
+    loginBusy = false; btn.classList.remove('busy'); btn.disabled = false;
   }
 }
 function doLogout() {
   if (authToken) fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'logout', token: authToken }), keepalive: true }).catch(() => {});
   authToken = null; currentUser = null;
+  try { sessionStorage.removeItem('btq_s'); sessionStorage.removeItem('btq_t'); } catch (e) {}
   document.getElementById('lp').value = '';
   backToGate();
 }
+function togglePw() {
+  const i = document.getElementById('lp'), t = document.getElementById('pw-t'), show = i.type === 'password';
+  i.type = show ? 'text' : 'password'; t.textContent = show ? '🙈' : '👁';
+  t.setAttribute('aria-label', show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+}
+// Pulihkan sesi di tab yang sama saat halaman dimuat ulang (hilang bila tab ditutup)
+function pulihSesi() {
+  try {
+    const t = sessionStorage.getItem('btq_t'), u = JSON.parse(sessionStorage.getItem('btq_s') || 'null');
+    if (!t || !u || !u.role) return;
+    authToken = t; currentUser = u;
+    document.getElementById('gate-screen').style.display = 'none';
+    initApp();
+  } catch (e) {}
+}
+document.addEventListener('keyup', e => {
+  if (e.target.id === 'lp' && e.getModifierState) document.getElementById('caps').classList.toggle('on', e.getModifierState('CapsLock'));
+});
+// Statistik ringkas di layar awal
+function renderGateStats() {
+  const el = document.getElementById('gate-stats'); if (!el || !db.siswa.length) return;
+  const bulan = hariIniKey().slice(0, 7);
+  const sesi = [...db.setoran, ...db.hafalan].filter(r => tglKey(r.tanggal).startsWith(bulan) && r.status !== 'tidak_hadir').length;
+  el.innerHTML = [['Santri', db.siswa.length], ['Kelas', new Set(db.siswa.map(x => String(x.kelas).trim())).size], ['Setoran bulan ini', sesi]]
+    .map(([l, v]) => `<div class="gs"><b data-count="${v}">${v}</b>${l}</div>`).join('');
+  mulaiAnimasi(el);
+}
+// Efek sentuh: riak pada tombol dan sorot cahaya pada kartu gerbang
+document.addEventListener('pointerdown', e => {
+  const b = e.target.closest && e.target.closest('.btn,.gate-btn,.mode-btn');
+  if (!b || reduceMotion()) return;
+  const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, sp = document.createElement('span');
+  sp.className = 'rip'; sp.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  b.appendChild(sp); setTimeout(() => sp.remove(), 650);
+});
+document.addEventListener('pointermove', e => {
+  const b = e.target.closest && e.target.closest('.gate-btn'); if (!b) return;
+  const r = b.getBoundingClientRect(); b.style.setProperty('--mx', (e.clientX - r.left) + 'px'); b.style.setProperty('--my', (e.clientY - r.top) + 'px');
+});
 
 // Kirim data ke server membawa token sesi; balasan dibaca agar kegagalan tidak diam-diam dianggap sukses
 async function kirimKeCloud(table, data) {
@@ -1232,17 +1382,16 @@ function renderDash() {
   let list = fk ? db.siswa.filter(s=>String(s.kelas).trim()===String(fk).trim()) : [...db.siswa];
   
   if (currentDashTab === 'ngaji') {
-    list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni || 'jilid1'] || 0) - (JILID_WEIGHT[a.jilidSaatIni || 'jilid1'] || 0));
+    const nInfo = urutkanNgaji(list);
     document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
-      let persen = hitungPersenNgaji(s.jilidSaatIni || 'jilid1');
-      return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${JILID_ICON[s.jilidSaatIni || 'jilid1']} ${JILID_LABEL[s.jilidSaatIni || 'jilid1']} (Hal ${s.halTerakhir || '1'})</td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td></tr>`;
+      const ni = nInfo.get(s), persen = ni.persen;
+      return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${ni.label}</td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td></tr>`;
     }).join('') : `<tr><td colspan="5"><div class="empty-state">Data kosong</div></td></tr>`;
   } else {
-    list.sort((a,b) => (JUZ30_LIST.indexOf(b.suratTerakhir || "Belum Hafal")) - (JUZ30_LIST.indexOf(a.suratTerakhir || "Belum Hafal")));
+    const hInfo = urutkanHafalan(list);
     document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
-      let sTerakhir = s.suratTerakhir || "Belum Hafal";
-      let persen = hitungPersenHafalan(sTerakhir);
-      return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>🏆 ${sTerakhir} ${s.ayatTerakhir ? `(Ayat ${s.ayatTerakhir})` : ''}</td><td><div class="pbar"><div class="ptrack"><div class="pfill gold-bar" style="width:${persen}%"></div></div><span class="badge bgl">${persen}%</span></div></td></tr>`;
+      const hi = hInfo.get(s), sTerakhir = hi.label, persen = hi.persen;
+      return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>🏆 ${escapeHtml(sTerakhir)} ${hi.ayatLabel}</td><td><div class="pbar"><div class="ptrack"><div class="pfill gold-bar" style="width:${persen}%"></div></div><span class="badge bgl">${persen}%</span></div></td></tr>`;
     }).join('') : `<tr><td colspan="5"><div class="empty-state">Data kosong</div></td></tr>`;
   }
 }
@@ -1285,7 +1434,7 @@ function renderLaporan() {
     document.getElementById('lap-tbl').innerHTML = list.length ? list.map(s=>{
       const siswa = db.siswa.find(x=>x.id===s.siswaId);
       let tglRapi = formatTanggalIndonesia(s.tanggal);
-      return `<tr><td>${tglRapi}</td><td><strong>${siswa?.nama||'—'}</strong></td><td>${siswa?.kelas||'—'}</td><td>${JILID_LABEL[s.jilid] || 'Jilid'}</td><td>Hal ${s.halaman}</td><td>${s.nilai}</td><td><span class="badge ${s.status==='lancar'?'bg':'brl'}">${s.status}</span></td><td>${s.catatan||''}</td></tr>`;
+      return `<tr><td>${tglRapi}</td><td><strong>${siswa?.nama||'—'}</strong></td><td>${siswa?.kelas||'—'}</td><td>${JILID_LABEL[s.jilid] || 'Jilid'}</td><td>${escapeHtml(halLabel(s.jilid, s.halaman))}</td><td>${s.nilai}</td><td><span class="badge ${s.status==='lancar'?'bg':'brl'}">${s.status}</span></td><td>${s.catatan||''}</td></tr>`;
     }).join('') : `<tr><td colspan="8">Data kosong</td></tr>`;
   } else {
     let list=[...db.hafalan].sort((a,b)=>b.tanggal.localeCompare(a.tanggal));
@@ -1384,23 +1533,27 @@ function loadSiswaMassal() {
 
   // ATUR HEADER TABEL DINAMIS BERDASARKAN MODE
   if (currentInputMode === 'ngaji') {
-    thHead.innerHTML = `<th style="width:34%; min-width:230px">Nama Lengkap Siswa</th><th style="width:20%">Jilid Diuji</th><th style="width:12%">Halaman Baru</th><th style="width:10%">Nilai</th><th style="width:13%">Hasil Capaian</th><th style="width:15%">Evaluasi Guru</th>`;
+    thHead.innerHTML = `<th style="width:34%; min-width:230px">Nama Lengkap Siswa</th><th style="width:20%">Jilid Diuji</th><th style="width:12%">Halaman / Ayat Baru</th><th style="width:10%">Nilai</th><th style="width:13%">Hasil Capaian</th><th style="width:15%">Evaluasi Guru</th>`;
     
     document.getElementById('massal-tbl').innerHTML = siswaKelas.map(s => {
       const histori = db.setoran.filter(x => String(x.siswaId).trim() === String(s.id).trim()).sort((a,b)=>tglKey(b.tanggal).localeCompare(tglKey(a.tanggal)) || idUrut(b.id) - idUrut(a.id));
       const last = histori[0] || null;
       let defJilid = last ? last.jilid : (s.jilidSaatIni || 'jilid1');
       let defHal = last ? last.halaman : (s.halTerakhir || '1');
+      const qDef = parseQuran(defHal), isQ = defJilid === 'alquran';
+      if (isQ && qDef) defHal = '1';
 
       const riwayat = ambilRiwayatSebelum(db.setoran, s.id, tglBatas);
-      const infoKemarin = riwayatHTML(riwayat, riwayat ? `${escapeHtml(JILID_LABEL[riwayat.jilid] || riwayat.jilid)} · Hal ${escapeHtml(riwayat.halaman)}` : '', tglBatas);
+      const infoKemarin = riwayatHTML(riwayat, riwayat ? `${escapeHtml(JILID_LABEL[riwayat.jilid] || riwayat.jilid)} · ${escapeHtml(halLabel(riwayat.jilid, riwayat.halaman))}` : '', tglBatas);
 
-      return `<tr class="massal-row" data-siswaid="${s.id}">
+      return `<tr class="massal-row${isQ ? ' is-q' : ''}" data-siswaid="${s.id}">
         <td><strong>${s.nama}</strong>${infoKemarin}</td>
-        <td><select class="in-select row-jilid">
+        <td><select class="in-select row-jilid" onchange="ngajiBaris(this)">
           ${Object.keys(JILID_LABEL).map(k=>`<option value="${k}" ${defJilid===k?'selected':''}>${JILID_LABEL[k]}</option>`).join('')}
         </select></td>
-        <td><input type="text" class="in-input row-hal" value="${defHal}"></td>
+        <td><input type="text" class="in-input row-hal" value="${escapeHtml(defHal)}" aria-label="Halaman" style="${isQ ? 'display:none' : ''}">
+          <div class="q-wrap" style="display:${isQ ? 'flex' : 'none'}"><select class="in-select row-qsurat" aria-label="Surat" onchange="ngajiBaris(this)">${QURAN_NAMA.map((n, i) => `<option value="${escapeHtml(n)}" ${qDef && qDef.idx === i ? 'selected' : ''}>${i + 1}. ${escapeHtml(n)}</option>`).join('')}</select>
+          <input type="number" inputmode="numeric" min="1" class="in-input row-qayat" placeholder="Ayat" aria-label="Ayat" value="${qDef ? qDef.ayat || '' : ''}"></div></td>
         <td>${nilaiSelectHTML()}</td>
         <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi baru"></td>
@@ -1440,6 +1593,17 @@ function nilaiSelectHTML(def='80') {
   return `<select class="in-select row-nilai" aria-label="Nilai">${NILAI_PILIHAN.map(n=>`<option value="${n}" ${n===def?'selected':''}>${n}</option>`).join('')}</select>`;
 }
 
+// Baris jilid: untuk Al-Qur'an tampilkan pilihan surat + ayat, selain itu kolom halaman
+function ngajiBaris(el) {
+  const tr = el.closest('tr'); if (!tr) return;
+  const q = tr.querySelector('.row-jilid').value === 'alquran';
+  tr.classList.toggle('is-q', q);
+  tr.querySelector('.row-hal').style.display = q ? 'none' : '';
+  tr.querySelector('.q-wrap').style.display = q ? 'flex' : 'none';
+  const n = QURAN_AYAT[QURAN_NAMA.indexOf(tr.querySelector('.row-qsurat').value)];
+  const a = tr.querySelector('.row-qayat'); a.max = n; a.title = n ? `Surat ini ${n} ayat` : '';
+}
+
 // PERBAIKAN FUNGSI SIMPAN MASSAL (Bug kode terputus, dan initInputMassal yang diubah ke loadSiswaMassal)
 async function eksekusiSimpanMassal() {
   const tanggal = document.getElementById('im-tgl').value;
@@ -1449,10 +1613,18 @@ async function eksekusiSimpanMassal() {
   if(currentInputMode === 'target') { await simpanTargetMassal(rows, tanggal); return; }
 
   if(currentInputMode === 'ngaji') {
+    let ayatSalah = '';
     rows.forEach(row => {
       const siswaId = row.getAttribute('data-siswaid');
       const jilid = row.querySelector('.row-jilid').value;
-      const halaman = row.querySelector('.row-hal').value.trim();
+      let halaman = row.querySelector('.row-hal').value.trim();
+      if (jilid === 'alquran') {
+        const sn = row.querySelector('.row-qsurat').value, ay = row.querySelector('.row-qayat').value.trim();
+        const max = QURAN_AYAT[QURAN_NAMA.indexOf(sn)];
+        if (ay === '') halaman = '';
+        else if (!/^\d+$/.test(ay) || +ay < 1 || +ay > max) { ayatSalah = `${row.querySelector('strong').textContent}: ${sn} hanya ${max} ayat`; return; }
+        else halaman = `${sn} ayat ${+ay}`;
+      }
       const nilai = row.querySelector('.row-nilai').value;
       const status = row.querySelector('.row-status').value;
       const catatan = row.querySelector('.row-catatan').value.trim();
@@ -1460,6 +1632,7 @@ async function eksekusiSimpanMassal() {
         dataKirim.push({ id:'st'+Date.now()+Math.floor(Math.random()*100), siswaId, guruId:currentUser.id, tanggal, jilid, halaman, nilai, status, catatan });
       }
     });
+    if (ayatSalah) { toast('Ayat tidak sesuai. ' + ayatSalah, 'err'); return; }
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
     const hasil = await kirimKeCloud('Setoran', dataKirim);
@@ -1763,14 +1936,14 @@ function renderOrtuExtra() {
   const list = db.siswa.filter(s => String(s.kelas).trim() === String(kelas).trim());
   if (!list.length) { box.innerHTML = ''; return; }
   const ng = currentOrtuTab === 'ngaji';
-  const persen = s => ng ? hitungPersenNgaji(s.jilidSaatIni || 'jilid1') : hitungPersenHafalan(s.suratTerakhir || 'Belum Hafal');
-  const urut = [...list].sort((a, b) => persen(b) - persen(a));
+  const persen = s => ng ? ngajiInfo(s).persen : hafalanInfo(s).persen;
+  const urut = [...list]; if (ng) urutkanNgaji(urut); else urut.sort((a, b) => persen(b) - persen(a));
   const rata = Math.round(list.reduce((a, s) => a + persen(s), 0) / list.length);
   const tuntas = list.filter(s => persen(s) >= 100).length;
   const angka = (v, suf) => `<span data-count="${v}" data-suffix="${suf || ''}">${v}${suf || ''}</span>`;
   const top = urut.filter(s => persen(s) > 0).slice(0, 3).map(s => ({
     id: s.id, nama: s.nama,
-    sub: ng ? `${JILID_LABEL[s.jilidSaatIni || 'jilid1']} · ${persen(s)}%` : `${s.suratTerakhir || 'Belum Hafal'} · ${persen(s)}%`
+    sub: ng ? `${JILID_LABEL[ngajiInfo(s).key]} · ${persen(s)}%` : `${hafalanInfo(s).label} · ${persen(s)}%`
   }));
   box.innerHTML = `<div class="mini-stats">
       <div class="stat" style="--i:0"><div class="stat-lb">Santri</div><div class="stat-val">${angka(list.length)}</div></div>
@@ -2071,7 +2244,7 @@ function targetPerKelasHTML() {
 
 window.onload = () => {
   document.getElementById('im-tgl').value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
-  muatDataDariCloud(); 
+  muatDataDariCloud().then(pulihSesi);
 };
 </script>
 <dialog id="kartu-dlg" class="kartu-dlg" aria-label="Kartu hafalan"></dialog>
