@@ -2,12 +2,12 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-<meta name="theme-color" content="#08382a">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#343a40">
 <title>BTQ Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
   /* Palet asli dipertahankan (putih, emas lembut, hijau, charcoal) */
@@ -363,76 +363,272 @@ table.massal th:nth-child(6) { width: 19% !important; }
   .role-badge { padding: 4px 9px; font-size: 11px; }
 }
 
+
+/* ============ DASHBOARD INFORMATIF, GRAFIK, PODIUM, RING PROGRES ============ */
+@property --value { syntax: '<number>'; inherits: true; initial-value: 0; }
+@keyframes ringFill { from { --value: 0; } }
+@keyframes barUp { from { clip-path: inset(100% 0 0 0 round 4px 4px 0 0); } to { clip-path: inset(0 0 0 0 round 4px 4px 0 0); } }
+@keyframes revealUp { from { opacity: 0; transform: translateY(28px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes podiumUp { from { transform: scaleY(0); } }
+@keyframes crownPop { 0% { opacity: 0; transform: translateY(8px) scale(.4) rotate(-20deg); } 70% { transform: translateY(-3px) scale(1.15) rotate(6deg); } 100% { opacity: 1; transform: none; } }
+@keyframes confettiFall { 0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0); } 100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot)); } }
+
+/* Scroll reveal: hanya bila peramban mendukung dan pengguna tidak membatasi gerak */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal { animation: revealUp linear both; animation-timeline: view(); animation-range: entry 0% entry 45%; }
+  }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: .28s; animation-timing-function: var(--ease); }
+}
+
+/* Cincin progres (elemen <progress> asli, jadi tetap terbaca pembaca layar) */
+.ring-box { position: relative; display: inline-grid; place-items: center; flex: none; width: var(--size, 120px); height: var(--size, 120px); }
+progress.ring { -webkit-appearance: none; appearance: none; display: block; border: 0; padding: 0; width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--fill, var(--islamic-green)) calc(var(--value) * 1%), var(--track, #edebe5) 0); -webkit-mask-image: radial-gradient(farthest-side, transparent calc(100% - var(--th, 12px)), #000 calc(100% - var(--th, 12px) + .5px)); mask-image: radial-gradient(farthest-side, transparent calc(100% - var(--th, 12px)), #000 calc(100% - var(--th, 12px) + .5px)); animation: ringFill 1.2s var(--ease) .2s backwards; }
+progress.ring::-webkit-progress-bar, progress.ring::-webkit-progress-value { background: transparent; }
+progress.ring::-moz-progress-bar { background: transparent; }
+progress.ring.gold { --fill: var(--soft-gold); }
+.ring-center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1.1; pointer-events: none; }
+.ring-center b { font-size: calc(var(--size, 120px) * .22); font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.ring-center small { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; }
+
+/* Hero sambutan */
+.dash-hero { position: relative; overflow: hidden; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 24px 26px; border-radius: 20px; color: #fff; margin-bottom: 18px; background: linear-gradient(135deg, var(--charcoal-dark), var(--charcoal) 55%, #254233); box-shadow: var(--shadow-md); animation: pop .6s var(--ease) backwards; }
+.dash-hero::before { content: ''; position: absolute; inset: -30%; z-index: -2; background: radial-gradient(circle at 15% 90%, rgba(25,135,84,.45), transparent 40%), radial-gradient(circle at 90% 10%, rgba(201,148,58,.38), transparent 36%); animation: drift 16s ease-in-out infinite alternate; will-change: transform; }
+.dash-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background-image: var(--pattern); background-size: 80px 80px; -webkit-mask-image: linear-gradient(90deg, transparent 35%, #000); mask-image: linear-gradient(90deg, transparent 35%, #000); }
+.hero-text { min-width: 0; }
+.hero-hi { font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #f0cf85; }
+.hero-name { font-size: clamp(20px, 3.4vw, 28px); font-weight: 700; letter-spacing: -.02em; margin: 4px 0 2px; overflow-wrap: anywhere; }
+.hero-date { font-size: 13px; color: #c4cad0; }
+.hero-msg { margin-top: 10px; font-size: 14px; color: #e8ecef; max-width: 46ch; }
+.dash-hero .ring-box { --track: rgba(255,255,255,.14); --fill: #f0cf85; }
+.dash-hero .ring-center small { color: #c4cad0; }
+
+/* Kartu statistik */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat { position: relative; display: flex; align-items: center; gap: 12px; padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow-sm); animation: cardIn .55s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+.stat-ic { position: relative; flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; font-size: 22px; color: var(--green-text); background: var(--green-light); }
+.stat.gold .stat-ic { color: var(--gold-text); background: var(--gold-light); }
+.stat.blue .stat-ic { color: var(--blue-text); background: var(--blue-light); }
+.stat.ringed .stat-ic { background: none; }
+.stat.ringed .stat-ic .ring-box { position: absolute; inset: 0; }
+.stat-lb { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.stat-val { font-size: 26px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; color: var(--charcoal); font-variant-numeric: tabular-nums; }
+.stat-sub { margin-top: 2px; font-size: 11.5px; color: var(--text-muted); }
+.trend { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; }
+.trend .ic { font-size: 13px; }
+.trend.up { color: var(--green-text); }
+.trend.down { color: var(--red-text); }
+
+/* Grafik batang aktivitas */
+.dash-cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; margin-bottom: 4px; }
+.dash-cols > .card { margin-bottom: 20px; }
+.card-note { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.viz-wrap { position: relative; padding: 4px 2px 0; }
+.viz-bars { position: relative; display: grid; grid-template-columns: repeat(14, 1fr); gap: 6px; height: 190px; padding-top: 22px; border-bottom: 1px solid var(--border-color); background: repeating-linear-gradient(to top, transparent 0, transparent calc(25% - 1px), rgba(31,35,39,.06) calc(25% - 1px), rgba(31,35,39,.06) 25%); }
+.viz-col { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; min-width: 0; outline-offset: 2px; border-radius: 6px; }
+.viz-bar { position: relative; height: calc(var(--h, 0) * 1%); min-height: 3px; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, #2cc07b, var(--islamic-green)); animation: barUp .8s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 45ms + 150ms); transition: filter .2s, transform .2s var(--ease); }
+.viz-col.zero .viz-bar { background: #d9d6cd; }
+.viz-col.today .viz-bar { background: linear-gradient(180deg, #e0ad4f, var(--soft-gold)); }
+.viz-col:focus-visible .viz-bar, .viz-col.on .viz-bar { filter: brightness(1.08) saturate(1.15); }
+.viz-val { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 3px; font-size: 11px; font-weight: 700; color: var(--charcoal); font-variant-numeric: tabular-nums; }
+.viz-x { display: grid; grid-template-columns: repeat(14, 1fr); gap: 6px; margin-top: 6px; font-size: 11px; line-height: 1.25; color: var(--text-muted); text-align: center; }
+.viz-x span { display: block; min-width: 0; }
+.viz-x .wd { display: block; font-size: 10px; opacity: .85; }
+.viz-x .tdy { color: var(--gold-text); font-weight: 700; }
+.viz-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--charcoal-dark); color: #fff; padding: 8px 10px; border-radius: 10px; font-size: 12px; line-height: 1.5; white-space: nowrap; box-shadow: var(--shadow-md); opacity: 0; transform: translateY(6px); transition: opacity .15s, transform .15s var(--ease); }
+.viz-tip.on { opacity: 1; transform: none; }
+.viz-tip b { display: block; font-size: 12.5px; }
+.viz-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 11.5px; color: var(--text-muted); }
+.viz-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; background: var(--islamic-green); }
+.viz-legend i.g { background: var(--soft-gold); }
+details.viz-table { margin-top: 12px; font-size: 12.5px; }
+details.viz-table summary { cursor: pointer; font-weight: 600; color: var(--green-text); min-height: 32px; display: flex; align-items: center; }
+details.viz-table table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+details.viz-table th, details.viz-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-variant-numeric: tabular-nums; }
+details.viz-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); }
+
+/* Sebaran jilid */
+.dist-row { display: grid; grid-template-columns: 74px 1fr 30px; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; }
+.dist-track { height: 10px; background: #edebe5; border-radius: 99px; overflow: hidden; }
+.dist-fill { height: 100%; width: calc(var(--w, 0) * 1%); min-width: 4px; border-radius: 99px; background: linear-gradient(90deg, var(--islamic-green), #2cc07b); animation: barGrow .9s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 70ms + 150ms); }
+.dist-row.gold .dist-fill { background: linear-gradient(90deg, var(--soft-gold), #f0cf85); }
+.dist-row.nol .dist-fill { background: #d9d6cd; }
+.dist-n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Podium */
+.podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: end; padding: 22px 8px 0; min-height: 230px; }
+.pod { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; text-align: center; animation: fadeUp .6s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 120ms + 250ms); }
+.pod[data-id] { cursor: pointer; }
+.pod-av { position: relative; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; font-size: 20px; font-weight: 700; color: #3b2900; background: linear-gradient(135deg, #f0cf85, var(--soft-gold)); box-shadow: 0 0 0 4px rgba(201,148,58,.25); }
+.pod.p1 .pod-av { width: 64px; height: 64px; font-size: 26px; }
+.pod.p2 .pod-av { background: linear-gradient(135deg, #e9ecef, #adb5bd); box-shadow: 0 0 0 4px rgba(108,117,125,.22); color: #212529; }
+.pod.p3 .pod-av { background: linear-gradient(135deg, #f0c9a5, #c98a5b); box-shadow: 0 0 0 4px rgba(201,138,91,.25); color: #3b1d06; }
+.pod-crown { position: absolute; top: -20px; left: 50%; margin-left: -12px; width: 24px; height: 24px; color: var(--soft-gold); animation: crownPop .7s var(--spring) .9s backwards; }
+.pod-crown svg { width: 100%; height: 100%; fill: currentColor; stroke: #8a5d0a; stroke-width: 1.5; stroke-linejoin: round; }
+.pod-name { max-width: 100%; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere; line-height: 1.2; font-size: 13px; font-weight: 700; }
+.pod-sub { font-size: 11.5px; color: var(--text-muted); max-width: 100%; }
+.pod-step { width: 100%; display: grid; place-items: start center; padding-top: 8px; border-radius: 12px 12px 0 0; font-size: 20px; font-weight: 700; transform-origin: bottom; animation: podiumUp .7s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 120ms + 100ms); }
+.p1 .pod-step { height: 88px; color: #3b2900; background: linear-gradient(180deg, #e0ad4f, var(--soft-gold)); }
+.p2 .pod-step { height: 64px; color: #fff; background: linear-gradient(180deg, #6c757d, #495057); }
+.p3 .pod-step { height: 46px; color: #fff; background: linear-gradient(180deg, #b87a4c, #96592d); }
+
+/* Daftar perhatian */
+.attn-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border-color); animation: rowIn .4s var(--ease) backwards; animation-delay: calc(var(--i, 0) * 60ms + 200ms); }
+.attn-item:last-child { border-bottom: 0; }
+.attn-av { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; font-weight: 700; font-size: 15px; color: var(--red-text); background: var(--red-light); }
+.attn-name { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+.attn-why { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--red-text); font-weight: 500; }
+.attn-why .ic { font-size: 13px; }
+.attn-ok { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px 12px; text-align: center; color: var(--text-muted); font-size: 13.5px; }
+.attn-ok .ic { width: 40px; height: 40px; color: var(--islamic-green); }
+
+/* Halaman wali murid dan detail santri */
+.mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.mini-stats .stat { flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px; }
+.mini-stats .stat-val { font-size: 22px; }
+.rings { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ring-card { display: flex; align-items: center; gap: 16px; padding: 8px; border-radius: 14px; background: #faf9f6; border: 1px solid var(--border-color); }
+.ring-card .rc-t { font-size: 12px; font-weight: 600; color: var(--text-muted); }
+.ring-card .rc-v { font-size: 15px; font-weight: 700; margin-top: 2px; overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.chip { flex: 1 1 120px; padding: 10px 12px; border-radius: 12px; background: #faf9f6; border: 1px solid var(--border-color); }
+.chip b { display: block; font-size: 19px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.chip > span { font-size: 11.5px; color: var(--text-muted); }
+
+/* Konfeti saat jurnal tersimpan */
+.confetti-wrap { position: fixed; inset: 0; z-index: 300; pointer-events: none; overflow: hidden; }
+.cf { position: absolute; left: var(--x); top: -14px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: confettiFall var(--t, 1.4s) cubic-bezier(.2, .7, .4, 1) var(--d, 0ms) forwards; }
+
+@media (hover: hover) {
+  .stat { transition: transform .3s var(--ease), box-shadow .3s; }
+  .stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .stat:hover .stat-ic { transform: scale(1.08) rotate(-4deg); }
+  .stat-ic { transition: transform .35s var(--spring); }
+  .pod[data-id]:hover .pod-av { transform: scale(1.08); }
+  .pod-av { transition: transform .3s var(--spring); }
+  .viz-col:hover .viz-bar { filter: brightness(1.08) saturate(1.15); transform: scaleX(1.06); }
+}
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 540px) {
+  .dash-hero { padding: 18px; gap: 12px; }
+  .hero-msg { font-size: 13px; }
+  .stat { flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; }
+  .stat-val { font-size: 23px; }
+  .viz-bars, .viz-x { gap: 4px; }
+  .viz-x span:nth-child(odd) { visibility: hidden; }
+  .viz-x .wd { display: none; }
+  .rings { grid-template-columns: 1fr; }
+  .mini-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .mini-stats .stat { padding: 12px 10px; }
+  .mini-stats .stat-val { font-size: 19px; }
+  .podium { gap: 6px; padding-inline: 0; }
+}
+
+
+/* ============ TARGET SEMESTER (surat, doa, hadis) ============ */
+.mode-switcher.tri { grid-template-columns: repeat(3, 1fr); max-width: 560px; }
+.mode-switcher.tri .mode-btn { line-height: 1.2; }
+@supports selector(:has(*)) {
+  .mode-switcher.tri::before { width: calc((100% - 16px) / 3); }
+  .mode-switcher.tri:has(.mode-btn:nth-child(3).active)::before { transform: translateX(calc(200% + 8px)); }
+}
+tr.massal-row[data-st="belum"] { --st: #cfcbc0; }
+table.massal.target th:nth-child(1) { width: 42% !important; }
+table.massal.target th:nth-child(2) { width: 26% !important; }
+table.massal.target th:nth-child(3) { width: 32% !important; }
+.massal-info { display: none; padding: 12px 20px; background: var(--gold-light); border-bottom: 1px solid var(--border-color); font-size: 13px; color: var(--gold-text); animation: fadeIn .4s var(--ease) backwards; }
+.massal-info-n { display: block; margin-top: 2px; font-size: 12px; color: var(--text-muted); }
+.dash-cols.one { grid-template-columns: 1fr; }
+
+.tgt-blok + .tgt-blok { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--border-color); }
+.tgt-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.tgt-nama { font-size: 13.5px; font-weight: 700; }
+.tgt-track { max-width: none; height: 8px; }
+
+/* ===== Kartu Hafalan ===== */
+.arab { font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', 'Traditional Arabic', serif; direction: rtl; }
+.kartu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 12px; margin-top: 12px; perspective: 900px; }
+.kartu { --acc: #c9943a; --acc-soft: #fbf3e2; --acc-ink: #7a5513; position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; min-height: 178px; padding: 12px; border-radius: 16px; border: 1.5px solid color-mix(in srgb, var(--acc) 35%, #fff); background: linear-gradient(160deg, #fff 30%, var(--acc-soft)); color: #2d3436; text-align: left; font: inherit; cursor: pointer; overflow: hidden; -webkit-tap-highlight-color: transparent; transition: transform .35s var(--spring), box-shadow .25s ease, border-color .25s ease; animation: pop .5s var(--spring) backwards; animation-delay: calc(var(--i, 0) * 45ms); }
+.kartu.k-d { --acc: #198754; --acc-soft: #e8f5ee; --acc-ink: #0f5d3a; }
+.kartu.k-h { --acc: #5b6c8f; --acc-soft: #eceff6; --acc-ink: #34415f; }
+.kartu::before { content: ''; position: absolute; inset: 6px; border-radius: 11px; border: 1px dashed color-mix(in srgb, var(--acc) 30%, transparent); pointer-events: none; }
+.kartu:hover { transform: translateY(-5px) rotate(-.7deg); box-shadow: 0 14px 28px -10px color-mix(in srgb, var(--acc) 55%, transparent); }
+.kartu:active { transform: scale(.97); }
+.kartu:focus-visible { outline: 3px solid var(--acc); outline-offset: 2px; }
+.kartu-top { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--acc-ink); letter-spacing: .04em; position: relative; z-index: 1; }
+.kartu-ikon { font-size: 18px; }
+.kartu-arab { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 22px; line-height: 1.8; color: var(--acc-ink); opacity: .9; overflow: hidden; position: relative; z-index: 1; }
+.kartu-judul { font-size: 13px; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; position: relative; z-index: 1; }
+.kartu-stat { align-self: flex-start; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: rgba(0,0,0,.06); color: var(--text-muted); position: relative; z-index: 1; }
+.kartu.b { background: linear-gradient(160deg, #fff 0%, var(--acc-soft) 55%, color-mix(in srgb, var(--acc) 28%, #fff)); border-color: var(--acc); box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--acc) 60%, transparent); }
+.kartu.b .kartu-stat { background: var(--acc); color: #fff; }
+.kartu.b::after { content: ''; position: absolute; inset: -40% -60%; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.75) 50%, transparent 58%); transform: translateX(-70%); animation: kartuKilau 5.5s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 280ms); pointer-events: none; }
+@keyframes kartuKilau { 0%, 55% { transform: translateX(-70%); } 85%, 100% { transform: translateX(70%); } }
+.kartu.c { background: linear-gradient(160deg, #fff, #fff4df); border-color: #e2a23b; border-style: dashed; }
+.kartu.c .kartu-stat { background: #fde6b8; color: #8a5a00; }
+.kartu.x .kartu-arab { opacity: .38; filter: saturate(.4); }
+.kartu.x { border-color: var(--border-color); }
+.koleksi-bar { display: flex; align-items: center; gap: 10px; margin: 4px 0 2px; font-size: 13px; color: var(--text-muted); }
+.koleksi-bar b { color: var(--text-main, #2d3436); }
+.kartu-dlg { margin: auto; border: 0; padding: 0; border-radius: 22px; width: min(94vw, 560px); max-height: 90vh; background: #fffdf8; color: #2d3436; box-shadow: 0 30px 80px -20px rgba(0,0,0,.45); overflow: hidden; }
+.kartu-dlg[open] { display: flex; flex-direction: column; animation: kartuBuka .55s var(--spring); }
+.kartu-dlg::backdrop { background: rgba(30,28,22,.55); backdrop-filter: blur(5px); animation: fadeIn .3s ease; }
+@keyframes kartuBuka { from { opacity: 0; transform: perspective(900px) rotateY(-75deg) scale(.82); } to { opacity: 1; transform: perspective(900px) rotateY(0) scale(1); } }
+.kd-head { --acc: #c9943a; position: relative; padding: 18px 56px 16px 20px; background: linear-gradient(135deg, var(--acc), color-mix(in srgb, var(--acc) 60%, #000)); color: #fff; }
+.kd-head.k-d { --acc: #198754; } .kd-head.k-h { --acc: #5b6c8f; }
+.kd-kat { font-size: 12px; font-weight: 600; opacity: .9; letter-spacing: .05em; }
+.kd-judul { font-size: 19px; font-weight: 700; margin-top: 4px; line-height: 1.3; }
+.kd-meta { font-size: 12px; opacity: .9; margin-top: 6px; }
+.kd-tutup { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(255,255,255,.22); color: #fff; font-size: 20px; cursor: pointer; }
+.kd-tutup:hover { background: rgba(255,255,255,.38); }
+.kd-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+.kd-arab { font-size: clamp(26px, 6.2vw, 34px); line-height: 2.35; text-align: center; color: #1f2a24; }
+.kd-ayat { display: block; padding: 2px 6px; border-radius: 10px; transition: filter .3s ease, background .2s ease; }
+.kd-ayat .no { font-size: .6em; color: #b88a2e; margin-inline-start: 6px; }
+.kd-body.hafal .kd-ayat:not(.buka) { filter: blur(9px); cursor: pointer; user-select: none; }
+.kd-body.hafal .kd-ayat:not(.buka):hover { background: rgba(201,148,58,.12); }
+.kd-sec { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color); }
+.kd-sec h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+.kd-sec p { margin: 0 0 6px; font-size: 14.5px; line-height: 1.6; }
+.kd-latin { font-style: italic; }
+.kd-peringatan { margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: #fff4df; color: #7a4d00; font-size: 12.5px; line-height: 1.5; }
+.kd-kosong { text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 14px; }
+.kd-foot { padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border-color); background: #fff; display: flex; align-items: center; gap: 8px; }
+.kd-foot .sp { flex: 1; text-align: center; font-size: 12px; color: var(--text-muted); }
+.kd-btn { border: 1px solid var(--border-color); background: #fff; border-radius: 12px; padding: 9px 13px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 40px; }
+.kd-btn:hover:not(:disabled) { background: #faf5ea; } .kd-btn:disabled { opacity: .35; cursor: default; }
+.kd-btn[aria-pressed="true"], .kd-btn[aria-pressed="true"]:hover:not(:disabled) { background: #198754; border-color: #198754; color: #fff; }
+.kd-tools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 10px; }
+.kd-verif { margin: 14px 0 0; font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.5; }
+.kd-stamp { display: inline-block; margin-top: 8px; padding: 2px 10px; border: 2px solid currentColor; border-radius: 8px; font-size: 12px; font-weight: 700; transform: rotate(-4deg); animation: stempel .5s var(--spring) .35s backwards; }
+@keyframes stempel { from { transform: rotate(-4deg) scale(2.4); opacity: 0; } to { transform: rotate(-4deg) scale(1); opacity: 1; } }
+@media (max-width: 600px) {
+  .kartu-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kartu { min-height: 168px; }
+  .kartu-dlg { width: 100vw; max-width: 100vw; margin: auto 0 0; border-radius: 22px 22px 0 0; max-height: 92vh; }
+  .kartu-dlg[open] { animation: kartuNaik .45s var(--spring); }
+  @keyframes kartuNaik { from { transform: translateY(100%); } to { transform: none; } }
+}
+@media (prefers-reduced-motion: reduce) { .kartu, .kartu::after, .kartu-dlg[open], .kd-stamp { animation: none !important; } .kartu:hover { transform: none; } }
+.tgt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tgt-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; line-height: 1.3; border: 1px solid var(--border-color); background: #faf9f6; color: var(--text-muted); animation: pop .4s var(--spring) backwards; }
+.tgt-chip b { font-size: 12px; }
+.tgt-chip.b { background: var(--green-light); border-color: transparent; color: var(--green-text); font-weight: 600; }
+.tgt-chip.c { background: var(--gold-light); border-color: transparent; color: var(--gold-text); font-weight: 600; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .mode-switcher.tri .mode-btn { font-size: 12px; padding-inline: 6px; }
+  .massal-info { padding: 12px 16px; }
+  table.massal.target tr.massal-row td:nth-child(3) { grid-column: 1 / -1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
-
-/* ============ V2: ROMBAK VISUAL ============ */
-:root{--g1:#08382a;--g2:#0f6b4a;--gold:#e3b75a;--fd:'Plus Jakarta Sans',Inter,system-ui,sans-serif}
-html{overscroll-behavior:none}
-button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
-.btn,.gate-btn,.mode-btn,.nav-tab{position:relative;overflow:hidden}
-.rip{position:absolute;border-radius:50%;background:currentColor;opacity:.18;transform:scale(0);animation:rip .65s var(--ease) forwards;pointer-events:none}
-@keyframes rip{to{transform:scale(1);opacity:0}}
-@keyframes flow{to{background-position:200% 0}}
-@keyframes shim{to{background-position:-150% 0}}
-@keyframes orb{to{transform:translate3d(-40px,50px,0) scale(1.18)}}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(227,183,90,.55)}100%{box-shadow:0 0 0 24px rgba(227,183,90,0)}}
-@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-@keyframes rise{from{transform:scaleY(0)}}
-#gate-screen,#login-screen{background:radial-gradient(120% 90% at 50% 0,var(--g2) 0,var(--g1) 55%,#041f17)}
-.orb{position:absolute;z-index:-1;border-radius:50%;filter:blur(50px);opacity:.5;animation:orb 14s ease-in-out infinite alternate;pointer-events:none}
-.orb.o1{width:320px;height:320px;background:var(--gold);top:-90px;right:-80px}
-.orb.o2{width:380px;height:380px;background:#1fb57a;bottom:-140px;left:-100px;animation-delay:-5s}
-.orb.o3{width:190px;height:190px;background:var(--gold);bottom:18%;right:10%;opacity:.28;animation-delay:-9s}
-.gate-card{background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.55)}
-.gate-card::before{background:linear-gradient(90deg,#198754,var(--gold),#198754);background-size:200% 100%;animation:flow 4s linear infinite}
-.logo-mark{position:relative}
-.logo-mark::after{content:'';position:absolute;inset:0;border-radius:inherit;animation:pulse 2.4s ease-out infinite}
-.gate-logo h1,.gate-logo h2{font-family:var(--fd);font-weight:800;background:linear-gradient(100deg,var(--g1) 30%,#c9943a 50%,var(--g1) 70%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 5s linear infinite}
-.gate-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(180px circle at var(--mx,50%) var(--my,50%),rgba(227,183,90,.24),transparent 70%);opacity:0;transition:opacity .25s;pointer-events:none}
-.gate-stats{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.gs{background:var(--green-light);color:var(--green-text);border-radius:12px;padding:6px 12px;font-size:11px;font-weight:600;line-height:1.25;animation:fadeUp .5s var(--ease) backwards}
-.gs b{display:block;font:800 17px var(--fd);font-variant-numeric:tabular-nums}
-.pw{position:relative}.pw input{padding-right:50px}
-.pw-t{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:44px;height:44px;border:0;background:none;font-size:18px;cursor:pointer;opacity:.65}
-.caps{display:none;font-size:11.5px;color:var(--gold-text);margin-top:6px}.caps.on{display:block;animation:pop .25s var(--spring)}
-.remember{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--text-muted);margin:0 0 12px;min-height:44px;cursor:pointer}
-.remember input{width:18px;height:18px;accent-color:var(--islamic-green)}
-.shake{animation:shake .45s}
-#lbtn{display:flex;align-items:center;justify-content:center}
-#lbtn .spin{display:none;width:16px;height:16px;margin-right:8px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-#lbtn.busy{pointer-events:none;opacity:.85}#lbtn.busy .spin{display:inline-block}
-.topbar{background:linear-gradient(135deg,var(--g1),#0f5a41)}
-.pub-header{background:linear-gradient(135deg,var(--g1),#0f5a41);border-bottom-color:var(--gold)}
-.page-header h2,.pub-title{font-family:var(--fd);font-weight:800}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
-.stats:empty{display:none}
-.stat{position:relative;overflow:hidden;border-radius:18px;padding:16px 16px 14px;color:#fff;background:linear-gradient(135deg,var(--g2),var(--g1));box-shadow:var(--shadow-md);animation:cardIn .6s var(--ease) backwards;animation-delay:calc(var(--i,0)*80ms)}
-.stat::after{content:'';position:absolute;inset:0;background-image:var(--pattern);background-size:60px;-webkit-mask-image:linear-gradient(135deg,transparent 40%,#000);mask-image:linear-gradient(135deg,transparent 40%,#000);pointer-events:none}
-.stat.gold{background:linear-gradient(135deg,var(--gold),#b8812a);color:#2e2000}
-.stat.dark{background:linear-gradient(135deg,#3a424a,#1f2327)}
-.stat.blue{background:linear-gradient(135deg,#1e7be6,#0a4aa8)}
-.stat i{font-style:normal;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;opacity:.85;display:block}
-.stat b{display:block;font:800 30px/1.1 var(--fd);margin:6px 0 2px;font-variant-numeric:tabular-nums}
-.stat small{font-size:11.5px;opacity:.85}
-.podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin-bottom:20px;padding:18px 10px 0;border-radius:18px;background:linear-gradient(180deg,#fff8e7,#fff);border:1px solid var(--border-color);overflow:hidden}
-.pod{flex:1;max-width:150px;min-width:0;text-align:center;animation:fadeUp .6s var(--ease) backwards;animation-delay:calc(var(--i)*120ms + .2s)}
-.pod b{display:block;font-size:12.5px;line-height:1.25;margin:6px 2px 2px;overflow-wrap:anywhere}
-.pod small{display:block;font-size:11px;color:var(--text-muted);margin-bottom:8px}
-.pod-av{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;font-weight:800;color:#3b2900;background:linear-gradient(135deg,#f6d77a,#c9943a)}
-.pod-bar{display:grid;place-items:start center;padding-top:8px;border-radius:12px 12px 0 0;color:#fff;font:800 20px var(--fd);transform-origin:bottom;animation:rise .8s var(--ease) backwards;animation-delay:calc(var(--i)*120ms + .3s)}
-.p1 .pod-bar{height:96px;background:linear-gradient(180deg,var(--gold),#b8812a)}
-.p2 .pod-bar{height:68px;background:linear-gradient(180deg,#b9c0c7,#8a939c)}
-.p3 .pod-bar{height:48px;background:linear-gradient(180deg,#d39a63,#a2662c)}
-.p1 .pod-av{width:56px;height:56px;font-size:20px;box-shadow:0 0 0 4px rgba(227,183,90,.35)}
-.p2 .pod-av{background:linear-gradient(135deg,#eef0f2,#aab2ba)}.p3 .pod-av{background:linear-gradient(135deg,#efc59d,#b9773a)}
-@media (hover:hover) and (pointer:fine){
-  .gate-btn:hover::before{opacity:1}
-  .stat{transition:transform .3s var(--spring)}.stat:hover{transform:translateY(-3px)}
-}
-@media (max-width:720px){.stats{grid-template-columns:1fr 1fr}.stat b{font-size:26px}}
-.massal-row.need{background:var(--red-light)}.massal-row.need .row-nilai{border-color:var(--red-absen)}
 </style>
 </head>
 <body>
@@ -441,12 +637,12 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
 <div id="toast-wrap" aria-live="polite"></div>
 
 <!-- GATES -->
-<div id="gate-screen"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
+<div id="gate-screen">
   <div class="gate-card">
     <div class="gate-logo">
       <div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div>
       <h1>BTQ & Hafalan Tracker</h1>
-      <p>Sistem Informasi Progress Jilid & Juz 30</p><div class="gate-stats" id="gate-stats"></div>
+      <p>Sistem Informasi Progress Jilid & Juz 30</p>
     </div>
     <div class="gate-options">
       <button class="gate-btn" onclick="goToOrtuLeaderboard()">
@@ -476,12 +672,11 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
   <div class="pub-main">
     
     <div id="ortu-view-leaderboard">
-      <div class="stats" id="ortu-stats"></div><div id="ortu-podium"></div>
       <div class="mode-switcher">
-        <button class="mode-btn active" id="btn-ortu-ngaji" onclick="switchOrtuTab('ngaji')">📗 Capaian Jilid</button>
-        <button class="mode-btn" id="btn-ortu-hafalan" onclick="switchOrtuTab('hafalan')">🏆 Peringkat Hafalan</button>
+        <button class="mode-btn active" id="btn-ortu-ngaji" onclick="gantiOrtuTab('ngaji')">📗 Capaian Jilid</button>
+        <button class="mode-btn" id="btn-ortu-hafalan" onclick="gantiOrtuTab('hafalan')">🏆 Peringkat Hafalan</button>
       </div>
-      
+      <div id="ortu-extra"></div>
       <div class="card">
         <div class="card-header">
           <span class="card-title" id="ortu-table-title">🏆 Peringkat Capaian Jilid</span>
@@ -513,17 +708,14 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
 </div>
 
 <!-- LOGIN -->
-<div id="login-screen"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
+<div id="login-screen">
   <div class="gate-card">
-    <button class="back-to-gate" type="button" onclick="backToGate()">← Kembali</button>
-    <div class="gate-logo"><div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div><h2 id="login-title">Autentikasi Pengguna</h2><p>Masuk dengan akun yang diberikan sekolah</p></div>
-    <form id="login-form" onsubmit="doLogin();return false" novalidate>
-      <div class="form-group"><label for="lu">Akun Pengguna</label><input type="text" id="lu" placeholder="Username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next"></div>
-      <div class="form-group"><label for="lp">Kata Sandi</label><div class="pw"><input type="password" id="lp" placeholder="Kata sandi" autocomplete="current-password" enterkeyhint="go"><button type="button" class="pw-t" id="pw-t" aria-label="Tampilkan kata sandi" onclick="togglePw()">👁</button></div><div class="caps" id="caps">⇪ Caps Lock sedang aktif</div></div>
-      <label class="remember"><input type="checkbox" id="lr" checked> Ingat username di perangkat ini</label>
-      <div id="lerr" class="login-err" role="alert"></div>
-      <button class="btn btn-primary" id="lbtn" type="submit"><span class="spin" aria-hidden="true"></span><span>Masuk Dashboard →</span></button>
-    </form>
+    <button class="back-to-gate" onclick="backToGate()">← Kembali</button>
+    <div class="gate-logo"><div class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg></div><h2 id="login-title">Autentikasi Pengguna</h2></div>
+    <div class="form-group"><label for="lu">Akun Pengguna</label><input type="text" id="lu" placeholder="Username admin/guru" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
+    <div class="form-group"><label for="lp">Kata Sandi</label><input type="password" id="lp" placeholder="Password" autocomplete="current-password"></div>
+    <div id="lerr" class="login-err" role="alert"></div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk Dashboard →</button>
   </div>
 </div>
 
@@ -541,11 +733,11 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
 
     <!-- PAGE RANKING (ADMIN) -->
     <div class="page" id="page-dashboard">
-      <div class="page-header"><h2>Dashboard Analisis</h2><p>Peringkat urutan kemajuan belajar dan hafalan santri aktif</p></div>
-      <div class="stats" id="dash-stats"></div><div id="dash-podium"></div>
+      <div id="dash-insights"></div>
+      <div class="page-header"><h2>Peringkat Kemajuan Santri</h2><p>Urutan kemajuan belajar dan hafalan santri aktif</p></div>
       <div class="mode-switcher">
-        <button class="mode-btn active" id="btn-dash-ngaji" onclick="switchDashTab('ngaji')">📗 Urutan Jilid</button>
-        <button class="mode-btn" id="btn-dash-hafalan" onclick="switchDashTab('hafalan')">🏆 Urutan Hafalan</button>
+        <button class="mode-btn active" id="btn-dash-ngaji" onclick="gantiDashTab('ngaji')">📗 Urutan Jilid</button>
+        <button class="mode-btn" id="btn-dash-hafalan" onclick="gantiDashTab('hafalan')">🏆 Urutan Hafalan</button>
       </div>
       <div class="card">
         <div class="card-header">
@@ -599,8 +791,8 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
     <div class="page" id="page-laporan">
       <div class="page-header"><h2>Log Histori Rekapitulasi</h2><p>Audit seluruh catatan riwayat guru</p></div>
       <div class="mode-switcher">
-        <button class="mode-btn active" id="btn-lap-ngaji" onclick="switchLapTab('ngaji')">📗 Jurnal Ngaji</button>
-        <button class="mode-btn" id="btn-lap-hafalan" onclick="switchLapTab('hafalan')">🏆 Jurnal Hafalan</button>
+        <button class="mode-btn active" id="btn-lap-ngaji" onclick="gantiLapTab('ngaji')">📗 Jurnal Ngaji</button>
+        <button class="mode-btn" id="btn-lap-hafalan" onclick="gantiLapTab('hafalan')">🏆 Jurnal Hafalan</button>
       </div>
       <div class="card">
         <div class="card-header">
@@ -614,9 +806,10 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
     <div class="page" id="page-inputmassal">
       <div class="page-header"><h2>Jurnal Evaluasi Harian Kelas</h2><p>Simak hafalan santri binaan sekaligus dalam satu layar terintegrasi</p></div>
       
-      <div class="mode-switcher">
+      <div class="mode-switcher tri">
         <button class="mode-btn active" id="btn-input-ngaji" onclick="switchInputMode('ngaji')">📗 Mode Mengaji</button>
         <button class="mode-btn" id="btn-input-hafalan" onclick="switchInputMode('hafalan')">🏆 Mode Hafalan Juz 30</button>
+        <button class="mode-btn" id="btn-input-target" onclick="switchInputMode('target')">🎯 Target Semester</button>
       </div>
 
       <div class="card">
@@ -635,8 +828,19 @@ button,.gate-btn,.nav-tab,.mode-btn{-webkit-user-select:none;user-select:none;-w
               <label for="im-tgl">Tanggal Input</label>
               <input type="date" id="im-tgl" class="filter" onchange="loadSiswaMassal()">
             </div>
+            <div class="im-field im-target" style="display:none">
+              <label for="im-kat">Jenis Materi</label>
+              <select class="filter" id="im-kat" onchange="loadSiswaMassal()">
+                <option value="s">📖 Hafalan Surat</option><option value="d">🤲 Doa Harian</option><option value="h">💬 Hadis</option>
+              </select>
+            </div>
+            <div class="im-field im-target" style="display:none">
+              <label for="im-materi">Materi</label>
+              <select class="filter" id="im-materi" onchange="loadSiswaMassal()"></select>
+            </div>
           </div>
         </div>
+        <div class="massal-info" id="massal-info" role="status"></div>
         <div style="overflow-x:auto">
           <table class="massal">
             <thead>
@@ -672,8 +876,10 @@ const JILID_LABEL = { jilid1:'Jilid 1', jilid2:'Jilid 2', jilid3:'Jilid 3', jili
 const JILID_ICON = { jilid1:'📗', jilid2:'📘', jilid3:'📙', jilid4:'📕', jilid5:'📓', jilid6:'📔', alquran:'📖' };
 const JILID_WEIGHT = { jilid1:1, jilid2:2, jilid3:3, jilid4:4, jilid5:5, jilid6:6, alquran:7 };
 
-let db = { users:[], siswa: [], setoran: [], hafalan: [] };
-let currentUser = null; 
+let db = { users:[], siswa: [], setoran: [], hafalan: [], capaian: [] };
+let currentUser = null;
+let authToken = null;       // token sesi dari server; hanya disimpan di memori
+let loginBusy = false; 
 let activeLoginRole = 'admin';
 let currentInputMode = 'ngaji';  // ngaji atau hafalan
 let currentOrtuTab = 'ngaji';    // ngaji atau hafalan
@@ -699,6 +905,7 @@ async function muatDataDariCloud() {
     db.setoran = data.setoran || [];
     db.hafalan = data.hafalan || [];
     db.users = data.users || [];
+    db.capaian = data.capaian || [];
   } catch (e) { console.error("Gagal sinkronisasi data cloud: ", e); }
   finally { document.getElementById('loading-overlay').style.display = 'none'; }
 }
@@ -745,6 +952,8 @@ function switchInputMode(mode) {
   currentInputMode = mode;
   document.getElementById('btn-input-ngaji').classList.toggle('active', mode === 'ngaji');
   document.getElementById('btn-input-hafalan').classList.toggle('active', mode === 'hafalan');
+  document.getElementById('btn-input-target').classList.toggle('active', mode === 'target');
+  document.querySelectorAll('.im-target').forEach(el => { el.style.display = mode === 'target' ? 'flex' : 'none'; });
   loadSiswaMassal();
 }
 function switchOrtuTab(mode) {
@@ -789,12 +998,13 @@ function switchDashTab(mode) {
 }
 
 // RENDERING WALI MURID
-function renderOrtuLeaderboard() {
+function renderOrtuLeaderboard() { renderOrtuLeaderboardTabel(); renderOrtuExtra(); }
+function renderOrtuLeaderboardTabel() {
   const kelasDipilih = document.getElementById('of-kelas').value;
   let list = db.siswa.filter(s => String(s.kelas).trim() === String(kelasDipilih).trim());
   
   if(currentOrtuTab === 'ngaji') {
-    list.sort((a,b) => skorNgaji(b) - skorNgaji(a));
+    list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni || 'jilid1'] || 0) - (JILID_WEIGHT[a.jilidSaatIni || 'jilid1'] || 0));
     document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let jilidAktif = s.jilidSaatIni || 'jilid1';
       let persen = hitungPersenNgaji(jilidAktif);
@@ -805,7 +1015,7 @@ function renderOrtuLeaderboard() {
       </tr>`;
     }).join('') : `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted)">Tidak ada data siswa.</td></tr>`;
   } else {
-    list.sort((a,b) => skorHaf(b) - skorHaf(a));
+    list.sort((a,b) => (JUZ30_LIST.indexOf(b.suratTerakhir || "Belum Hafal")) - (JUZ30_LIST.indexOf(a.suratTerakhir || "Belum Hafal")));
     document.getElementById('ortu-leaderboard-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let sTerakhir = s.suratTerakhir || "Belum Hafal";
       let persen = hitungPersenHafalan(sTerakhir);
@@ -866,6 +1076,14 @@ function lihatDetailAnakOrtu(siswaId) {
   let persenNgaji = hitungPersenNgaji(jilidAktif);
   let persenHafalan = hitungPersenHafalan(suratAktif);
 
+  // Statistik ringkas per santri
+  const semuaCatatan = [...setoranNgaji, ...setoranHafalan];
+  const hadirCatatan = semuaCatatan.filter(x => x.status !== 'tidak_hadir');
+  const nilaiList = hadirCatatan.map(x => parseFloat(x.nilai)).filter(Number.isFinite);
+  const statNilai = nilaiList.length ? Math.round(nilaiList.reduce((a, b) => a + b, 0) / nilaiList.length * 10) / 10 : null;
+  const statLancar = hadirCatatan.length ? Math.round(hadirCatatan.filter(x => x.status === 'lancar').length / hadirCatatan.length * 100) : null;
+  const statHadir = semuaCatatan.length ? Math.round(hadirCatatan.length / semuaCatatan.length * 100) : null;
+
   document.getElementById('detail-anak-box').innerHTML = `
     <div class="siswa-hero">
       <div class="siswa-avatar">${siswa.nama ? siswa.nama[0] : 'S'}</div>
@@ -873,100 +1091,86 @@ function lihatDetailAnakOrtu(siswaId) {
     </div>
     <div class="card"><div class="card-header"><span class="card-title">Grafik Kemajuan Siswa</span></div>
       <div class="card-body">
-        <div style="margin-bottom: 15px;">
-          <label style="font-size:12px; font-weight:600; color:var(--text-muted);">📗 Progres Buku Jilid BTQ (${jilidAktif === 'alquran' ? "Al-Qur'an" : JILID_LABEL[jilidAktif]})</label>
-          <div class="pbar" style="margin-top:5px;">
-            <div class="ptrack" style="max-width:100%; height:12px;"><div class="pfill" style="width:${persenNgaji}%"></div></div>
-            <span class="badge bg">${persenNgaji}%</span>
+        <div class="rings">
+          <div class="ring-card">
+            ${ringHTML(persenNgaji, { size: 104, th: 11, label: 'Progres jilid', inner: `<b data-count="${persenNgaji}" data-suffix="%">${persenNgaji}%</b>` })}
+            <div><div class="rc-t">Progres Buku Jilid BTQ</div><div class="rc-v">${escapeHtml(jilidAktif === 'alquran' ? "Al-Qur'an" : (JILID_LABEL[jilidAktif] || jilidAktif))}</div></div>
+          </div>
+          <div class="ring-card">
+            ${ringHTML(persenHafalan, { size: 104, th: 11, gold: true, label: 'Progres hafalan Juz 30', inner: `<b data-count="${persenHafalan}" data-suffix="%">${persenHafalan}%</b>` })}
+            <div><div class="rc-t">Progres Hafalan Juz 30</div><div class="rc-v">Terakhir: ${escapeHtml(suratAktif)}</div></div>
           </div>
         </div>
-        <div>
-          <label style="font-size:12px; font-weight:600; color:var(--text-muted);">🏆 Progres Hafalan Juz 30 (Terakhir: ${suratAktif})</label>
-          <div class="pbar" style="margin-top:5px;">
-            <div class="ptrack" style="max-width:100%; height:12px;"><div class="pfill gold-bar" style="width:${persenHafalan}%"></div></div>
-            <span class="badge bgl">${persenHafalan}%</span>
-          </div>
+        <div class="chips">
+          <div class="chip"><b>${statNilai == null ? '—' : `<span data-count="${statNilai}" data-dec="1">${statNilai.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>`}</b><span>Rata-rata nilai</span></div>
+          <div class="chip"><b>${statLancar == null ? '—' : `<span data-count="${statLancar}" data-suffix="%">${statLancar}%</span>`}</b><span>Tingkat lancar</span></div>
+          <div class="chip"><b>${statHadir == null ? '—' : `<span data-count="${statHadir}" data-suffix="%">${statHadir}%</span>`}</b><span>Kehadiran setoran</span></div>
         </div>
       </div>
     </div>
+    ${targetSantriHTML(siswa)}
     <div class="card"><div class="card-header"><span class="card-title">Buku Kendali Harian (Kronologis)</span></div>
       <div class="card-body">${setoranHTML}</div>
     </div>`;
+  mulaiAnimasi(document.getElementById('detail-anak-box'));
+  window.scrollTo({ top: 0, behavior: reduceMotion() ? 'auto' : 'smooth' });
 }
 
-// ==================== LOGIN V2 ====================
-let authToken = '';
-// Apps Script: POST text/plain (tanpa preflight) agar balasan JSON bisa dibaca
-async function apiPost(body) {
-  const res = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
-  return await res.json();
-}
-// Kirim data tulis + token; gagal -> toast, lalu hentikan rantai .then dengan error "handled"
-async function kirim(table, data) {
-  try {
-    const r = await apiPost({ table, data, token: authToken });
-    if (r.ok) return r;
-    toast(r.error || 'Gagal menyimpan.', 'err');
-    if (r.auth) doLogout();
-  } catch (e) { toast('Gagal terhubung ke server. Data belum tersimpan.', 'err'); }
-  document.getElementById('loading-overlay').style.display = 'none';
-  throw { handled: true };
-}
-window.addEventListener('unhandledrejection', e => { if (e.reason && e.reason.handled) e.preventDefault(); });
-let _gagal = 0, _kunci = 0;
-const _nmRole = r => r === 'admin' ? 'Administrator' : 'Pengajar';
-function _tampilErr(m) {
-  const e = document.getElementById('lerr'), c = document.querySelector('#login-screen .gate-card');
-  e.textContent = m; e.style.display = 'block';
-  c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
-}
+// BACKEND CORE SYSTEM LOGIN
 async function doLogin() {
-  const btn = document.getElementById('lbtn');
-  const u = document.getElementById('lu').value.trim().toLowerCase();
+  if (loginBusy) return;
+  const u = document.getElementById('lu').value.trim();
   const p = document.getElementById('lp').value.trim();
-  if (Date.now() < _kunci) return _tampilErr('Terlalu banyak percobaan. Coba lagi ' + Math.ceil((_kunci - Date.now()) / 1000) + ' detik.');
-  if (!u || !p) return _tampilErr('Isi username dan kata sandi dulu ya.');
-  btn.classList.add('busy'); btn.disabled = true;
-  let r; try { r = await apiPost({ action: 'login', username: u, password: p }); } catch (e) { r = { ok: false, error: 'Tidak bisa terhubung ke server. Cek internet lalu coba lagi.' }; }
-  btn.classList.remove('busy'); btn.disabled = false;
-  if (!r.ok) return _tampilErr(r.error || 'Login gagal.');
-  const user = r.user; authToken = r.token;
-  document.getElementById('lerr').style.display = 'none';
+  const err = document.getElementById('lerr');
+  const showErr = msg => { err.style.display = 'block'; err.textContent = msg; };
+  if (!u || !p) { showErr('Isi username dan password terlebih dahulu.'); return; }
+  // Login diperiksa di server. Dikirim lewat POST (tanpa header khusus) sehingga kata sandi
+  // tidak muncul di URL dan balasan server tetap bisa dibaca.
+  loginBusy = true;
+  document.getElementById('loading-overlay').style.display = 'flex';
   try {
-    if (document.getElementById('lr').checked) localStorage.setItem('btq_u', u); else localStorage.removeItem('btq_u');
-    sessionStorage.setItem('btq_t', authToken); sessionStorage.setItem('btq_s', JSON.stringify(user));
-  } catch (e) {}
-  currentUser = user; initApp();
-  toast((user.role !== activeLoginRole ? 'Masuk sebagai ' + _nmRole(user.role) + '. ' : '') + "Assalamu'alaikum, " + user.nama);
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: u, password: p, role: activeLoginRole }) });
+    const data = await res.json();
+    if (data && data.ok && data.user) {
+      err.style.display = 'none';
+      currentUser = data.user;
+      authToken = data.token || null;
+      document.getElementById('lp').value = '';
+      await muatDataDariCloud();
+      initApp();
+      return;
+    }
+    if (data && data.error === 'terkunci') showErr('Terlalu banyak percobaan gagal. Coba lagi dalam 10 menit.');
+    else if (data && data.error === 'salah') showErr('Username/Password akun internal salah.');
+    else showErr('Server belum mendukung login aman. Perbarui skrip Apps Script terlebih dahulu.');
+  } catch (e) {
+    showErr('Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.');
+  } finally {
+    loginBusy = false;
+    document.getElementById('loading-overlay').style.display = 'none';
+  }
 }
 function doLogout() {
-  if (authToken) apiPost({ action: 'logout', token: authToken }).catch(() => {});
-  authToken = ''; currentUser = null;
-  try { sessionStorage.removeItem('btq_s'); sessionStorage.removeItem('btq_t'); } catch (e) {}
-  document.getElementById('lp').value = ''; backToGate();
+  if (authToken) fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'logout', token: authToken }), keepalive: true }).catch(() => {});
+  authToken = null; currentUser = null;
+  document.getElementById('lp').value = '';
+  backToGate();
 }
-function togglePw() {
-  const i = document.getElementById('lp'), t = document.getElementById('pw-t'), show = i.type === 'password';
-  i.type = show ? 'text' : 'password'; t.textContent = show ? '🙈' : '👁';
-  t.setAttribute('aria-label', show ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
-}
-function pulihSesi() {
+
+// Kirim data ke server membawa token sesi; balasan dibaca agar kegagalan tidak diam-diam dianggap sukses
+async function kirimKeCloud(table, data) {
   try {
-    const t = sessionStorage.getItem('btq_t'), u = JSON.parse(sessionStorage.getItem('btq_s') || 'null');
-    if (!t || !u || !u.role) return;
-    authToken = t; currentUser = u; document.getElementById('gate-screen').style.display = 'none'; initApp();
-  } catch (e) {}
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ table, data, token: authToken }) });
+    const r = await res.json();
+    return (r && r.ok) ? { ok: true } : { ok: false, error: r && r.error };
+  } catch (e) { return { ok: false, error: 'network' }; }
 }
-const _sls = showLoginScreen;
-showLoginScreen = function (r) {
-  _sls(r);
-  let saved = ''; try { saved = localStorage.getItem('btq_u') || ''; } catch (e) {}
-  document.getElementById('lu').value = saved; document.getElementById('lerr').style.display = 'none';
-  if (matchMedia('(pointer:fine)').matches) setTimeout(() => document.getElementById(saved ? 'lp' : 'lu').focus(), 350);
-};
-document.addEventListener('keyup', e => {
-  if (e.target.id === 'lp' && e.getModifierState) document.getElementById('caps').classList.toggle('on', e.getModifierState('CapsLock'));
-});
+function tanganiGagalKirim(error) {
+  document.getElementById('loading-overlay').style.display = 'none';
+  if (error === 'unauthorized') { toast('Sesi berakhir. Silakan masuk kembali.', 'err'); doLogout(); }
+  else if (error === 'forbidden') toast('Akun ini tidak punya izin untuk aksi tersebut.', 'err');
+  else toast('Gagal menyimpan. Periksa koneksi internet lalu coba lagi.', 'err');
+}
 
 function initApp() {
   document.getElementById('login-screen').style.display='none';
@@ -996,7 +1200,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   document.getElementById('tab-'+id).classList.add('active');
-  if(id === 'dashboard') switchDashTab('ngaji');
+  if(id === 'dashboard') { renderDashInsights(); switchDashTab('ngaji'); }
   if(id === 'laporan') switchLapTab('ngaji');
   if(id === 'inputmassal') switchInputMode('ngaji');
   const renders={dashboard:renderDash,siswa:renderSiswaTbl,laporan:renderLaporan,inputmassal:loadSiswaMassal};
@@ -1008,13 +1212,13 @@ function renderDash() {
   let list = fk ? db.siswa.filter(s=>String(s.kelas).trim()===String(fk).trim()) : [...db.siswa];
   
   if (currentDashTab === 'ngaji') {
-    list.sort((a,b) => skorNgaji(b) - skorNgaji(a));
+    list.sort((a,b) => (JILID_WEIGHT[b.jilidSaatIni || 'jilid1'] || 0) - (JILID_WEIGHT[a.jilidSaatIni || 'jilid1'] || 0));
     document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let persen = hitungPersenNgaji(s.jilidSaatIni || 'jilid1');
       return `<tr><td><strong>#${idx + 1}</strong></td><td><strong>${s.nama}</strong></td><td><span class="badge bbl">${s.kelas}</span></td><td>${JILID_ICON[s.jilidSaatIni || 'jilid1']} ${JILID_LABEL[s.jilidSaatIni || 'jilid1']} (Hal ${s.halTerakhir || '1'})</td><td><div class="pbar"><div class="ptrack"><div class="pfill" style="width:${persen}%"></div></div><span class="badge bg">${persen}%</span></div></td></tr>`;
     }).join('') : `<tr><td colspan="5"><div class="empty-state">Data kosong</div></td></tr>`;
   } else {
-    list.sort((a,b) => skorHaf(b) - skorHaf(a));
+    list.sort((a,b) => (JUZ30_LIST.indexOf(b.suratTerakhir || "Belum Hafal")) - (JUZ30_LIST.indexOf(a.suratTerakhir || "Belum Hafal")));
     document.getElementById('dash-tbl').innerHTML = list.length ? list.map((s, idx) => {
       let sTerakhir = s.suratTerakhir || "Belum Hafal";
       let persen = hitungPersenHafalan(sTerakhir);
@@ -1035,16 +1239,17 @@ function renderSiswaTbl() {
   }).join('') : `<tr><td colspan="4">Tidak ada data</td></tr>`;
 }
 
-function tambahSiswa() {
+async function tambahSiswa() {
   const nama=document.getElementById('sn').value.trim(); const kelas=document.getElementById('sk').value;
   const jilid=document.getElementById('sj').value; const hal=document.getElementById('shal').value||'1';
   if(!nama) return;
   const rawData = { id:'s'+Date.now(), nama, kelas, jilidSaatIni:jilid, halTerakhir:hal, suratTerakhir:'Belum Hafal', ayatTerakhir:'0' };
-  
   document.getElementById('loading-overlay').style.display = 'flex';
-  kirim("Siswa", rawData)
-    .then(()=>{ toast("Siswa berhasil terdaftar!"); document.getElementById('sn').value=''; return muatDataDariCloud(); })
-    .then(()=>renderSiswaTbl());
+  const hasil = await kirimKeCloud('Siswa', rawData);
+  if (hasil.ok) { toast("Siswa berhasil terdaftar!"); document.getElementById('sn').value=''; }
+  else tanganiGagalKirim(hasil.error);
+  await muatDataDariCloud();          // sekaligus menyinkronkan ulang data dari server
+  if (currentUser) renderSiswaTbl();
 }
 
 function renderLaporan() {
@@ -1137,6 +1342,8 @@ function riwayatHTML(rec, materiTeks, tglBatas) {
 function loadSiswaMassal() {
   const kelasDipilih = document.getElementById('im-kelas').value;
   const thHead = document.getElementById('massal-th-head');
+  document.querySelector('table.massal').classList.remove('target');
+  document.getElementById('massal-info').style.display = 'none';
   if(!kelasDipilih) {
     thHead.innerHTML = "<th>Informasi Instansional</th>";
     document.getElementById('massal-tbl').innerHTML = `<tr><td style="text-align:center; padding:30px; color:var(--text-muted)">Silakan tentukan kelas terlebih dahulu.</td></tr>`;
@@ -1151,6 +1358,8 @@ function loadSiswaMassal() {
 
   // Riwayat yang ditampilkan = catatan terakhir SEBELUM tanggal input
   const tglBatas = document.getElementById('im-tgl').value || new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
+
+  if (currentInputMode === 'target') { renderTargetMassal(siswaKelas, kelasDipilih, thHead); return; }
 
   // ATUR HEADER TABEL DINAMIS BERDASARKAN MODE
   if (currentInputMode === 'ngaji') {
@@ -1171,7 +1380,7 @@ function loadSiswaMassal() {
           ${Object.keys(JILID_LABEL).map(k=>`<option value="${k}" ${defJilid===k?'selected':''}>${JILID_LABEL[k]}</option>`).join('')}
         </select></td>
         <td><input type="text" class="in-input row-hal" value="${defHal}"></td>
-        <td><select class="in-select row-nilai"><option value="">Nilai…</option><option value="65">65</option><option value="75">75</option><option value="85">85</option></select></td>
+        <td>${nilaiSelectHTML()}</td>
         <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi baru"></td>
       </tr>`;
@@ -1195,7 +1404,7 @@ function loadSiswaMassal() {
           ${JUZ30_LIST.map(surat => `<option value="${surat}" ${defSurat===surat?'selected':''}>${surat}</option>`).join('')}
         </select></td>
         <td><input type="text" class="in-input row-ayat" value="${defAyat}"></td>
-        <td><select class="in-select row-nilai"><option value="">Nilai…</option><option value="65">65</option><option value="75">75</option><option value="85">85</option></select></td>
+        <td>${nilaiSelectHTML()}</td>
         <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi hafalan"></td>
       </tr>`;
@@ -1204,28 +1413,26 @@ function loadSiswaMassal() {
   document.getElementById('massal-action-box').style.display = 'block';
 }
 
+// Nilai berupa grade: hanya 60, 70, atau 80 (bawaan 80)
+const NILAI_PILIHAN = ['60','70','80'];
+function nilaiSelectHTML(def='80') {
+  return `<select class="in-select row-nilai" aria-label="Nilai">${NILAI_PILIHAN.map(n=>`<option value="${n}" ${n===def?'selected':''}>${n}</option>`).join('')}</select>`;
+}
+
 // PERBAIKAN FUNGSI SIMPAN MASSAL (Bug kode terputus, dan initInputMassal yang diubah ke loadSiswaMassal)
-function eksekusiSimpanMassal() {
-  // Nilai wajib dipilih (65/75/85) kecuali santri absen
-  document.querySelectorAll('.massal-row.need').forEach(r => r.classList.remove('need'));
-  const kurang = [...document.querySelectorAll('.massal-row')].filter(r => {
-    const isi = (r.querySelector('.row-hal') || r.querySelector('.row-ayat')).value.trim();
-    return isi !== '' && r.querySelector('.row-status').value !== 'tidak_hadir' && !r.querySelector('.row-nilai').value;
-  });
-  if (kurang.length) {
-    kurang.forEach(r => r.classList.add('need')); kurang[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    toast(kurang.length + ' santri belum diberi nilai (65 / 75 / 85).', 'err'); return;
-  }
+async function eksekusiSimpanMassal() {
   const tanggal = document.getElementById('im-tgl').value;
   const rows = document.querySelectorAll('.massal-row');
   let dataKirim = [];
-  
+
+  if(currentInputMode === 'target') { await simpanTargetMassal(rows, tanggal); return; }
+
   if(currentInputMode === 'ngaji') {
     rows.forEach(row => {
       const siswaId = row.getAttribute('data-siswaid');
       const jilid = row.querySelector('.row-jilid').value;
       const halaman = row.querySelector('.row-hal').value.trim();
-      const nilai = row.querySelector('.row-status').value === 'tidak_hadir' ? '' : row.querySelector('.row-nilai').value;
+      const nilai = row.querySelector('.row-nilai').value;
       const status = row.querySelector('.row-status').value;
       const catatan = row.querySelector('.row-catatan').value.trim();
       if(halaman !== "") {
@@ -1234,20 +1441,18 @@ function eksekusiSimpanMassal() {
     });
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
-    kirim("Setoran", dataKirim)
-      .then(async ()=>{ 
-          
-         await muatDataDariCloud(); 
-         toast("Sinkronisasi berhasil: log buku ngaji diperbarui!");
-         loadSiswaMassal(); 
-      });
+    const hasil = await kirimKeCloud('Setoran', dataKirim);
+    if (!hasil.ok) { tanganiGagalKirim(hasil.error); return; }
+    await muatDataDariCloud();
+    toast("Sinkronisasi berhasil: log buku ngaji diperbarui!"); confetti();
+    loadSiswaMassal();
   } else {
     // SIMPAN HAFALAN MASSAL
     rows.forEach(row => {
       const siswaId = row.getAttribute('data-siswaid');
       const surat = row.querySelector('.row-surat').value;
       const ayat = row.querySelector('.row-ayat').value.trim();
-      const nilai = row.querySelector('.row-status').value === 'tidak_hadir' ? '' : row.querySelector('.row-nilai').value;
+      const nilai = row.querySelector('.row-nilai').value;
       const status = row.querySelector('.row-status').value;
       const catatan = row.querySelector('.row-catatan').value.trim();
       if(ayat !== "") {
@@ -1256,13 +1461,11 @@ function eksekusiSimpanMassal() {
     });
     if(dataKirim.length === 0) return;
     document.getElementById('loading-overlay').style.display = 'flex';
-    kirim("Hafalan", dataKirim)
-      .then(async ()=>{ 
-          
-         await muatDataDariCloud(); 
-         toast("Sinkronisasi berhasil: jurnal hafalan Juz 30 terunggah!");
-         loadSiswaMassal(); 
-      });
+    const hasil = await kirimKeCloud('Hafalan', dataKirim);
+    if (!hasil.ok) { tanganiGagalKirim(hasil.error); return; }
+    await muatDataDariCloud();
+    toast("Sinkronisasi berhasil: jurnal hafalan Juz 30 terunggah!"); confetti();
+    loadSiswaMassal();
   }
 }
 
@@ -1298,100 +1501,506 @@ document.querySelectorAll('tbody').forEach(tb => tblObserver.observe(tb, { child
 // Warna baris jurnal mengikuti hasil capaian; Enter untuk masuk & membuka baris
 document.addEventListener('change', e => {
   if (e.target.classList && e.target.classList.contains('row-status')) e.target.closest('tr').dataset.st = e.target.value;
+  if (e.target.classList && e.target.classList.contains('row-bc')) e.target.closest('tr').dataset.st = e.target.value === 'B' ? 'lancar' : e.target.value === 'C' ? 'perlu_ulang' : 'belum';
 });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  if (e.target.matches && e.target.matches('tr.clickable-row')) e.target.click();
+  if (e.target.id === 'lu' || e.target.id === 'lp') doLogin();
+  else if (e.target.matches && e.target.matches('tr.clickable-row')) e.target.click();
 });
 
 
-// ==================== V2: STATISTIK, PODIUM, EFEK ====================
-const q = id => document.getElementById(id);
-const hariIni = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
-const numHal = h => { h = String(h == null ? '' : h).trim(); if (/^\d+/.test(h)) return parseInt(h); const m = h.match(/(\d+)\D*$/); return m ? parseInt(m[1]) : 0; };
-const skorNgaji = s => (JILID_WEIGHT[s.jilidSaatIni || 'jilid1'] || 0) * 1e4 + numHal(s.halTerakhir);
-const skorHaf = s => Math.max(0, JUZ30_LIST.indexOf(s.suratTerakhir || 'Belum Hafal')) * 1e4 + numHal(s.ayatTerakhir);
+// ==================== DASHBOARD INFORMATIF (hanya membaca data, tidak mengubah alur simpan) ====================
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NAMA_HARI = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+const NAMA_BULAN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+const SVG_IC = {
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  book: '<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/>',
+  check: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+  star: '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
+  up: '<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>',
+  down: '<path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/>',
+  flat: '<path d="M5 12h14"/>',
+  alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
+  trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'
+};
+const svgIc = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${SVG_IC[n]}</svg>`;
+const CROWN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m2 8 5 4 5-7 5 7 5-4-2 11H4z"/></svg>';
 
-function statsHTML(items) {
-  return items.map((x, i) => `<div class="stat ${x.c || ''}" style="--i:${i}"><i>${x.l}</i><b data-to="${x.v}" data-suf="${x.s || ''}">0${x.s || ''}</b><small>${x.d}</small></div>`).join('');
+function hariIniKey() { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' }); }
+function geserKey(key, n) { const d = new Date(key + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function selisihHari(a, b) { return Math.round((new Date(b + 'T00:00:00Z') - new Date(a + 'T00:00:00Z')) / 86400000); }
+function jamJakarta() { return parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', hour: 'numeric', hourCycle: 'h23' }).format(new Date()), 10); }
+function inisial(nama) { return escapeHtml((String(nama || '?').trim()[0] || '?').toUpperCase()); }
+
+function jurnalSemua() {
+  const m = (arr, tipe) => arr.map(x => ({ siswaId: String(x.siswaId).trim(), key: tglKey(x.tanggal), status: x.status, nilai: parseFloat(x.nilai), tipe }));
+  return [...m(db.setoran, 'ngaji'), ...m(db.hafalan, 'hafalan')].filter(j => j.key);
 }
-function countUp(root) {
-  const calm = matchMedia('(prefers-reduced-motion:reduce)').matches;
-  root.querySelectorAll('[data-to]').forEach(el => {
-    const to = +el.dataset.to, suf = el.dataset.suf || '';
-    if (calm) { el.textContent = to + suf; return; }
-    const t0 = performance.now();
-    (function f(t) { const p = Math.min(1, (t - t0) / 900); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))) + suf; if (p < 1) requestAnimationFrame(f); })(t0);
+
+function hitungStatistik() {
+  const today = hariIniKey();
+  const J = jurnalSemua();
+  const d7 = geserKey(today, -6), d14 = geserKey(today, -13), d30 = geserKey(today, -29), dLaluA = geserKey(today, -13), dLaluB = geserKey(today, -7);
+
+  const minggu = J.filter(j => j.key >= d7 && j.key <= today);
+  const mingguLalu = J.filter(j => j.key >= dLaluA && j.key <= dLaluB);
+  const hariIni = J.filter(j => j.key === today);
+  const santriHariIni = new Set(hariIni.map(j => j.siswaId)).size;
+
+  const hadir30 = J.filter(j => j.key >= d30 && j.key <= today && j.status !== 'tidak_hadir');
+  const tingkatLancar = hadir30.length ? Math.round(hadir30.filter(j => j.status === 'lancar').length / hadir30.length * 100) : null;
+  const nilai30 = hadir30.map(j => j.nilai).filter(Number.isFinite);
+  const rataNilai = nilai30.length ? nilai30.reduce((a, b) => a + b, 0) / nilai30.length : null;
+
+  const harian = [];
+  for (let i = 13; i >= 0; i--) {
+    const key = geserKey(today, -i);
+    const arr = J.filter(j => j.key === key);
+    harian.push({ key, n: arr.length, lancar: arr.filter(j => j.status === 'lancar').length, ulang: arr.filter(j => j.status === 'perlu_ulang').length, absen: arr.filter(j => j.status === 'tidak_hadir').length });
+  }
+
+  const distribusi = Object.keys(JILID_LABEL).map(k => ({ k, n: db.siswa.filter(s => (s.jilidSaatIni || 'jilid1') === k).length }));
+
+  const perSiswa = {};
+  J.forEach(j => { (perSiswa[j.siswaId] = perSiswa[j.siswaId] || []).push(j); });
+
+  const bintang = db.siswa.map(s => {
+    const arr = (perSiswa[String(s.id).trim()] || []).filter(j => j.key >= d7 && j.key <= today && j.status !== 'tidak_hadir');
+    const lancar = arr.filter(j => j.status === 'lancar');
+    const nl = arr.map(j => j.nilai).filter(Number.isFinite);
+    return { s, lancar: lancar.length, rata: nl.length ? nl.reduce((a, b) => a + b, 0) / nl.length : 0 };
+  }).filter(x => x.lancar > 0).sort((a, b) => b.lancar - a.lancar || b.rata - a.rata).slice(0, 3);
+
+  const perhatianSemua = db.siswa.map(s => {
+    const arr = perSiswa[String(s.id).trim()] || [];
+    const last = arr.reduce((m, j) => (j.key > m ? j.key : m), '');
+    const hari = last ? selisihHari(last, today) : null;
+    const ulang = arr.filter(j => j.key >= d14 && j.status === 'perlu_ulang').length;
+    if (hari === null) return { s, alasan: 'Belum pernah ada setoran', skor: 9999 };
+    if (hari >= 7) return { s, alasan: `${hari} hari tanpa setoran`, skor: hari };
+    if (ulang >= 3) return { s, alasan: `Mengulang ${ulang}× dalam 2 pekan`, skor: ulang };
+    return null;
+  }).filter(Boolean).sort((a, b) => b.skor - a.skor);
+
+  return { today, jurnalMinggu: minggu.length, jurnalLalu: mingguLalu.length, santriHariIni, tingkatLancar, rataNilai, harian, distribusi, bintang, perhatian: perhatianSemua.slice(0, 6), perhatianTotal: perhatianSemua.length };
+}
+
+function ringHTML(persen, o) {
+  o = o || {};
+  const size = o.size || 120, th = o.th || 12;
+  return `<span class="ring-box" style="--size:${size}px"><progress class="ring${o.gold ? ' gold' : ''}" value="${persen}" max="100" aria-label="${escapeHtml(o.label || 'Progres')} ${persen} persen" style="--value:${persen};--th:${th}px"></progress>${o.inner ? `<span class="ring-center">${o.inner}</span>` : ''}</span>`;
+}
+
+function podiumHTML(items, ariaLabel) {
+  const posisi = [1, 0, 2];   // tampilan: juara 2, juara 1, juara 3
+  return `<div class="podium" role="group" aria-label="${escapeHtml(ariaLabel)}">${posisi.map(i => {
+    const it = items[i];
+    if (!it) return '<div></div>';
+    const klik = it.id ? ` data-id="${escapeHtml(it.id)}" tabindex="0" role="button"` : '';
+    return `<div class="pod p${i + 1}" style="--i:${i}"${klik} aria-label="Peringkat ${i + 1}: ${escapeHtml(it.nama)}">
+      <div class="pod-av">${i === 0 ? `<span class="pod-crown">${CROWN}</span>` : ''}${inisial(it.nama)}</div>
+      <div class="pod-name">${escapeHtml(it.nama)}</div>
+      <div class="pod-sub">${escapeHtml(it.sub)}</div>
+      <div class="pod-step">${i + 1}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function trendHTML(now, prev) {
+  if (!now && !prev) return `<span class="trend">${svgIc('flat')} Belum ada jurnal</span>`;
+  if (!prev) return `<span class="trend up">${svgIc('up')} Baru mulai pekan ini</span>`;
+  const p = Math.round((now - prev) / prev * 100);
+  if (p > 0) return `<span class="trend up">${svgIc('up')} Naik ${p}% dari pekan lalu</span>`;
+  if (p < 0) return `<span class="trend down">${svgIc('down')} Turun ${Math.abs(p)}% dari pekan lalu</span>`;
+  return `<span class="trend">${svgIc('flat')} Sama dengan pekan lalu</span>`;
+}
+
+function renderDashInsights() {
+  const el = document.getElementById('dash-insights');
+  if (!el || !currentUser) return;
+  const S = hitungStatistik();
+  const total = db.siswa.length;
+  const jam = jamJakarta();
+  const salam = jam < 11 ? 'Selamat pagi' : jam < 15 ? 'Selamat siang' : jam < 18 ? 'Selamat sore' : 'Selamat malam';
+  const tglPanjang = new Date().toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const persenHariIni = total ? Math.min(100, Math.round(S.santriHariIni / total * 100)) : 0;
+  let pesan;
+  if (!total) pesan = 'Belum ada santri terdaftar. Mulai dari menu Manajemen Siswa.';
+  else if (!S.santriHariIni) pesan = 'Belum ada setoran tercatat hari ini. Semoga hari ini penuh semangat membaca.';
+  else if (S.santriHariIni >= total) pesan = 'Alhamdulillah, seluruh santri sudah tercatat hari ini.';
+  else pesan = `${S.santriHariIni} dari ${total} santri sudah tercatat hari ini.`;
+
+  const kelasN = new Set(db.siswa.map(s => String(s.kelas).trim()).filter(Boolean)).size;
+  const rataTxt = S.rataNilai == null ? '—' : S.rataNilai.toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const angka = (v, dec, suf) => `<span data-count="${v}" data-dec="${dec || 0}" data-suffix="${suf || ''}">${Number(v).toLocaleString('id-ID', { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 })}${suf || ''}</span>`;
+
+  const kpi = `<div class="stat-grid">
+    <div class="stat" style="--i:0"><span class="stat-ic">${svgIc('users')}</span><div><div class="stat-lb">Santri Aktif</div><div class="stat-val">${angka(total)}</div><div class="stat-sub">tersebar di ${kelasN} kelas</div></div></div>
+    <div class="stat blue" style="--i:1"><span class="stat-ic">${svgIc('book')}</span><div><div class="stat-lb">Jurnal 7 Hari</div><div class="stat-val">${angka(S.jurnalMinggu)}</div><div class="stat-sub">${trendHTML(S.jurnalMinggu, S.jurnalLalu)}</div></div></div>
+    <div class="stat ringed" style="--i:2"><span class="stat-ic">${S.tingkatLancar == null ? svgIc('check') : ringHTML(S.tingkatLancar, { size: 46, th: 6, label: 'Tingkat lancar' }) + `<span class="ring-center" style="color:var(--green-text)">${svgIc('check')}</span>`}</span><div><div class="stat-lb">Tingkat Lancar</div><div class="stat-val">${S.tingkatLancar == null ? '—' : angka(S.tingkatLancar, 0, '%')}</div><div class="stat-sub">30 hari terakhir</div></div></div>
+    <div class="stat gold" style="--i:3"><span class="stat-ic">${svgIc('star')}</span><div><div class="stat-lb">Rata-rata Nilai</div><div class="stat-val">${S.rataNilai == null ? '—' : angka(Math.round(S.rataNilai * 10) / 10, 1)}</div><div class="stat-sub">30 hari · skala 60 / 70 / 80</div></div></div>
+  </div>`;
+
+  // Grafik batang 14 hari
+  const maks = Math.max(1, ...S.harian.map(h => h.n));
+  const totalJurnal = S.harian.reduce((a, h) => a + h.n, 0);
+  const idxMaks = S.harian.reduce((bi, h, i, a) => (h.n > a[bi].n ? i : bi), 0);
+  const lbl = h => { const d = new Date(h.key + 'T00:00:00Z'); return `${NAMA_HARI[d.getUTCDay()]}, ${d.getUTCDate()} ${NAMA_BULAN[d.getUTCMonth()]}`; };
+  const kolom = S.harian.map((h, i) => {
+    const today = i === S.harian.length - 1;
+    const ket = `${lbl(h)}: ${h.n} jurnal (${h.lancar} lancar, ${h.ulang} mengulang, ${h.absen} absen)`;
+    const tampilNilai = h.n > 0 && (today || (i === idxMaks && h.n === maks));
+    return `<div class="viz-col${today ? ' today' : ''}${h.n ? '' : ' zero'}" tabindex="0" role="img" aria-label="${ket}" data-lbl="${lbl(h)}" data-n="${h.n}" data-l="${h.lancar}" data-u="${h.ulang}" data-a="${h.absen}"><div class="viz-bar" style="--h:${Math.round(h.n / maks * 100)};--i:${i}">${tampilNilai ? `<span class="viz-val">${h.n}</span>` : ''}</div></div>`;
+  }).join('');
+  const sumbuX = S.harian.map((h, i) => { const d = new Date(h.key + 'T00:00:00Z'); return `<span${i === S.harian.length - 1 ? ' class="tdy"' : ''}>${d.getUTCDate()}<span class="wd">${NAMA_HARI[d.getUTCDay()]}</span></span>`; }).join('');
+  const barisTabel = S.harian.map(h => `<tr><td>${lbl(h)}</td><td>${h.n}</td><td>${h.lancar}</td><td>${h.ulang}</td><td>${h.absen}</td></tr>`).join('');
+  const grafik = `<div class="card reveal"><div class="card-header"><span class="card-title">Aktivitas Jurnal 14 Hari</span><span class="card-note">${totalJurnal} jurnal tercatat</span></div>
+    <div class="card-body"><div class="viz-wrap" role="group" aria-label="Grafik batang jumlah jurnal per hari, 14 hari terakhir">
+      <div class="viz-bars">${kolom}</div><div class="viz-x" aria-hidden="true">${sumbuX}</div><div class="viz-tip" aria-hidden="true"></div></div>
+      <div class="viz-legend"><span><i></i>Hari biasa</span><span><i class="g"></i>Hari ini</span></div>
+      <details class="viz-table"><summary>Lihat sebagai tabel</summary><table><thead><tr><th>Tanggal</th><th>Jurnal</th><th>Lancar</th><th>Ulang</th><th>Absen</th></tr></thead><tbody>${barisTabel}</tbody></table></details>
+    </div></div>`;
+
+  // Sebaran jilid
+  const maksJ = Math.max(1, ...S.distribusi.map(d => d.n));
+  const sebaran = `<div class="card reveal"><div class="card-header"><span class="card-title">Sebaran Jilid Santri</span><span class="card-note">${total} santri</span></div><div class="card-body">${S.distribusi.map((d, i) => `<div class="dist-row${d.k === 'alquran' ? ' gold' : ''}${d.n ? '' : ' nol'}"><span>${escapeHtml(JILID_LABEL[d.k])}</span><div class="dist-track"><div class="dist-fill" style="--w:${Math.round(d.n / maksJ * 100)};--i:${i}"></div></div><span class="dist-n">${d.n}</span></div>`).join('')}</div></div>`;
+
+  // Podium dan perhatian
+  const bintang = S.bintang.length
+    ? podiumHTML(S.bintang.map(b => ({ nama: b.s.nama, sub: `${b.lancar} lancar · ${String(b.s.kelas).replace(/^Kelas\s*/, 'Kls ')}` })), 'Tiga santri terbaik pekan ini')
+    : `<div class="empty-state">Belum ada setoran lancar dalam 7 hari terakhir.</div>`;
+  const perhatian = S.perhatian.length
+    ? S.perhatian.map((p, i) => `<div class="attn-item" style="--i:${i}"><span class="attn-av">${inisial(p.s.nama)}</span><div><div class="attn-name">${escapeHtml(p.s.nama)} <span class="badge bbl">${escapeHtml(p.s.kelas)}</span></div><div class="attn-why">${svgIc('alert')} ${escapeHtml(p.alasan)}</div></div></div>`).join('')
+    : `<div class="attn-ok">${svgIc('check')}<span>Semua santri aktif dalam sepekan terakhir. Alhamdulillah.</span></div>`;
+
+  el.innerHTML = `
+    <section class="dash-hero" aria-label="Ringkasan hari ini">
+      <div class="hero-text"><div class="hero-hi">${salam}</div><div class="hero-name">${escapeHtml(currentUser.nama || 'Administrator')}</div><div class="hero-date">${tglPanjang}</div><p class="hero-msg">${pesan}</p></div>
+      ${ringHTML(persenHariIni, { size: 104, th: 10, label: 'Santri tercatat hari ini', inner: `<b data-count="${S.santriHariIni}">${S.santriHariIni}</b><small>dari ${total} santri</small>` })}
+    </section>
+    ${kpi}
+    <div class="dash-cols">${grafik}${sebaran}</div>
+    <div class="dash-cols one">${targetPerKelasHTML()}</div>
+    <div class="dash-cols">
+      <div class="card reveal"><div class="card-header"><span class="card-title">Bintang Pekan Ini</span><span class="card-note">paling banyak setoran lancar</span></div><div class="card-body">${bintang}</div></div>
+      <div class="card reveal"><div class="card-header"><span class="card-title">Perlu Perhatian</span><span class="card-note">${S.perhatianTotal ? S.perhatianTotal + ' santri' : 'semua aman'}</span></div><div class="card-body">${perhatian}</div></div>
+    </div>`;
+  mulaiAnimasi(el);
+}
+
+// Angka berhitung naik + tooltip grafik
+function hitungNaik(el) {
+  const to = parseFloat(el.dataset.count), dec = parseInt(el.dataset.dec || '0', 10), suf = el.dataset.suffix || '';
+  if (!isFinite(to)) return;
+  const fmt = v => v.toLocaleString('id-ID', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suf;
+  if (reduceMotion()) { el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 1000;
+  const step = t => { const p = Math.min(1, (t - t0) / dur); el.textContent = fmt(to * (1 - Math.pow(1 - p, 4))); if (p < 1) requestAnimationFrame(step); };
+  el.textContent = fmt(0);
+  requestAnimationFrame(step);
+}
+
+function pasangTooltip(wrap) {
+  const tip = wrap.querySelector('.viz-tip'); if (!tip) return;
+  const sembunyi = () => { tip.classList.remove('on'); wrap.querySelectorAll('.viz-col.on').forEach(c => c.classList.remove('on')); };
+  const tampil = col => {
+    sembunyi(); col.classList.add('on');
+    tip.innerHTML = `<b>${col.dataset.lbl}</b>${col.dataset.n} jurnal<br>${col.dataset.l} lancar · ${col.dataset.u} mengulang · ${col.dataset.a} absen`;
+    const w = wrap.getBoundingClientRect(), b = col.querySelector('.viz-bar').getBoundingClientRect();
+    const setengah = tip.offsetWidth / 2, cx = b.left - w.left + b.width / 2;
+    tip.style.left = Math.min(Math.max(cx - setengah, 2), w.width - tip.offsetWidth - 2) + 'px';
+    tip.style.top = Math.max(0, b.top - w.top - tip.offsetHeight - 8) + 'px';
+    tip.classList.add('on');
+  };
+  wrap.addEventListener('pointerover', e => { const c = e.target.closest('.viz-col'); if (c) tampil(c); });
+  wrap.addEventListener('pointerdown', e => { const c = e.target.closest('.viz-col'); if (c) tampil(c); });
+  wrap.addEventListener('focusin', e => { const c = e.target.closest('.viz-col'); if (c) tampil(c); });
+  wrap.addEventListener('pointerleave', sembunyi);
+  wrap.addEventListener('focusout', sembunyi);
+}
+
+function mulaiAnimasi(root) {
+  root.querySelectorAll('[data-count]').forEach(hitungNaik);
+  root.querySelectorAll('.viz-wrap').forEach(pasangTooltip);
+}
+
+// Peralihan halus antar tab (View Transitions bila tersedia)
+function transisi(fn) {
+  if (document.startViewTransition && !reduceMotion()) { try { document.startViewTransition(fn); return; } catch (e) { /* lanjut tanpa animasi */ } }
+  fn();
+}
+const gantiDashTab = m => transisi(() => switchDashTab(m));
+const gantiOrtuTab = m => transisi(() => switchOrtuTab(m));
+const gantiLapTab = m => transisi(() => switchLapTab(m));
+
+// Ringkasan dan podium di papan wali murid
+function renderOrtuExtra() {
+  const box = document.getElementById('ortu-extra'); if (!box) return;
+  const kelas = document.getElementById('of-kelas').value;
+  const list = db.siswa.filter(s => String(s.kelas).trim() === String(kelas).trim());
+  if (!list.length) { box.innerHTML = ''; return; }
+  const ng = currentOrtuTab === 'ngaji';
+  const persen = s => ng ? hitungPersenNgaji(s.jilidSaatIni || 'jilid1') : hitungPersenHafalan(s.suratTerakhir || 'Belum Hafal');
+  const urut = [...list].sort((a, b) => persen(b) - persen(a));
+  const rata = Math.round(list.reduce((a, s) => a + persen(s), 0) / list.length);
+  const tuntas = list.filter(s => persen(s) >= 100).length;
+  const angka = (v, suf) => `<span data-count="${v}" data-suffix="${suf || ''}">${v}${suf || ''}</span>`;
+  const top = urut.filter(s => persen(s) > 0).slice(0, 3).map(s => ({
+    id: s.id, nama: s.nama,
+    sub: ng ? `${JILID_LABEL[s.jilidSaatIni || 'jilid1']} · ${persen(s)}%` : `${s.suratTerakhir || 'Belum Hafal'} · ${persen(s)}%`
+  }));
+  box.innerHTML = `<div class="mini-stats">
+      <div class="stat" style="--i:0"><div class="stat-lb">Santri</div><div class="stat-val">${angka(list.length)}</div></div>
+      <div class="stat gold" style="--i:1"><div class="stat-lb">Rata-rata</div><div class="stat-val">${angka(rata, '%')}</div></div>
+      <div class="stat blue" style="--i:2"><div class="stat-lb">Tuntas 100%</div><div class="stat-val">${angka(tuntas)}</div></div>
+    </div>
+    ${top.length ? `<div class="card reveal"><div class="card-header"><span class="card-title">Bintang Kelas</span><span class="card-note">${ng ? 'capaian jilid tertinggi' : 'hafalan terbanyak'}</span></div><div class="card-body">${podiumHTML(top, 'Tiga santri teratas di kelas ini')}</div></div>` : ''}`;
+  mulaiAnimasi(box);
+}
+
+// Konfeti saat jurnal tersimpan
+function confetti() {
+  if (reduceMotion()) return;
+  const wrap = document.createElement('div'); wrap.className = 'confetti-wrap'; wrap.setAttribute('aria-hidden', 'true');
+  const warna = ['#198754', '#c9943a', '#f0cf85', '#2cc07b', '#343a40'];
+  for (let i = 0; i < 36; i++) {
+    const p = document.createElement('i'); p.className = 'cf';
+    p.style.cssText = `--x:${(Math.random() * 100).toFixed(1)}%;--dx:${Math.round((Math.random() - .5) * 220)}px;--dy:${Math.round(60 + Math.random() * 40)}vh;--rot:${Math.round((Math.random() - .5) * 900)}deg;--d:${Math.round(Math.random() * 250)}ms;--t:${(1.1 + Math.random() * .9).toFixed(2)}s;background:${warna[i % warna.length]}`;
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(() => wrap.remove(), 2600);
+}
+
+// Klik / Enter pada podium membuka detail santri (wali murid)
+document.addEventListener('click', e => { const p = e.target.closest && e.target.closest('.pod[data-id]'); if (p) lihatDetailAnakOrtu(p.dataset.id); });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches && e.target.matches('.pod[data-id]')) lihatDetailAnakOrtu(e.target.dataset.id); });
+
+
+// ==================== TARGET SEMESTER: HAFALAN SURAT, DOA HARIAN, HADIS ====================
+// Sumber: Buku Pengembangan al-Islam SD Muhammadiyah 2 Pekajangan kelas 1-6.
+// m = materi (id -> [jenis, judul]); t = target per "kelas-semester". Jenis: s = surat, d = doa, h = hadis.
+const MATERI = {"m":{"juz30-114":["s","an-Nas (QS. 114)"],"juz30-113":["s","al-Falaq (QS. 113)"],"juz30-112":["s","al-Ikhlas (QS. 112)"],"juz30-111":["s","al-Lahab (QS. 111)"],"juz30-110":["s","an-Nashr (QS. 110)"],"juz30-109":["s","al-Kafirun (QS. 109)"],"juz30-108":["s","al-Kautsar (QS. 108)"],"juz30-107":["s","al-Ma'un (QS. 107)"],"juz30-106":["s","Quraisy (QS. 106)"],"juz30-105":["s","al-Fiil (QS. 105)"],"juz30-104":["s","al-Humazah (QS. 104)"],"juz30-103":["s","al-'Ashr (QS. 103)"],"juz30-102":["s","at-Takatsur (QS. 102)"],"juz30-101":["s","al-Qari'ah (QS. 101)"],"juz30-100":["s","al-'Adiyat (QS. 100)"],"juz30-99":["s","az-Zalzalah (QS. 99)"],"juz30-98":["s","al-Bayyinah (QS. 98)"],"juz30-97":["s","al-Qadr (QS. 97)"],"juz30-96":["s","al-'Alaq (QS. 96)"],"juz30-95":["s","at-Tiin (QS. 95)"],"juz30-94":["s","al-Insyirah (QS. 94)"],"juz30-93":["s","adl-Dluha (QS. 93)"],"juz30-92":["s","al-Layl (QS. 92)"],"juz30-91":["s","ash-Syams (QS. 91)"],"juz30-90":["s","al-Balad (QS. 90)"],"juz30-89":["s","al-Fajr (QS. 89)"],"juz30-88":["s","al-Ghosiyah (QS. 88)"],"juz30-86":["s","ath-Thariq (QS. 86)"],"juz30-85":["s","al-Buruj (QS. 85)"],"juz30-84":["s","al-Insyiqaq (QS. 84)"],"juz30-83":["s","al-Muthaffifin (QS. 83)"],"juz30-82":["s","al-Infithar (QS. 82)"],"juz30-81":["s","at-Takwir (QS. 81)"],"juz30-80":["s","'Abasa (QS. 80)"],"juz30-79":["s","an-Nazi'at (QS. 79)"],"juz30-78":["s","an-Naba' (QS. 78)"],"doa-01":["d","Doa untuk kedua orang tua"],"doa-02":["d","Doa sebelum masuk ke kamar mandi/WC"],"doa-03":["d","Doa sesudah keluar dari kamar mandi/WC"],"doa-04":["d","Doa masuk masjid"],"doa-05":["d","Doa keluar dari masjid"],"doa-06":["d","Doa kebaikan dunia dan akhirat"],"doa-07":["d","Doa sesudah wudlu"],"doa-08":["d","Doa sesudah shalat dluha"],"doa-09":["d","Doa turun hujan"],"doa-10":["d","Doa bercermin"],"doa-11":["d","Doa sebelum memakai pakaian"],"doa-12":["d","Doa ketika memakai pakaian baru"],"doa-13":["d","Doa sebelum melepas pakaian"],"doa-14":["d","Doa mensyukuri nikmat"],"doa-15":["d","Doa menjenguk orang sakit"],"doa-16":["d","Doa kaffaratul majlis"],"doa-17":["d","Doa menjadi ahli shalat"],"doa-18":["d","Doa mohon petunjuk untuk mengikuti kebaikan dan menjauhi kebatilan"],"doa-19":["d","Doa berlindung dari sifat malas"],"doa-20":["d","Doa naik kendaraan darat"],"doa-21":["d","Doa naik kendaraan laut"],"doa-22":["d","Doa mohon keselamatan dalam segala hal"],"hadis-01":["h","Keutamaan belajar dan mengajarkan al-Quran"],"hadis-02":["h","Keutamaan membaca al-Quran"],"hadis-03":["h","Keutamaan ilmu"],"hadis-04":["h","Sifat-sifat tercela"],"hadis-05":["h","Mendahulukan bagian kanan (1)"],"hadis-06":["h","Mendahulukan bagian kanan (2)"],"hadis-07":["h","Keutamaan jabat tangan"],"hadis-08":["h","Ucapan salam"],"hadis-09":["h","Perintah mencari ilmu (1)"],"hadis-10":["h","Perintah mencari ilmu (2)"],"hadis-11":["h","Adab bersin"],"hadis-12":["h","Perintah menjawab salam"],"hadis-13":["h","Adab makan dan minum (1)"],"hadis-14":["h","Adab makan dan minum (2)"],"hadis-15":["h","Larangan mengambil harta teman"],"hadis-16":["h","Perintah menyayangi ciptaan di bumi"],"hadis-17":["h","Larangan berbicara saat khotib berkhutbah"],"hadis-18":["h","Kikir sebab tidak mau membaca shalawat"],"hadis-19":["h","Ridlo Allah tergantung ridlo orang tua"],"hadis-20":["h","Shalat"],"hadis-21":["h","Menyambung silaturrahmi (1)"],"hadis-22":["h","Menyambung silaturrahmi (2)"],"hadis-23":["h","Senyum adalah shadaqah"],"hadis-24":["h","Surga di bawah telapak kaki ibu"],"hadis-25":["h","Anjuran berpakaian rapi"],"hadis-26":["h","Larangan berlebihan dalam berpakaian"],"hadis-27":["h","Larangan memakai pakaian lawan jenis"],"hadis-28":["h","Senyuman adalah shadaqah"],"hadis-29":["h","Tiga amalan yang pahalanya tidak terputus"],"hadis-30":["h","Bukti iman seseorang"],"hadis-31":["h","Bersyukur terhadap yang sedikit"],"hadis-32":["h","Keutamaan memulai salam"],"hadis-33":["h","Kesempurnaan iman dengan akhlak terpuji"],"hadis-34":["h","Keutamaan bershalawat kepada Rasulullah SAW"],"hadis-35":["h","Kemudahan jalan menuju surga"],"hadis-36":["h","Pahala berlipat bagi orang berilmu"],"hadis-37":["h","Ilmu akan mendatangkan ketenangan"],"hadis-38":["h","Kewajiban menghormati guru"],"hadis-39":["h","Allah menyukai orang yang berakhlak mulia"],"hadis-40":["h","Akhlak sebagai tanda kesempurnaan iman"],"hadis-41":["h","Seorang muslim yang baik"]},"t":{"1-1":{"s":["juz30-114","juz30-113","juz30-112","juz30-111","juz30-110"],"d":["doa-01","doa-02","doa-03","doa-04","doa-05"],"h":["hadis-01","hadis-02","hadis-03","hadis-04","hadis-05","hadis-06"]},"1-2":{"s":["juz30-109","juz30-108","juz30-107","juz30-106","juz30-105"],"d":["doa-06","doa-07","doa-08","doa-09"],"h":["hadis-07","hadis-08","hadis-09","hadis-10","hadis-11","hadis-12"]},"2-1":{"s":["juz30-104","juz30-103","juz30-102","juz30-101"],"d":["doa-01","doa-02","doa-03","doa-04","doa-05"],"h":["hadis-01","hadis-02","hadis-03","hadis-04","hadis-05","hadis-06"]},"2-2":{"s":["juz30-100","juz30-99","juz30-98","juz30-97"],"d":["doa-06","doa-07","doa-08","doa-09"],"h":["hadis-07","hadis-08","hadis-09","hadis-10","hadis-11","hadis-12"]},"3-1":{"s":["juz30-96","juz30-95","juz30-94"],"d":["doa-01","doa-02","doa-03","doa-04","doa-05"],"h":["hadis-13","hadis-14","hadis-15","hadis-16","hadis-17","hadis-18"]},"3-2":{"s":["juz30-93","juz30-92"],"d":["doa-06","doa-07","doa-08","doa-09"],"h":["hadis-19","hadis-20","hadis-21","hadis-22","hadis-23","hadis-24"]},"4-1":{"s":["juz30-91","juz30-90","juz30-89"],"d":["doa-01","doa-02","doa-03","doa-04","doa-05"],"h":["hadis-13","hadis-14","hadis-15","hadis-16","hadis-17","hadis-18"]},"4-2":{"s":["juz30-93","juz30-92","juz30-88"],"d":["doa-06","doa-07","doa-08","doa-09"],"h":["hadis-19","hadis-20","hadis-21","hadis-22","hadis-23","hadis-24"]},"5-1":{"s":["juz30-86","juz30-85","juz30-84"],"d":["doa-10","doa-11","doa-12","doa-13"],"h":["hadis-25","hadis-26","hadis-27","hadis-28","hadis-29"]},"5-2":{"s":["juz30-83","juz30-82"],"d":["doa-14","doa-15","doa-16"],"h":["hadis-30","hadis-31","hadis-32","hadis-33","hadis-34"]},"6-1":{"s":["juz30-81","juz30-80"],"d":["doa-17","doa-18","doa-19"],"h":["hadis-35","hadis-36","hadis-37","hadis-38"]},"6-2":{"s":["juz30-79","juz30-78"],"d":["doa-20","doa-21","doa-22"],"h":["hadis-39","hadis-40","hadis-41","hadis-30"]}}};
+
+const KARTU = {"juz30-114":{"n":114,"ar":"manusia","j":6,"g":"makkiyyah","v":["قُلْ أَعُوذُ بِرَبِّ النَّاسِ","مَلِكِ النَّاسِ","إِلَٰهِ النَّاسِ","مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ","الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ","مِنَ الْجِنَّةِ وَالنَّاسِ"]},"juz30-113":{"n":113,"ar":"waktu subuh","j":5,"g":"makkiyyah","v":["قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ","مِن شَرِّ مَا خَلَقَ","وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ","وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ","وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ"]},"juz30-112":{"n":112,"ar":"mengesakan Allah","j":4,"g":"makkiyyah","v":["قُلْ هُوَ اللَّهُ أَحَدٌ","اللَّهُ الصَّمَدُ","لَمْ يَلِدْ وَلَمْ يُولَدْ","وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ"]},"juz30-111":{"n":111,"ar":"gejolak api","j":5,"g":"makkiyyah","v":["تَبَّتْ يَدَا أَبِي لَهَبٍ وَتَبَّ","مَا أَغْنَىٰ عَنْهُ مَالُهُ وَمَا كَسَبَ","سَيَصْلَىٰ نَارًا ذَاتَ لَهَبٍ","وَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ","فِي جِيدِهَا حَبْلٌ مِّن مَّسَدٍ"]},"juz30-110":{"n":110,"ar":"pertolongan","j":3,"g":"madaniyyah","v":["إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ","وَرَأَيْتَ النَّاسَ يَدْخُلُونَ فِي دِينِ اللَّهِ أَفْوَاجًا","فَسَبِّحْ بِحَمْدِ رَبِّكَ وَاسْتَغْفِرْهُ ۚ إِنَّهُ كَانَ تَوَّابًا"]},"juz30-109":{"n":109,"ar":"orang-orang kafir","j":6,"g":"makkiyyah","v":["قُلْ يَا أَيُّهَا الْكَافِرُونَ","لَا أَعْبُدُ مَا تَعْبُدُونَ","وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ","وَلَا أَنَا عَابِدٌ مَّا عَبَدتُّمْ","وَلَا أَنتُمْ عَابِدُونَ مَا أَعْبُدُ","لَكُمْ دِينُكُمْ وَلِيَ دِينِ"]},"juz30-108":{"n":108,"ar":"nikmat yang banyak","j":3,"g":"makkiyyah","v":["إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ","فَصَلِّ لِرَبِّكَ وَانْحَرْ","إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ"]},"juz30-107":{"n":107,"ar":"barang yang berguna","j":7,"g":"makkiyyah","v":["أَرَأَيْتَ الَّذِي يُكَذِّبُ بِالدِّينِ","فَذَٰلِكَ الَّذِي يَدُعُّ الْيَتِيمَ","وَلَا يَحُضُّ عَلَىٰ طَعَامِ الْمِسْكِينِ","فَوَيْلٌ لِّلْمُصَلِّينَ","الَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ","الَّذِينَ هُمْ يُرَاءُونَ","وَيَمْنَعُونَ الْمَاعُونَ"]},"juz30-106":{"n":106,"ar":"suku Quraisy","j":4,"g":"makkiyyah","v":["لِإِيلَافِ قُرَيْشٍ","إِيلَافِهِمْ رِحْلَةَ الشِّتَاءِ وَالصَّيْفِ","فَلْيَعْبُدُوا رَبَّ هَٰذَا الْبَيْتِ","الَّذِي أَطْعَمَهُم مِّن جُوعٍ وَآمَنَهُم مِّنْ خَوْفٍ"]},"juz30-105":{"n":105,"ar":"gajah","j":5,"g":"makkiyyah","v":["أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ","أَلَمْ يَجْعَلْ كَيْدَهُمْ فِي تَضْلِيلٍ","وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ","تَرْمِيهِم بِحِجَارَةٍ مِّن سِجِّيلٍ","فَجَعَلَهُمْ كَعَصْفٍ مَّأْكُولٍ"]},"juz30-104":{"n":104,"ar":"pengumpat","j":9,"g":"makkiyyah","v":["وَيْلٌ لِّكُلِّ هُمَزَةٍ لُّمَزَةٍ","الَّذِي جَمَعَ مَالًا وَعَدَّدَهُ","يَحْسَبُ أَنَّ مَالَهُ أَخْلَدَهُ","كَلَّا ۖ لَيُنبَذَنَّ فِي الْحُطَمَةِ","وَمَا أَدْرَاكَ مَا الْحُطَمَةُ","نَارُ اللَّهِ الْمُوقَدَةُ","الَّتِي تَطَّلِعُ عَلَى الْأَفْئِدَةِ","إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌ","فِي عَمَدٍ مُّمَدَّدَةٍ"]},"juz30-103":{"n":103,"ar":"waktu","j":3,"g":"makkiyyah","v":["وَالْعَصْرِ","إِنَّ الْإِنسَانَ لَفِي خُسْرٍ","إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ"]},"juz30-102":{"n":102,"ar":"kemewahan","j":8,"g":"makkiyyah","v":["أَلْهَاكُمُ التَّكَاثُرُ","حَتَّىٰ زُرْتُمُ الْمَقَابِرَ","كَلَّا سَوْفَ تَعْلَمُونَ","ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ","كَلَّا لَوْ تَعْلَمُونَ عِلْمَ الْيَقِينِ","لَتَرَوُنَّ الْجَحِيمَ","ثُمَّ لَتَرَوُنَّهَا عَيْنَ الْيَقِينِ","ثُمَّ لَتُسْأَلُنَّ يَوْمَئِذٍ عَنِ النَّعِيمِ"]},"juz30-101":{"n":101,"ar":"hari kiamat","j":11,"g":"makkiyyah","v":["الْقَارِعَةُ","مَا الْقَارِعَةُ","وَمَا أَدْرَاكَ مَا الْقَارِعَةُ","يَوْمَ يَكُونُ النَّاسُ كَالْفَرَاشِ الْمَبْثُوثِ","وَتَكُونُ الْجِبَالُ كَالْعِهْنِ الْمَنفُوشِ","فَأَمَّا مَن ثَقُلَتْ مَوَازِينُهُ","فَهُوَ فِي عِيشَةٍ رَّاضِيَةٍ","وَأَمَّا مَنْ خَفَّتْ مَوَازِينُهُ","فَأُمُّهُ هَاوِيَةٌ","وَمَا أَدْرَاكَ مَا هِيَهْ","نَارٌ حَامِيَةٌ"]},"juz30-100":{"n":100,"ar":"kuda perang","j":11,"g":"makkiyyah","v":["وَالْعَادِيَاتِ ضَبْحًا","فَالْمُورِيَاتِ قَدْحًا","فَالْمُغِيرَاتِ صُبْحًا","فَأَثَرْنَ بِهِ نَقْعًا","فَوَسَطْنَ بِهِ جَمْعًا","إِنَّ الْإِنسَانَ لِرَبِّهِ لَكَنُودٌ","وَإِنَّهُ عَلَىٰ ذَٰلِكَ لَشَهِيدٌ","وَإِنَّهُ لِحُبِّ الْخَيْرِ لَشَدِيدٌ","أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِي الْقُبُورِ","وَحُصِّلَ مَا فِي الصُّدُورِ","إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍ لَّخَبِيرٌ"]},"juz30-99":{"n":99,"ar":"kegoncangan","j":8,"g":"madaniyyah","v":["إِذَا زُلْزِلَتِ الْأَرْضُ زِلْزَالَهَا","وَأَخْرَجَتِ الْأَرْضُ أَثْقَالَهَا","وَقَالَ الْإِنسَانُ مَا لَهَا","يَوْمَئِذٍ تُحَدِّثُ أَخْبَارَهَا","بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا","يَوْمَئِذٍ يَصْدُرُ النَّاسُ أَشْتَاتًا لِّيُرَوْا أَعْمَالَهُمْ","فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًا يَرَهُ","وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ شَرًّا يَرَهُ"]},"juz30-98":{"n":98,"ar":"bukti nyata","j":8,"g":"madaniyyah","v":["لَمْ يَكُنِ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ الْبَيِّنَةُ","رَسُولٌ مِّنَ اللَّهِ يَتْلُو صُحُفًا مُّطَهَّرَةً","فِيهَا كُتُبٌ قَيِّمَةٌ","وَمَا تَفَرَّقَ الَّذِينَ أُوتُوا الْكِتَابَ إِلَّا مِن بَعْدِ مَا جَاءَتْهُمُ الْبَيِّنَةُ","وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ مُخْلِصِينَ لَهُ الدِّينَ حُنَفَاءَ وَيُقِيمُوا الصَّلَاةَ وَيُؤْتُوا الزَّكَاةَ ۚ وَذَٰلِكَ دِينُ الْقَيِّمَةِ","إِنَّ الَّذِينَ كَفَرُوا مِنْ أَهْلِ الْكِتَابِ وَالْمُشْرِكِينَ فِي نَارِ جَهَنَّمَ خَالِدِينَ فِيهَا ۚ أُولَٰئِكَ هُمْ شَرُّ الْبَرِيَّةِ","إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ أُولَٰئِكَ هُمْ خَيْرُ الْبَرِيَّةِ","جَزَاؤُهُمْ عِندَ رَبِّهِمْ جَنَّاتُ عَدْنٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا أَبَدًا ۖ رَّضِيَ اللَّهُ عَنْهُمْ وَرَضُوا عَنْهُ ۚ ذَٰلِكَ لِمَنْ خَشِيَ رَبَّهُ"]},"juz30-97":{"n":97,"ar":"kemuliaan","j":5,"g":"makkiyyah","v":["إِنَّا أَنزَلْنَاهُ فِي لَيْلَةِ الْقَدْرِ","وَمَا أَدْرَاكَ مَا لَيْلَةُ الْقَدْرِ","لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ","تَنَزَّلُ الْمَلَائِكَةُ وَالرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍ","سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ"]},"juz30-96":{"n":96,"ar":"segumpal darah","j":19,"g":"makkiyyah","v":["اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ","خَلَقَ الْإِنسَانَ مِنْ عَلَقٍ","اقْرَأْ وَرَبُّكَ الْأَكْرَمُ","الَّذِي عَلَّمَ بِالْقَلَمِ","عَلَّمَ الْإِنسَانَ مَا لَمْ يَعْلَمْ","كَلَّا إِنَّ الْإِنسَانَ لَيَطْغَىٰ","أَن رَّآهُ اسْتَغْنَىٰ","إِنَّ إِلَىٰ رَبِّكَ الرُّجْعَىٰ","أَرَأَيْتَ الَّذِي يَنْهَىٰ","عَبْدًا إِذَا صَلَّىٰ","أَرَأَيْتَ إِن كَانَ عَلَى الْهُدَىٰ","أَوْ أَمَرَ بِالتَّقْوَىٰ","أَرَأَيْتَ إِن كَذَّبَ وَتَوَلَّىٰ","أَلَمْ يَعْلَم بِأَنَّ اللَّهَ يَرَىٰ","كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًا بِالنَّاصِيَةِ","نَاصِيَةٍ كَاذِبَةٍ خَاطِئَةٍ","فَلْيَدْعُ نَادِيَهُ","سَنَدْعُ الزَّبَانِيَةَ","كَلَّا لَا تُطِعْهُ وَاسْجُدْ وَاقْتَرِب"]},"juz30-95":{"n":95,"ar":"buah tin","j":8,"g":"makkiyyah","v":["وَالتِّينِ وَالزَّيْتُونِ","وَطُورِ سِينِينَ","وَهَٰذَا الْبَلَدِ الْأَمِينِ","لَقَدْ خَلَقْنَا الْإِنسَانَ فِي أَحْسَنِ تَقْوِيمٍ","ثُمَّ رَدَدْنَاهُ أَسْفَلَ سَافِلِينَ","إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ","فَمَا يُكَذِّبُكَ بَعْدُ بِالدِّينِ","أَلَيْسَ اللَّهُ بِأَحْكَمِ الْحَاكِمِينَ"]},"juz30-94":{"n":94,"ar":"kelapangan","j":8,"g":"makkiyyah","v":["أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ","وَوَضَعْنَا عَنكَ وِزْرَكَ","الَّذِي أَنقَضَ ظَهْرَكَ","وَرَفَعْنَا لَكَ ذِكْرَكَ","فَإِنَّ مَعَ الْعُسْرِ يُسْرًا","إِنَّ مَعَ الْعُسْرِ يُسْرًا","فَإِذَا فَرَغْتَ فَانصَبْ","وَإِلَىٰ رَبِّكَ فَارْغَب"]},"juz30-93":{"n":93,"ar":"waktu dluha","j":11,"g":"makkiyyah","v":["وَالضُّحَىٰ","وَاللَّيْلِ إِذَا سَجَىٰ","مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ","وَلَلْآخِرَةُ خَيْرٌ لَّكَ مِنَ الْأُولَىٰ","وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ","أَلَمْ يَجِدْكَ يَتِيمًا فَآوَىٰ","وَوَجَدَكَ ضَالًّا فَهَدَىٰ","وَوَجَدَكَ عَائِلًا فَأَغْنَىٰ","فَأَمَّا الْيَتِيمَ فَلَا تَقْهَرْ","وَأَمَّا السَّائِلَ فَلَا تَنْهَرْ","وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ"]},"juz30-92":{"n":92,"ar":"waktu malam","j":21,"g":"makkiyyah","v":["وَاللَّيْلِ إِذَا يَغْشَىٰ","وَالنَّهَارِ إِذَا تَجَلَّىٰ","وَمَا خَلَقَ الذَّكَرَ وَالْأُنثَىٰ","إِنَّ سَعْيَكُمْ لَشَتَّىٰ","فَأَمَّا مَنْ أَعْطَىٰ وَاتَّقَىٰ","وَصَدَّقَ بِالْحُسْنَىٰ","فَسَنُيَسِّرُهُ لِلْيُسْرَىٰ","وَأَمَّا مَن بَخِلَ وَاسْتَغْنَىٰ","وَكَذَّبَ بِالْحُسْنَىٰ","فَسَنُيَسِّرُهُ لِلْعُسْرَىٰ","وَمَا يُغْنِي عَنْهُ مَالُهُ إِذَا تَرَدَّىٰ","إِنَّ عَلَيْنَا لَلْهُدَىٰ","وَإِنَّ لَنَا لَلْآخِرَةَ وَالْأُولَىٰ","فَأَنذَرْتُكُمْ نَارًا تَلَظَّىٰ","لَا يَصْلَاهَا إِلَّا الْأَشْقَى","الَّذِي كَذَّبَ وَتَوَلَّىٰ","وَسَيُجَنَّبُهَا الْأَتْقَى","الَّذِي يُؤْتِي مَالَهُ يَتَزَكَّىٰ","وَمَا لِأَحَدٍ عِندَهُ مِن نِّعْمَةٍ تُجْزَىٰ","إِلَّا ابْتِغَاءَ وَجْهِ رَبِّهِ الْأَعْلَىٰ","وَلَسَوْفَ يَرْضَىٰ"]},"juz30-91":{"n":91,"ar":"matahari","j":15,"g":"makkiyyah","v":["وَالشَّمْسِ وَضُحَاهَا","وَالْقَمَرِ إِذَا تَلَاهَا","وَالنَّهَارِ إِذَا جَلَّاهَا","وَاللَّيْلِ إِذَا يَغْشَاهَا","وَالسَّمَاءِ وَمَا بَنَاهَا","وَالْأَرْضِ وَمَا طَحَاهَا","وَنَفْسٍ وَمَا سَوَّاهَا","فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَاهَا","قَدْ أَفْلَحَ مَن زَكَّاهَا","وَقَدْ خَابَ مَن دَسَّاهَا","كَذَّبَتْ ثَمُودُ بِطَغْوَاهَا","إِذِ انبَعَثَ أَشْقَاهَا","فَقَالَ لَهُمْ رَسُولُ اللَّهِ نَاقَةَ اللَّهِ وَسُقْيَاهَا","فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنبِهِمْ فَسَوَّاهَا","وَلَا يَخَافُ عُقْبَاهَا"]},"juz30-90":{"n":90,"ar":"negeri","j":20,"g":"makkiyyah","v":["لَا أُقْسِمُ بِهَٰذَا الْبَلَدِ","وَأَنتَ حِلٌّ بِهَٰذَا الْبَلَدِ","وَوَالِدٍ وَمَا وَلَدَ","لَقَدْ خَلَقْنَا الْإِنسَانَ فِي كَبَدٍ","أَيَحْسَبُ أَن لَّن يَقْدِرَ عَلَيْهِ أَحَدٌ","يَقُولُ أَهْلَكْتُ مَالًا لُّبَدًا","أَيَحْسَبُ أَن لَّمْ يَرَهُ أَحَدٌ","أَلَمْ نَجْعَل لَّهُ عَيْنَيْنِ","وَلِسَانًا وَشَفَتَيْنِ","وَهَدَيْنَاهُ النَّجْدَيْنِ","فَلَا اقْتَحَمَ الْعَقَبَةَ","وَمَا أَدْرَاكَ مَا الْعَقَبَةُ","فَكُّ رَقَبَةٍ","أَوْ إِطْعَامٌ فِي يَوْمٍ ذِي مَسْغَبَةٍ","يَتِيمًا ذَا مَقْرَبَةٍ","أَوْ مِسْكِينًا ذَا مَتْرَبَةٍ","ثُمَّ كَانَ مِنَ الَّذِينَ آمَنُوا وَتَوَاصَوْا بِالصَّبْرِ وَتَوَاصَوْا بِالْمَرْحَمَةِ","أُولَٰئِكَ أَصْحَابُ الْمَيْمَنَةِ","وَالَّذِينَ كَفَرُوا بِآيَاتِنَا هُمْ أَصْحَابُ الْمَشْأَمَةِ","عَلَيْهِمْ نَارٌ مُّؤْصَدَةٌ"]},"juz30-89":{"n":89,"ar":null,"j":30,"g":null},"juz30-88":{"n":88,"ar":null,"j":26,"g":null},"juz30-86":{"n":86,"ar":"yang datang di malam hari","j":17,"g":"makkiyyah","v":["وَالسَّمَاءِ وَالطَّارِقِ","وَمَا أَدْرَاكَ مَا الطَّارِقُ","النَّجْمُ الثَّاقِبُ","إِن كُلُّ نَفْسٍ لَّمَّا عَلَيْهَا حَافِظٌ","فَلْيَنظُرِ الْإِنسَانُ مِمَّ خُلِقَ","خُلِقَ مِن مَّاءٍ دَافِقٍ","يَخْرُجُ مِن بَيْنِ الصُّلْبِ وَالتَّرَائِبِ","إِنَّهُ عَلَىٰ رَجْعِهِ لَقَادِرٌ","يَوْمَ تُبْلَى السَّرَائِرُ","فَمَا لَهُ مِن قُوَّةٍ وَلَا نَاصِرٍ","وَالسَّمَاءِ ذَاتِ الرَّجْعِ","وَالْأَرْضِ ذَاتِ الصَّدْعِ","إِنَّهُ لَقَوْلٌ فَصْلٌ","وَمَا هُوَ بِالْهَزْلِ","إِنَّهُمْ يَكِيدُونَ كَيْدًا","وَأَكِيدُ كَيْدًا","فَمَهِّلِ الْكَافِرِينَ أَمْهِلْهُمْ رُوَيْدًا"]},"juz30-85":{"n":85,"ar":"gugusan bintang","j":22,"g":"makkiyyah","v":["وَالسَّمَاءِ ذَاتِ الْبُرُوجِ","وَالْيَوْمِ الْمَوْعُودِ","وَشَاهِدٍ وَمَشْهُودٍ","قُتِلَ أَصْحَابُ الْأُخْدُودِ","النَّارِ ذَاتِ الْوَقُودِ","إِذْ هُمْ عَلَيْهَا قُعُودٌ","وَهُمْ عَلَىٰ مَا يَفْعَلُونَ بِالْمُؤْمِنِينَ شُهُودٌ","وَمَا نَقَمُوا مِنْهُمْ إِلَّا أَن يُؤْمِنُوا بِاللَّهِ الْعَزِيزِ الْحَمِيدِ","الَّذِي لَهُ مُلْكُ السَّمَاوَاتِ وَالْأَرْضِ ۚ وَاللَّهُ عَلَىٰ كُلِّ شَيْءٍ شَهِيدٌ","إِنَّ الَّذِينَ فَتَنُوا الْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ ثُمَّ لَمْ يَتُوبُوا فَلَهُمْ عَذَابُ جَهَنَّمَ وَلَهُمْ عَذَابُ الْحَرِيقِ","إِنَّ الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ جَنَّاتٌ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ ۚ ذَٰلِكَ الْفَوْزُ الْكَبِيرُ","إِنَّ بَطْشَ رَبِّكَ لَشَدِيدٌ","إِنَّهُ هُوَ يُبْدِئُ وَيُعِيدُ","وَهُوَ الْغَفُورُ الْوَدُودُ","ذُو الْعَرْشِ الْمَجِيدُ","فَعَّالٌ لِّمَا يُرِيدُ","هَلْ أَتَاكَ حَدِيثُ الْجُنُودِ","فِرْعَوْنَ وَثَمُودَ","بَلِ الَّذِينَ كَفَرُوا فِي تَكْذِيبٍ","وَاللَّهُ مِن وَرَائِهِم مُّحِيطٌ","بَلْ هُوَ قُرْآنٌ مَّجِيدٌ","فِي لَوْحٍ مَّحْفُوظٍ"]},"juz30-84":{"n":84,"ar":"terbelah","j":25,"g":"makkiyyah","v":["إِذَا السَّمَاءُ انشَقَّتْ","وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ","وَإِذَا الْأَرْضُ مُدَّتْ","وَأَلْقَتْ مَا فِيهَا وَتَخَلَّتْ","وَأَذِنَتْ لِرَبِّهَا وَحُقَّتْ","يَا أَيُّهَا الْإِنسَانُ إِنَّكَ كَادِحٌ إِلَىٰ رَبِّكَ كَدْحًا فَمُلَاقِيهِ","فَأَمَّا مَنْ أُوتِيَ كِتَابَهُ بِيَمِينِهِ","فَسَوْفَ يُحَاسَبُ حِسَابًا يَسِيرًا","وَيَنقَلِبُ إِلَىٰ أَهْلِهِ مَسْرُورًا","وَأَمَّا مَنْ أُوتِيَ كِتَابَهُ وَرَاءَ ظَهْرِهِ","فَسَوْفَ يَدْعُو ثُبُورًا","وَيَصْلَىٰ سَعِيرًا","إِنَّهُ كَانَ فِي أَهْلِهِ مَسْرُورًا","إِنَّهُ ظَنَّ أَن لَّن يَحُورَ","بَلَىٰ إِنَّ رَبَّهُ كَانَ بِهِ بَصِيرًا","فَلَا أُقْسِمُ بِالشَّفَقِ","وَاللَّيْلِ وَمَا وَسَقَ","وَالْقَمَرِ إِذَا اتَّسَقَ","لَتَرْكَبُنَّ طَبَقًا عَن طَبَقٍ","فَمَا لَهُمْ لَا يُؤْمِنُونَ","وَإِذَا قُرِئَ عَلَيْهِمُ الْقُرْآنُ لَا يَسْجُدُونَ ۩","بَلِ الَّذِينَ كَفَرُوا يُكَذِّبُونَ","وَاللَّهُ أَعْلَمُ بِمَا يُوعُونَ","فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ","إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ لَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍ"]},"juz30-83":{"n":83,"ar":"orang-orang yang curang","j":36,"g":"makkiyyah","v":["وَيْلٌ لِّلْمُطَفِّفِينَ","الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ","وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ","أَلَا يَظُنُّ أُولَٰئِكَ أَنَّهُم مَّبْعُوثُونَ","لِيَوْمٍ عَظِيمٍ","يَوْمَ يَقُومُ النَّاسُ لِرَبِّ الْعَالَمِينَ","كَلَّا إِنَّ كِتَابَ الْفُجَّارِ لَفِي سِجِّينٍ","وَمَا أَدْرَاكَ مَا سِجِّينٌ","كِتَابٌ مَّرْقُومٌ","وَيْلٌ يَوْمَئِذٍ لِّلْمُكَذِّبِينَ","الَّذِينَ يُكَذِّبُونَ بِيَوْمِ الدِّينِ","وَمَا يُكَذِّبُ بِهِ إِلَّا كُلُّ مُعْتَدٍ أَثِيمٍ","إِذَا تُتْلَىٰ عَلَيْهِ آيَاتُنَا قَالَ أَسَاطِيرُ الْأَوَّلِينَ","كَلَّا ۖ بَلْ ۜ رَانَ عَلَىٰ قُلُوبِهِم مَّا كَانُوا يَكْسِبُونَ","كَلَّا إِنَّهُمْ عَن رَّبِّهِمْ يَوْمَئِذٍ لَّمَحْجُوبُونَ","ثُمَّ إِنَّهُمْ لَصَالُو الْجَحِيمِ","ثُمَّ يُقَالُ هَٰذَا الَّذِي كُنتُم بِهِ تُكَذِّبُونَ","كَلَّا إِنَّ كِتَابَ الْأَبْرَارِ لَفِي عِلِّيِّينَ","وَمَا أَدْرَاكَ مَا عِلِّيُّونَ","كِتَابٌ مَّرْقُومٌ","يَشْهَدُهُ الْمُقَرَّبُونَ","إِنَّ الْأَبْرَارَ لَفِي نَعِيمٍ","عَلَى الْأَرَائِكِ يَنظُرُونَ","تَعْرِفُ فِي وُجُوهِهِمْ نَضْرَةَ النَّعِيمِ","يُسْقَوْنَ مِن رَّحِيقٍ مَّخْتُومٍ","خِتَامُهُ مِسْكٌ ۚ وَفِي ذَٰلِكَ فَلْيَتَنَافَسِ الْمُتَنَافِسُونَ","وَمِزَاجُهُ مِن تَسْنِيمٍ","عَيْنًا يَشْرَبُ بِهَا الْمُقَرَّبُونَ","إِنَّ الَّذِينَ أَجْرَمُوا كَانُوا مِنَ الَّذِينَ آمَنُوا يَضْحَكُونَ","وَإِذَا مَرُّوا بِهِمْ يَتَغَامَزُونَ","وَإِذَا انقَلَبُوا إِلَىٰ أَهْلِهِمُ انقَلَبُوا فَكِهِينَ","وَإِذَا رَأَوْهُمْ قَالُوا إِنَّ هَٰؤُلَاءِ لَضَالُّونَ","وَمَا أُرْسِلُوا عَلَيْهِمْ حَافِظِينَ","فَالْيَوْمَ الَّذِينَ آمَنُوا مِنَ الْكُفَّارِ يَضْحَكُونَ","عَلَى الْأَرَائِكِ يَنظُرُونَ","هَلْ ثُوِّبَ الْكُفَّارُ مَا كَانُوا يَفْعَلُونَ"]},"juz30-82":{"n":82,"ar":"terbelah","j":19,"g":"makkiyyah","v":["إِذَا السَّمَاءُ انفَطَرَتْ","وَإِذَا الْكَوَاكِبُ انتَثَرَتْ","وَإِذَا الْبِحَارُ فُجِّرَتْ","وَإِذَا الْقُبُورُ بُعْثِرَتْ","عَلِمَتْ نَفْسٌ مَّا قَدَّمَتْ وَأَخَّرَتْ","يَا أَيُّهَا الْإِنسَانُ مَا غَرَّكَ بِرَبِّكَ الْكَرِيمِ","الَّذِي خَلَقَكَ فَسَوَّاكَ فَعَدَلَكَ","فِي أَيِّ صُورَةٍ مَّا شَاءَ رَكَّبَكَ","كَلَّا بَلْ تُكَذِّبُونَ بِالدِّينِ","وَإِنَّ عَلَيْكُمْ لَحَافِظِينَ","كِرَامًا كَاتِبِينَ","يَعْلَمُونَ مَا تَفْعَلُونَ","إِنَّ الْأَبْرَارَ لَفِي نَعِيمٍ","وَإِنَّ الْفُجَّارَ لَفِي جَحِيمٍ","يَصْلَوْنَهَا يَوْمَ الدِّينِ","وَمَا هُمْ عَنْهَا بِغَائِبِينَ","وَمَا أَدْرَاكَ مَا يَوْمُ الدِّينِ","ثُمَّ مَا أَدْرَاكَ مَا يَوْمُ الدِّينِ","يَوْمَ لَا تَمْلِكُ نَفْسٌ لِّنَفْسٍ شَيْئًا ۖ وَالْأَمْرُ يَوْمَئِذٍ لِّلَّهِ"]},"juz30-81":{"n":81,"ar":"penggulungan","j":29,"g":"makkiyyah","v":["إِذَا الشَّمْسُ كُوِّرَتْ","وَإِذَا النُّجُومُ انكَدَرَتْ","وَإِذَا الْجِبَالُ سُيِّرَتْ","وَإِذَا الْعِشَارُ عُطِّلَتْ","وَإِذَا الْوُحُوشُ حُشِرَتْ","وَإِذَا الْبِحَارُ سُجِّرَتْ","وَإِذَا النُّفُوسُ زُوِّجَتْ","وَإِذَا الْمَوْءُودَةُ سُئِلَتْ","بِأَيِّ ذَنبٍ قُتِلَتْ","وَإِذَا الصُّحُفُ نُشِرَتْ","وَإِذَا السَّمَاءُ كُشِطَتْ","وَإِذَا الْجَحِيمُ سُعِّرَتْ","وَإِذَا الْجَنَّةُ أُزْلِفَتْ","عَلِمَتْ نَفْسٌ مَّا أَحْضَرَتْ","فَلَا أُقْسِمُ بِالْخُنَّسِ","الْجَوَارِ الْكُنَّسِ","وَاللَّيْلِ إِذَا عَسْعَسَ","وَالصُّبْحِ إِذَا تَنَفَّسَ","إِنَّهُ لَقَوْلُ رَسُولٍ كَرِيمٍ","ذِي قُوَّةٍ عِندَ ذِي الْعَرْشِ مَكِينٍ","مُّطَاعٍ ثَمَّ أَمِينٍ","وَمَا صَاحِبُكُم بِمَجْنُونٍ","وَلَقَدْ رَآهُ بِالْأُفُقِ الْمُبِينِ","وَمَا هُوَ عَلَى الْغَيْبِ بِضَنِينٍ","وَمَا هُوَ بِقَوْلِ شَيْطَانٍ رَّجِيمٍ","فَأَيْنَ تَذْهَبُونَ","إِنْ هُوَ إِلَّا ذِكْرٌ لِّلْعَالَمِينَ","لِمَن شَاءَ مِنكُمْ أَن يَسْتَقِيمَ","وَمَا تَشَاءُونَ إِلَّا أَن يَشَاءَ اللَّهُ رَبُّ الْعَالَمِينَ"]},"juz30-80":{"n":80,"ar":"bermuka masam","j":42,"g":"makkiyyah","v":["عَبَسَ وَتَوَلَّىٰ","أَن جَاءَهُ الْأَعْمَىٰ","وَمَا يُدْرِيكَ لَعَلَّهُ يَزَّكَّىٰ","أَوْ يَذَّكَّرُ فَتَنفَعَهُ الذِّكْرَىٰ","أَمَّا مَنِ اسْتَغْنَىٰ","فَأَنتَ لَهُ تَصَدَّىٰ","وَمَا عَلَيْكَ أَلَّا يَزَّكَّىٰ","وَأَمَّا مَن جَاءَكَ يَسْعَىٰ","وَهُوَ يَخْشَىٰ","فَأَنتَ عَنْهُ تَلَهَّىٰ","كَلَّا إِنَّهَا تَذْكِرَةٌ","فَمَن شَاءَ ذَكَرَهُ","فِي صُحُفٍ مُّكَرَّمَةٍ","مَّرْفُوعَةٍ مُّطَهَّرَةٍ","بِأَيْدِي سَفَرَةٍ","كِرَامٍ بَرَرَةٍ","قُتِلَ الْإِنسَانُ مَا أَكْفَرَهُ","مِنْ أَيِّ شَيْءٍ خَلَقَهُ","مِن نُّطْفَةٍ خَلَقَهُ فَقَدَّرَهُ","ثُمَّ السَّبِيلَ يَسَّرَهُ","ثُمَّ أَمَاتَهُ فَأَقْبَرَهُ","ثُمَّ إِذَا شَاءَ أَنشَرَهُ","كَلَّا لَمَّا يَقْضِ مَا أَمَرَهُ","فَلْيَنظُرِ الْإِنسَانُ إِلَىٰ طَعَامِهِ","أَنَّا صَبَبْنَا الْمَاءَ صَبًّا","ثُمَّ شَقَقْنَا الْأَرْضَ شَقًّا","فَأَنبَتْنَا فِيهَا حَبًّا","وَعِنَبًا وَقَضْبًا","وَزَيْتُونًا وَنَخْلًا","وَحَدَائِقَ غُلْبًا","وَفَاكِهَةً وَأَبًّا","مَّتَاعًا لَّكُمْ وَلِأَنْعَامِكُمْ","فَإِذَا جَاءَتِ الصَّاخَّةُ","يَوْمَ يَفِرُّ الْمَرْءُ مِنْ أَخِيهِ","وَأُمِّهِ وَأَبِيهِ","وَصَاحِبَتِهِ وَبَنِيهِ","لِكُلِّ امْرِئٍ مِّنْهُمْ يَوْمَئِذٍ شَأْنٌ يُغْنِيهِ","وُجُوهٌ يَوْمَئِذٍ مُّسْفِرَةٌ","ضَاحِكَةٌ مُّسْتَبْشِرَةٌ","وَوُجُوهٌ يَوْمَئِذٍ عَلَيْهَا غَبَرَةٌ","تَرْهَقُهَا قَتَرَةٌ","أُولَٰئِكَ هُمُ الْكَفَرَةُ الْفَجَرَةُ"]},"juz30-79":{"n":79,"ar":"malaikat-malaikat yang mencabut","j":46,"g":"makkiyyah","v":["وَالنَّازِعَاتِ غَرْقًا","وَالنَّاشِطَاتِ نَشْطًا","وَالسَّابِحَاتِ سَبْحًا","فَالسَّابِقَاتِ سَبْقًا","فَالْمُدَبِّرَاتِ أَمْرًا","يَوْمَ تَرْجُفُ الرَّاجِفَةُ","تَتْبَعُهَا الرَّادِفَةُ","قُلُوبٌ يَوْمَئِذٍ وَاجِفَةٌ","أَبْصَارُهَا خَاشِعَةٌ","يَقُولُونَ أَإِنَّا لَمَرْدُودُونَ فِي الْحَافِرَةِ","أَإِذَا كُنَّا عِظَامًا نَّخِرَةً","قَالُوا تِلْكَ إِذًا كَرَّةٌ خَاسِرَةٌ","فَإِنَّمَا هِيَ زَجْرَةٌ وَاحِدَةٌ","فَإِذَا هُم بِالسَّاهِرَةِ","هَلْ أَتَاكَ حَدِيثُ مُوسَىٰ","إِذْ نَادَاهُ رَبُّهُ بِالْوَادِ الْمُقَدَّسِ طُوًى","اذْهَبْ إِلَىٰ فِرْعَوْنَ إِنَّهُ طَغَىٰ","فَقُلْ هَل لَّكَ إِلَىٰ أَن تَزَكَّىٰ","وَأَهْدِيَكَ إِلَىٰ رَبِّكَ فَتَخْشَىٰ","فَأَرَاهُ الْآيَةَ الْكُبْرَىٰ","فَكَذَّبَ وَعَصَىٰ","ثُمَّ أَدْبَرَ يَسْعَىٰ","فَحَشَرَ فَنَادَىٰ","فَقَالَ أَنَا رَبُّكُمُ الْأَعْلَىٰ","فَأَخَذَهُ اللَّهُ نَكَالَ الْآخِرَةِ وَالْأُولَىٰ","إِنَّ فِي ذَٰلِكَ لَعِبْرَةً لِّمَن يَخْشَىٰ","أَأَنتُمْ أَشَدُّ خَلْقًا أَمِ السَّمَاءُ ۚ بَنَاهَا","رَفَعَ سَمْكَهَا فَسَوَّاهَا","وَأَغْطَشَ لَيْلَهَا وَأَخْرَجَ ضُحَاهَا","وَالْأَرْضَ بَعْدَ ذَٰلِكَ دَحَاهَا","أَخْرَجَ مِنْهَا مَاءَهَا وَمَرْعَاهَا","وَالْجِبَالَ أَرْسَاهَا","مَتَاعًا لَّكُمْ وَلِأَنْعَامِكُمْ","فَإِذَا جَاءَتِ الطَّامَّةُ الْكُبْرَىٰ","يَوْمَ يَتَذَكَّرُ الْإِنسَانُ مَا سَعَىٰ","وَبُرِّزَتِ الْجَحِيمُ لِمَن يَرَىٰ","فَأَمَّا مَن طَغَىٰ","وَآثَرَ الْحَيَاةَ الدُّنْيَا","فَإِنَّ الْجَحِيمَ هِيَ الْمَأْوَىٰ","وَأَمَّا مَنْ خَافَ مَقَامَ رَبِّهِ وَنَهَى النَّفْسَ عَنِ الْهَوَىٰ","فَإِنَّ الْجَنَّةَ هِيَ الْمَأْوَىٰ","يَسْأَلُونَكَ عَنِ السَّاعَةِ أَيَّانَ مُرْسَاهَا","فِيمَ أَنتَ مِن ذِكْرَاهَا","إِلَىٰ رَبِّكَ مُنتَهَاهَا","إِنَّمَا أَنتَ مُنذِرُ مَن يَخْشَاهَا","كَأَنَّهُمْ يَوْمَ يَرَوْنَهَا لَمْ يَلْبَثُوا إِلَّا عَشِيَّةً أَوْ ضُحَاهَا"]},"juz30-78":{"n":78,"ar":"berita besar","j":40,"g":"makkiyyah","v":["عَمَّ يَتَسَاءَلُونَ","عَنِ النَّبَإِ الْعَظِيمِ","الَّذِي هُمْ فِيهِ مُخْتَلِفُونَ","كَلَّا سَيَعْلَمُونَ","ثُمَّ كَلَّا سَيَعْلَمُونَ","أَلَمْ نَجْعَلِ الْأَرْضَ مِهَادًا","وَالْجِبَالَ أَوْتَادًا","وَخَلَقْنَاكُمْ أَزْوَاجًا","وَجَعَلْنَا نَوْمَكُمْ سُبَاتًا","وَجَعَلْنَا اللَّيْلَ لِبَاسًا","وَجَعَلْنَا النَّهَارَ مَعَاشًا","وَبَنَيْنَا فَوْقَكُمْ سَبْعًا شِدَادًا","وَجَعَلْنَا سِرَاجًا وَهَّاجًا","وَأَنزَلْنَا مِنَ الْمُعْصِرَاتِ مَاءً ثَجَّاجًا","لِّنُخْرِجَ بِهِ حَبًّا وَنَبَاتًا","وَجَنَّاتٍ أَلْفَافًا","إِنَّ يَوْمَ الْفَصْلِ كَانَ مِيقَاتًا","يَوْمَ يُنفَخُ فِي الصُّورِ فَتَأْتُونَ أَفْوَاجًا","وَفُتِحَتِ السَّمَاءُ فَكَانَتْ أَبْوَابًا","وَسُيِّرَتِ الْجِبَالُ فَكَانَتْ سَرَابًا","إِنَّ جَهَنَّمَ كَانَتْ مِرْصَادًا","لِّلطَّاغِينَ مَآبًا","لَّابِثِينَ فِيهَا أَحْقَابًا","لَّا يَذُوقُونَ فِيهَا بَرْدًا وَلَا شَرَابًا","إِلَّا حَمِيمًا وَغَسَّاقًا","جَزَاءً وِفَاقًا","إِنَّهُمْ كَانُوا لَا يَرْجُونَ حِسَابًا","وَكَذَّبُوا بِآيَاتِنَا كِذَّابًا","وَكُلَّ شَيْءٍ أَحْصَيْنَاهُ كِتَابًا","فَذُوقُوا فَلَن نَّزِيدَكُمْ إِلَّا عَذَابًا","إِنَّ لِلْمُتَّقِينَ مَفَازًا","حَدَائِقَ وَأَعْنَابًا","وَكَوَاعِبَ أَتْرَابًا","وَكَأْسًا دِهَاقًا","لَّا يَسْمَعُونَ فِيهَا لَغْوًا وَلَا كِذَّابًا","جَزَاءً مِّن رَّبِّكَ عَطَاءً حِسَابًا","رَّبِّ السَّمَاوَاتِ وَالْأَرْضِ وَمَا بَيْنَهُمَا الرَّحْمَٰنِ ۖ لَا يَمْلِكُونَ مِنْهُ خِطَابًا","يَوْمَ يَقُومُ الرُّوحُ وَالْمَلَائِكَةُ صَفًّا ۖ لَّا يَتَكَلَّمُونَ إِلَّا مَنْ أَذِنَ لَهُ الرَّحْمَٰنُ وَقَالَ صَوَابًا","ذَٰلِكَ الْيَوْمُ الْحَقُّ ۖ فَمَن شَاءَ اتَّخَذَ إِلَىٰ رَبِّهِ مَآبًا","إِنَّا أَنذَرْنَاكُمْ عَذَابًا قَرِيبًا يَوْمَ يَنظُرُ الْمَرْءُ مَا قَدَّمَتْ يَدَاهُ وَيَقُولُ الْكَافِرُ يَا لَيْتَنِي كُنتُ تُرَابًا"]},"doa-01":{"a":"اللَّهُمَّ اغْفِرْ لِي وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا.","t":"Ya Allah, ampunilah dosaku dan dosa kedua orang tuaku, sayangilah keduanya, sebagaimana mereka menyayangiku sejak kecil."},"doa-02":{"a":"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُثِ وَالْخَبَائِثِ","t":"Sesungguhnya aku berlindung kepada-Mu dari segala kotoran dan yang mengotorkan"},"doa-03":{"a":"الْحَمْدُ لِلَّهِ الَّذِي أَذْهَبَ عَنِّي الْأَذَىٰ وَعَافَانِي","t":"Segala puji bagi Allah yang telah menghilangkan penyakit dariku dan telah menyembuhkan aku."},"doa-04":{"a":"اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ","t":"Ya Allah, bukakanlah untukku pintu-pintu rahmat-Mu"},"doa-05":{"a":"اللَّهُمَّ افْتَحْ لِي أَبْوَابَ فَضْلِكَ","t":"Ya Allah, bukakanlah untukku pintu-pintu kemurahan-Mu"},"doa-06":{"a":"رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ.","t":"Ya Allah, berkahilah kami kebaikan di dunia dan kebaikan di akhirat, dan jauhkanlah kami dari siksa api neraka"},"doa-07":{"a":"أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ. وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ.","t":"Saya bersaksi bahwa tidak tuhan selain Allah semata yang tidak ada sekutu bagi-Nya, dan saya bersaksi bahwa Nabi Muhammad adalah hamba dan utusan-Nya.","w":"Terjemah ditulis apa adanya dari buku; kemungkinan kurang kata “ada” (tidak ada tuhan selain Allah)."},"doa-08":{"a":"اللَّهُمَّ إِنَّ الضُّحَاءَ ضُحَاؤُكَ وَالْبَهَاءَ بَهَاؤُكَ وَالْجَمَالَ جَمَالُكَ وَالْقُوَّةَ قُوَّتُكَ وَالْقُدْرَةَ قُدْرَتُكَ وَالْعِصْمَةَ عِصْمَتُكَ. اللَّهُمَّ إِنْ كَانَ رِزْقِي فِي السَّمَاءِ فَأَنْزِلْهُ وَإِنْ كَانَ فِي الْأَرْضِ فَأَخْرِجْهُ وَإِنْ كَانَ مُعَسَّرًا فَيَسِّرْهُ وَإِنْ كَانَ حَرَامًا فَطَهِّرْهُ وَإِنْ كَانَ بَعِيدًا فَقَرِّبْهُ بِحَقِّ ضُحَائِكَ وَبَهَائِكَ وَجَمَالِكَ وَقُوَّتِكَ وَقُدْرَتِكَ آتِنِي مَا آتَيْتَ عِبَادَكَ الصَّالِحِينَ","t":"Ya Allah, bahwasanya waktu dluha itu waktu dluhaMu, kecantikan ialah kecantikanMu, keindahan itu keindahanMu, kekuatan itu kekuatanMu, kekuasaan itu kekuasaanMu, dan perlindungan itu, perlindunganMu.\nYa Allah, jika rizkiku masih di atas langit, turunkanlah, jika ada di dalam bumi, keluarkanlah, jika sukar mudahkanlah, jika haram sucikanlah, jika masih jauh dekatkanlah, berkat waktu dluha, keagungan, keindahan, kekuatan dan kekuasaan-Mu, limpahkanlah kepada kami segala yang telah Engkau limpahkan kepada hamba-hamba-Mu yang shaleh."},"doa-09":{"a":"اللَّهُمَّ صَيِّبًا نَافِعًا","t":"Ya Allah, turunkanlah pada kami hujan yang bermanfaat."},"doa-10":{"a":"اللَّهُمَّ كَمَا حَسَّنْتَ خَلْقِي فَحَسِّنْ خُلُقِي","t":"Ya Allah, sebagaimana Engkau (telah) membaguskan penciptaanku, maka baguskanlah akhlaqku."},"doa-11":{"a":"اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا هُوَ لَهُ وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا هُوَ لَهُ","t":"Ya Allah, aku mohon kepada-Mu kebaikan pakaian ini dan kebaikan yang ada padanya, dan aku berlindung kepada-Mu dari kejahatan pakaian ini dan kejahatan yang ada padanya."},"doa-12":{"a":"الْحَمْدُ لِلَّهِ الَّذِي كَسَانِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ","t":"Segala puji bagi Allah yang memberi aku pakaian dan rizqi yang ada padanya, tiada upaya dan kekuatan dariku."},"doa-13":{"a":"بِسْمِ اللَّهِ الَّذِي لَا إِلَٰهَ إِلَّا هُوَ","t":"Dengan nama Allah yang tiada Tuhan selain Dia"},"doa-14":{"a":"رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَدْخِلْنِي بِرَحْمَتِكَ فِي عِبَادِكَ الصَّالِحِينَ","t":"Ya Tuhanku berilah aku ilham untuk tetap mensyukuri nikmat-Mu yang telah Engkau anugerahkan kepadaku dan kepada dua orang tuaku dan untuk mengerjakan amal saleh yang Engkau ridhai; dan masukkanlah aku dengan rahmat-Mu ke dalam golongan hamba-hamba-Mu yang saleh"},"doa-15":{"a":"اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ اشْفِ وَأَنْتَ الشَّافِي لَا شِفَاءَ إِلَّا شِفَاؤُكَ شِفَاءً لَا يُغَادِرُ سَقَمًا","t":"Ya Allah, Tuhan manusia, hilangkanlah keburukan, sembuhkanlah, Engkaulah Maha Penyembuh, tidak ada penyembuh kecuali kesembuhan dari-Mu, kesembuhan yang tidak meninggalkan bekas."},"doa-16":{"a":"سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا أَنْتَ أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ","t":"Maha Suci Engkau, ya Allah, dengan memuji-Mu aku bersaksi bahwa tidak ada Tuhan selain Engkau. Saya memohon ampun kepada-Mu dan aku bertaubat kepada Engkau."},"doa-17":{"a":"رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ","t":"Ya Tuhanku, Jadikanlah aku dan anak cucuku orang-orang yang tetap mendirikan salat, Ya Tuhan Kami, perkenankanlah doaku."},"doa-18":{"a":"اللَّهُمَّ أَرِنَا الْحَقَّ حَقًّا وَارْزُقْنَا اتِّبَاعَهُ وَأَرِنَا الْبَاطِلَ بَاطِلًا وَارْزُقْنَا اجْتِنَابَهُ","t":"Ya Allah, tunjukkanlah kepada kami hal yang benar adalah kebenaran, dan berilah kami kemudahan untuk mengikutinya dan tunjukkanlah kepada kami hal yang batil adalah kebatilan, dan berikanlah kami kemudahan untuk menjauhinya."},"doa-19":{"a":"اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكَسَلِ وَأَعُوذُ بِكَ مِنَ الْجُبْنِ وَأَعُوذُ بِكَ مِنَ الْهَرَمِ وَأَعُوذُ بِكَ مِنَ الْبُخْلِ","t":"Ya Allah sesungguhnya aku berlindung kepada-Mu dari rasa malas, dan aku berlindung kepada-Mu dari sikap pengecut, dan aku aku berlindung kepada-Mu dari pikun, dan aku berlindung kepada-Mu dari sifat pelit."},"doa-20":{"a":"سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ. وَإِنَّا إِلَىٰ رَبِّنَا لَمُنقَلِبُونَ","t":"Maha Suci Tuhan yang telah menundukkan semua ini bagi kami padahal kami sebelumnya tidak mampu menguasainya, dan sesungguhnya kami akan kembali kepada Tuhan kami."},"doa-21":{"a":"بِسْمِ اللَّهِ مَجْرِيهَا وَمُرْسَاهَا. إِنَّ رَبِّي لَغَفُورٌ رَّحِيمٌ","t":"Dengan menyebut nama Allah di waktu berlayar dan berlabuhnya. Sesungguhnya Tuhanku benar-benar Maha Pengampun lagi Maha Penyayang"},"doa-22":{"a":"اللَّهُمَّ إِنَّا نَسْأَلُكَ سَلَامَةً فِي الدِّينِ وَعَافِيَةً فِي الْجَسَدِ وَزِيَادَةً فِي الْعِلْمِ وَبَرَكَةً فِي الرِّزْقِ وَتَوْبَةً قَبْلَ الْمَوْتِ وَرَحْمَةً عِنْدَ الْمَوْتِ وَمَغْفِرَةً بَعْدَ الْمَوْتِ. اللَّهُمَّ هَوِّنْ عَلَيْنَا فِي سَكَرَاتِ الْمَوْتِ وَالنَّجَاةَ مِنَ النَّارِ وَالْعَفْوَ عِنْدَ الْحِسَابِ","t":"Ya Allah, sesungguhnya kami memohon kepada-Mu keselamatan ketika beragama, kesehatan badan, limpahan ilmu, keberkahan rezeki, taubat sebelum datangnya maut, rahmat pada saat datangnya maut, dan ampunan setelah datangnya maut.","w":"Teks Arab memuat kalimat tambahan yang tidak ada di terjemahan buku. Mohon dikonfirmasi ke guru."},"hadis-01":{"a":"خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ","l":"khairukum man ta'allamal qur'ana wa 'allamahu","t":"Sebaik-baik kamu adalah orang yang mempelajari al-Qur'an dan mengajarkannya.","p":"HR. Bukhariy"},"hadis-02":{"a":"اقْرَءُوا الْقُرْآنَ فَإِنَّهُ يَأْتِي يَوْمَ الْقِيَامَةِ شَفِيعًا لِأَصْحَابِهِ","l":"Iqra'ul qur'ana, fainnahu ya'ti yaumal qiyamati syafi'an li ashhahbihi","t":"Bacalah al-Qur'an, karena sesungguhnya dia (al-Qur'an) akan datang pada hari kiamat sebagai penolong bagi para pembacanya.","p":"HR. Ahmad dan Muslim"},"hadis-03":{"a":"مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ","l":"man salaka thariqan yaltamisu fihi 'ilman, sahhalallahu bihi thariqan ilal jannati.","t":"Barang siapa yang menempuh jalan untuk mencari ilmu, niscaya Allah akan memudahkan dengannya (ilmu) jalan ke surga.","p":"HR. ath-Tirmidzi"},"hadis-04":{"a":"لَا يَدْخُلُ الْجَنَّةَ نَمَّامٌ","l":"La yadkhulul jannata nammamun","t":"Tidak akan masuk surga orang yang mengadu domba.","p":"Muttafaqun alaih"},"hadis-05":{"a":"كَانَ رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ يُعْجِبُهُ التَّيَمُّنُ فِي تَنَعُّلِهِ وَتَرَجُّلِهِ وَفِي طُهُورِهِ وَفِي شَأْنِهِ كُلِّهِ","l":"kaana rasulullahi shallahu 'alayhi wa sallama, yu'jibuhut tayammunu fii tana'ulihi au tarajjulihi wa fii thahuurihi wa fii sya'nihi kullihi","t":"Rasulullah SAW adalah orang yang gemar mendahulukan bagian kanan saat memakai sandal, menyisir rambut, bersuci, dan dalam segala aktivitasnya.","p":"HR. al-Khomsah"},"hadis-06":{"a":"إِذَا لَبِسْتُمْ أَوْ تَوَضَّأْتُمْ فَابْدَءُوا بِمَيَامِنِكُمْ","l":"idza labistum au tawadldla'tum fabda'uu bimanamikum","t":"Apabila kamu berpakaian atau berwudlu, maka mulailah (dari anggota badan) bagian kanan.","w":"Kata terakhir pada buku tertulis berbeda dari teks ini. Mohon dicek ke guru. Buku tidak mencantumkan perawi."},"hadis-07":{"a":"تَصَافَحُوا يَذْهَبِ الْغِلُّ عَنْ قُلُوبِكُمْ","l":"tashafahuu yadzhabil ghillu 'an quluubikum","t":"Saling berjabat tanganlah kalian, niscaya akan hilang perasaan dengki/dendam dari hati kalian.","p":"HR. al-Bayhaqi"},"hadis-08":{"a":"إِنَّ أَوْلَى النَّاسِ مَنْ بَدَأَ بِالسَّلَامِ","l":"inna aulan naasi man bada'a bissalaami","t":"Sesungguhnya manusia terbaik adalah manusia yang memulai berucap salam.","p":"HR. Bukhari dan Muslim"},"hadis-09":{"a":"اطْلُبِ الْعِلْمَ مِنَ الْمَهْدِ إِلَى اللَّحْدِ","l":"uthlubil 'ilma minal mahdi ilal lahdi","t":"Carilah ilmu sejak dari buaian hingga ke liang lahat.","p":"al-Hadis","w":"Banyak ulama menilai riwayat ini lemah. Rujuk ke guru atau Majelis Tarjih."},"hadis-10":{"a":"اطْلُبِ الْعِلْمَ وَلَوْ بِالصِّينِ","l":"uthlubil 'ilma walau bishshiin","t":"Carilah ilmu walaupun sampai ke negeri Cina.","w":"Banyak ulama menilai riwayat ini lemah. Rujuk ke guru atau Majelis Tarjih."},"hadis-11":{"a":"إِذَا عَطَسَ أَحَدُكُمْ فَلْيَقُلْ: الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ، وَلْيَقُلْ لَهُ: يَرْحَمُكَ اللَّهُ، وَلْيَقُلْ هُوَ يَغْفِرُ اللَّهُ لَنَا وَلَكُمْ","l":"idza 'athasa ahadukum fal-yaqul: alhamdulillahi rabbil 'alamin, wal-yaqul lahu: yarhamukallahu, wal-yaqul huwa yaghfirullahu lanaa wa lakum","t":"Jika salah seorang diantara kalian bersin, maka ucapkanlah: segala puji bagi Allah Tuhan semesta alam, dan hendaklah (orang yang mendengar) mendoakan kepadanya: semoga Allah mengasihimu, dan hendaklah (orang yang bersin) menjawab: semoga Allah mengampuni kesalahan kami dan kamu.","p":"HR. al-Hakim, ath-Thabrani, dan Bayhaqi"},"hadis-12":{"a":"إِذَا سَمِعْتَ النِّدَاءَ فَأَجِبْ دَاعِيَ اللَّهِ","l":"idza sami'ta nidaa'a fa-ajib da'iyallahi","t":"Ketika kamu mendengar panggilan (adzan), maka jawablah panggilan Allah itu (kerjakan shalat).","p":"HR. ath-Thabrani"},"hadis-13":{"a":"نَهَى رَسُولُ اللَّهِ صَلَّى اللَّهُ عَلَيْهِ وَسَلَّمَ أَنْ يَشْرَبَ الرَّجُلُ قَائِمًا","l":"Nahaa rasulullah shallahu 'alaihi wasallama an yasy-rabar rajulu qaa-iman","t":"Rasulullah SAW melarang seseorang minum sambil berdiri.","p":"HR. Muslim"},"hadis-14":{"a":"لَا آكُلُ مُتَّكِئًا","l":"Laa aa-kulu muttakian","t":"Aku tidak pernah makan sambil bersandar.","p":"HR. al-Bukhariy"},"hadis-15":{"a":"لَا يَأْخُذَنَّ أَحَدُكُمْ مَتَاعَ أَخِيهِ لَاعِبًا وَلَا جَادًّا","l":"laa-ya'khudzanna ahadukum mataa'a akhiihi laa'iban walaa jaaddan.","t":"Janganlah sekali-kali salah seorang diantara kalian mengambil harta benda temannya, baik sekedar gurauan maupun secara sungguh-sungguh.","p":"HR. ath-Tirmidzi"},"hadis-16":{"a":"ارْحَمْ مَنْ فِي الْأَرْضِ يَرْحَمْكَ مَنْ فِي السَّمَاءِ","l":"irham man fil-ardli yarhamka ma fis-samaa'i","t":"Sayangilah siapa saja yang ada di bumi, niscaya kamu akan disayangi oleh siapa saja yang ada di langit.","p":"HR. ath-Thabrani dan Hakim"},"hadis-17":{"a":"إِذَا قُلْتَ لِصَاحِبِكَ وَالْإِمَامُ يَخْطُبُ يَوْمَ الْجُمُعَةِ أَنْصِتْ فَقَدْ لَغَوْتَ","l":"idza qulta lishaahibika wal-imaamu yakhthubu yaumal jum'ati angshit faqad laghauta","t":"Jika kamu berkata kepada temanmu, sedangkan imam sedang berkhutbah pada hari jum'at, diamlah! Maka kamu telah berbuat sia-sia.","p":"HR. Bukhariy dan Muslim"},"hadis-18":{"a":"الْبَخِيلُ مَنْ ذُكِرْتُ عِنْدَهُ وَلَمْ يُصَلِّ عَلَيَّ","l":"al-bakhiilu man dzukirtu 'indahu walam-yushalli 'alayya","t":"Orang yang kikir adalah orang yang jika aku disebut, ia tidak membaca shalawat kepadaku.","p":"HR. Ahmad dan at-Tirmidzi"},"hadis-19":{"a":"رِضَى اللَّهِ فِي رِضَى الْوَالِدَيْنِ وَسُخْطُ اللَّهِ فِي سُخْطِ الْوَالِدَيْنِ","l":"ridlollahi fii ridlol-walidaini, wa sukh-thullahi fii sukhthil-walidain","t":"Keridloan Allah ada pada keridloan orang tua dan kemurkaan Allah ada pada kemurkaan kedua orang tua.","p":"HR. at-Tirmidzi"},"hadis-20":{"a":"مَنْ تَرَكَ الصَّلَاةَ فَقَدْ كَفَرَ جِهَارًا","l":"man tarakash-shalata faqad kafara jihaaran","t":"Barang siapa yang meninggalkan shalat, maka dia telah kufur terang-terangan.","p":"HR. ath-Thabrani dan Hakim"},"hadis-21":{"a":"اتَّقُوا اللَّهَ وَصِلُوا أَرْحَامَكُمْ","l":"ittaqullaha wa shiluu arhaamakum","t":"Bertaqwalah kalian kepada Allah dan hubungkanlah persaudaraan (diantara) kalian.","p":"HR. Ibnu Abdi al-Barr"},"hadis-22":{"a":"صِلْ مَنْ قَطَعَكَ","l":"shil man qatha'aka","t":"Hubungkanlah silaturrahim terhadap orang yang memutus (hubungan) denganmu.","p":"HR. al-Bazari"},"hadis-23":{"a":"تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ","l":"tabassumuka fii wajhi akhiika shadaqatun","t":"Senyummu di hadapan saudaramu adalah shadaqah.","p":"HR. Ibnu Hibban"},"hadis-24":{"a":"الْجَنَّةُ تَحْتَ أَقْدَامِ الْأُمَّهَاتِ","l":"al-jannatu tahta aqdaamil ummahaati","t":"Surga berada di bawah telapak kaki ibu.","p":"HR. Ahmad"},"hadis-25":{"a":"أَحْسِنُوا لِبَاسَكُمْ وَأَصْلِحُوا رِحَالَكُمْ حَتَّى تَكُونُوا شَامَةً فِي النَّاسِ","t":"Baguskanlah pakaianmu dan hiasilah kendaraanmu, sehingga kamu seperti tahi lalat di tengah-tengah manusia.","p":"HR. Hakim"},"hadis-26":{"a":"كُلْ وَاشْرَبْ وَالْبَسْ وَتَصَدَّقْ فِي غَيْرِ سَرَفٍ وَلَا مَخِيلَةٍ","t":"Makan, minum, berpakaian dan bersedekahlah dengan tidak boros dan tidak sia-sia.","p":"HR. Ahmad, Nasa'i, Ibnu Majah, dan Hakim"},"hadis-27":{"a":"لَعَنَ اللَّهُ الرَّجُلَ يَلْبَسُ لُبْسَةَ الْمَرْأَةِ وَالْمَرْأَةَ تَلْبَسُ لُبْسَةَ الرَّجُلِ","t":"Allah melaknat seorang lelaki memakai pakaian wanita, dan seorang wanita memakai pakaian lelaki.","p":"HR. Abu Dawud"},"hadis-28":{"a":"تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ","t":"Senyummu di hadapan temanmu adalah shodaqah.","p":"HR. Ibnu Hibban"},"hadis-29":{"a":"إِذَا مَاتَ ابْنُ آدَمَ انْقَطَعَ عَمَلُهُ إِلَّا مِنْ ثَلَاثٍ: صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ","t":"Apabila manusia meninggal dunia, maka terputuslah amalnya, kecuali tiga hal: shodaqah jariyah, ilmu yang bermanfaat, atau anak shalih yang mendoakannya.","p":"HR. Muslim"},"hadis-30":{"a":"لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ","t":"Salah seorang di antara kalian tidaklah beriman (dengan iman sempurna) sampai ia mencintai saudaranya sebagaimana ia mencintai dirinya sendiri.","p":"HR. Bukhari dan Muslim"},"hadis-31":{"a":"مَنْ لَمْ يَشْكُرِ الْقَلِيلَ لَمْ يَشْكُرِ الْكَثِيرَ","t":"Barang siapa yang tidak mensyukuri yang sedikit, maka ia tidak akan mampu mensyukuri sesuatu yang banyak.","p":"HR. Ahmad"},"hadis-32":{"a":"إِنَّ أَوْلَى النَّاسِ بِاللَّهِ مَنْ بَدَأَهُمْ بِالسَّلَامِ","t":"Sesungguhnya orang yang paling utama di sisi Allah adalah mereka yang memulai salam.","p":"HR. Abu Dawud dan Tirmidzi"},"hadis-33":{"a":"أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا","t":"Orang yang sempurna imannya adalah yang paling baik akhlaknya.","p":"HR. Muslim"},"hadis-34":{"a":"مَنْ صَلَّى عَلَيَّ وَاحِدَةً صَلَّى اللَّهُ عَلَيْهِ عَشْرًا","t":"Barangsiapa bersalawat kepadaku satu kali, niscaya Allah bersalawat kepadanya sepuluh kali.","p":"HR. Muslim"},"hadis-35":{"a":"مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ","t":"Barang siapa menelusuri jalan untuk mencari ilmu padanya, Allah akan memudahkan baginya jalan menuju surga.","p":"HR. Muslim"},"hadis-36":{"a":"مَنْ دَعَا إِلَىٰ هُدًى كَانَ لَهُ مِنَ الْأَجْرِ مِثْلُ أُجُورِ مَنْ تَبِعَهُ لَا يَنْقُصُ ذَٰلِكَ مِنْ أُجُورِهِمْ شَيْئًا","t":"Siapa yang mengajak kepada petunjuk, maka dia mendapatkan pahala seperti pahala orang yang mengikutinya, tanpa mengurangi pahalanya sedikitpun.","p":"HR. Muslim"},"hadis-37":{"a":"تَعَلَّمُوا الْعِلْمَ وَتَعَلَّمُوا لِلْعِلْمِ السَّكِينَةَ وَالْوَقَارَ وَتَوَاضَعُوا لِمَنْ تَتَعَلَّمُونَ مِنْهُ","t":"Belajarlah kalian ilmu untuk ketentraman dan ketenangan serta rendah hatilah pada orang yang kamu belajar darinya.","p":"HR. Thabrani"},"hadis-38":{"a":"تَعَلَّمُوا وَعَلِّمُوا وَتَوَاضَعُوا لِمُعَلِّمِيكُمْ وَلْيَلَوْا لِمُعَلِّمِيكُمْ","t":"Belajarlah kamu semua, dan mengajarlah kamu semua, dan hormatilah guru-gurumu, serta berlaku baiklah terhadap orang yang mengajarkanmu.","p":"HR. Tabrani","w":"Bagian akhir teks Arab sulit dibaca dengan pasti dari buku. Mohon dicek ke guru."},"hadis-39":{"a":"إِنَّ اللَّهَ كَرِيمٌ يُحِبُّ الْكَرَمَ وَمَعَالِيَ الْأَخْلَاقِ وَيُبْغِضُ سِفْسَافَهَا","t":"Sesungguhnya Allah Maha Pemurah menyukai kedermawanan dan akhlak yang mulia serta membenci akhlak yang rendah/hina.","p":"HR. Bukhori dan Muslim"},"hadis-40":{"a":"أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا وَخِيَارُكُمْ خِيَارُكُمْ لِنِسَائِهِمْ خُلُقًا","t":"Orang mukmin yang paling sempurna keimanannya adalah ia yang memiliki akhlak terbaik. Yang terbaik di antara kalian adalah yang terbaik akhlaknya kepada pasangannya.","p":"HR. Tirmidzi"},"hadis-41":{"a":"الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ وَالْمُهَاجِرُ مَنْ هَجَرَ مَا نَهَى اللَّهُ عَنْهُ","t":"Orang muslim yang baik adalah yang muslim lainnya aman dari ganguan ucapan dan tangannya, dan orang yang Hijrah (tergolong kelompok Muhajirin) adalah yang meninggalkan apa-apa yang dilarang Allah.","p":"HR. Bukhari"}};
+const kartuCtx = {};
+let kartuNow = null;
+function angkaArab(n) { return String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]); }
+function kartuCuplikan(id) {
+  const k = KARTU[id]; if (!k) return '';
+  const t = k.v ? k.v[0] : (k.a || '');
+  return t.split(/\s+/).slice(0, 4).join(' ');
+}
+function kartuHTML(kat, r, i) {
+  const kls = r.hasil === 'B' ? 'b' : r.hasil === 'C' ? 'c' : 'x';
+  const stat = r.hasil === 'B' ? '✓ Lulus' : r.hasil === 'C' ? '↻ Ulangi' : '○ Belum';
+  return `<button type="button" class="kartu k-${kat} ${kls}" style="--i:${i}" data-kat="${kat}" data-idx="${i}" aria-label="${escapeHtml(r.judul)} — ${stat.slice(2)}. Buka kartu">
+    <div class="kartu-top"><span>No. ${String(i + 1).padStart(2, '0')}</span><span class="kartu-ikon" aria-hidden="true">${KAT_INFO[kat].ikon}</span></div>
+    <div class="kartu-arab arab" aria-hidden="true">${escapeHtml(kartuCuplikan(r.id))}</div>
+    <div class="kartu-judul">${escapeHtml(r.judul)}</div>
+    <span class="kartu-stat">${stat}</span>
+  </button>`;
+}
+function kartuBuka(kat, idx) {
+  const items = kartuCtx[kat]; if (!items || !items[idx]) return;
+  kartuNow = { kat, idx };
+  const r = items[idx], k = KARTU[r.id] || {}, info = KAT_INFO[kat];
+  const dlg = document.getElementById('kartu-dlg');
+  const hasArab = k.v || k.a;
+  let meta = '';
+  if (kat === 's') meta = [k.n ? 'QS. ' + k.n : '', k.j ? k.j + ' ayat' : '', k.g ? k.g.charAt(0).toUpperCase() + k.g.slice(1) : '', k.ar ? 'arti: ' + k.ar : ''].filter(Boolean).join(' · ');
+  else if (k.p) meta = k.p;
+  const stempel = r.hasil === 'B' ? '<span class="kd-stamp" style="color:#d7f5e3">✓ LULUS</span>' : r.hasil === 'C' ? '<span class="kd-stamp" style="color:#ffe7b3">↻ ULANGI</span>' : '';
+  const isi = !hasArab
+    ? `<div class="kd-kosong">Teks surat ini belum tersedia di aplikasi.<br>Silakan lihat buku Pengembangan al-Islam atau tanya guru.</div>`
+    : `<div class="kd-tools">
+         <button type="button" class="kd-btn" id="kd-hafal" aria-pressed="false">🙈 Mode hafal</button>
+         ${k.l ? '<button type="button" class="kd-btn" id="kd-latin" aria-pressed="true">Aa Latin</button>' : ''}
+       </div>
+       <div class="kd-arab arab" lang="ar" dir="rtl">${k.v ? k.v.map((a, n) => `<span class="kd-ayat">${escapeHtml(a)}<span class="no">﴿${angkaArab(n + 1)}﴾</span></span>`).join('') : `<span class="kd-ayat">${escapeHtml(k.a)}</span>`}</div>
+       ${k.l ? `<div class="kd-sec" id="kd-sec-latin"><h4>Bacaan Latin</h4><p class="kd-latin">${escapeHtml(k.l)}</p></div>` : ''}
+       ${k.t ? `<div class="kd-sec"><h4>Artinya</h4>${String(k.t).split('\n').map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>` : ''}
+       ${k.w ? `<div class="kd-peringatan">⚠️ ${escapeHtml(k.w)}</div>` : ''}
+       <p class="kd-verif">Teks disalin dari buku Pengembangan al-Islam. Harakat belum diverifikasi, mohon dikonfirmasi ke guru sebelum dihafalkan.</p>`;
+  dlg.innerHTML = `<div class="kd-head k-${kat}"><div class="kd-kat">${info.ikon} ${info.nama} · ${idx + 1} dari ${items.length}</div><div class="kd-judul">${escapeHtml(r.judul)}</div>${meta ? `<div class="kd-meta">${escapeHtml(meta)}</div>` : ''}${stempel}<button type="button" class="kd-tutup" aria-label="Tutup">×</button></div>
+    <div class="kd-body" id="kd-body">${isi}</div>
+    <div class="kd-foot"><button type="button" class="kd-btn" id="kd-prev" ${idx === 0 ? 'disabled' : ''}>‹ Sebelumnya</button><span class="sp">${idx + 1} / ${items.length}</span><button type="button" class="kd-btn" id="kd-next" ${idx === items.length - 1 ? 'disabled' : ''}>Berikutnya ›</button></div>`;
+  if (!dlg.open) { dlg.showModal(); document.documentElement.style.overflow = 'hidden'; }
+  dlg.querySelector('.kd-body').scrollTop = 0;
+}
+function kartuGeser(d) {
+  if (!kartuNow) return;
+  const n = kartuNow.idx + d, items = kartuCtx[kartuNow.kat];
+  if (n < 0 || n >= items.length) return;
+  kartuBuka(kartuNow.kat, n);
+}
+(function () {
+  document.addEventListener('click', e => {
+    const kt = e.target.closest('.kartu');
+    if (kt) { kartuBuka(kt.dataset.kat, +kt.dataset.idx); return; }
+    const dlg = document.getElementById('kartu-dlg');
+    if (!dlg || !dlg.open) return;
+    if (e.target === dlg || e.target.closest('.kd-tutup')) { dlg.close(); return; }
+    if (e.target.closest('#kd-prev')) return kartuGeser(-1);
+    if (e.target.closest('#kd-next')) return kartuGeser(1);
+    const h = e.target.closest('#kd-hafal');
+    if (h) { const on = h.getAttribute('aria-pressed') !== 'true'; h.setAttribute('aria-pressed', on); document.getElementById('kd-body').classList.toggle('hafal', on); document.querySelectorAll('.kd-ayat').forEach(a => a.classList.remove('buka')); return; }
+    const l = e.target.closest('#kd-latin');
+    if (l) { const on = l.getAttribute('aria-pressed') !== 'true'; l.setAttribute('aria-pressed', on); const s = document.getElementById('kd-sec-latin'); if (s) s.style.display = on ? '' : 'none'; return; }
+    const ay = e.target.closest('.kd-ayat');
+    if (ay && document.getElementById('kd-body').classList.contains('hafal')) ay.classList.toggle('buka');
+  });
+  document.addEventListener('keydown', e => {
+    const dlg = document.getElementById('kartu-dlg');
+    if (!dlg || !dlg.open) return;
+    if (e.key === 'ArrowLeft') kartuGeser(-1); else if (e.key === 'ArrowRight') kartuGeser(1);
+  });
+  let x0 = null;
+  document.addEventListener('touchstart', e => { if (e.target.closest('#kartu-dlg')) x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 70) kartuGeser(dx < 0 ? 1 : -1);
+  }, { passive: true });
+  window.addEventListener('DOMContentLoaded', () => {
+    const dlg = document.getElementById('kartu-dlg');
+    if (dlg) dlg.addEventListener('close', () => { document.documentElement.style.overflow = ''; kartuNow = null; });
+  });
+})();
+const KAT_INFO = { s: { nama: 'Hafalan Surat', ikon: '📖' }, d: { nama: 'Doa Harian', ikon: '🤲' }, h: { nama: 'Hadis', ikon: '💬' } };
+const KAT_URUT = ['s', 'd', 'h'];
+
+function kelasAngka(k) { const m = /(\d+)/.exec(String(k || '')); return m ? parseInt(m[1], 10) : 0; }
+// Semester 1 = Juli-Desember, semester 2 = Januari-Juni (sama seperti lembar prestasi di buku)
+function semesterDari(key) { const b = parseInt(String(key || hariIniKey()).slice(5, 7), 10); return b >= 7 ? 1 : 2; }
+function namaSemester(sem) { return sem === 1 ? 'Semester 1 (Jul–Des)' : 'Semester 2 (Jan–Jun)'; }
+function targetMateri(kelas, sem, kat) { const t = MATERI.t[kelasAngka(kelas) + '-' + sem]; return t ? (t[kat] || []) : []; }
+
+// Hasil terakhir tiap materi milik satu santri pada kelas dan semester tertentu: { materiId: rekaman }
+function capaianSantri(siswaId, kelasN, sem) {
+  const sid = String(siswaId).trim(), peta = {};
+  (db.capaian || [])
+    .filter(c => String(c.siswaId).trim() === sid && parseInt(c.kelas, 10) === kelasN && parseInt(c.semester, 10) === sem)
+    .sort((a, b) => tglKey(a.tanggal).localeCompare(tglKey(b.tanggal)) || idUrut(a.id) - idUrut(b.id))
+    .forEach(c => { peta[c.materiId] = c; });
+  return peta;
+}
+
+function ringkasTarget(siswa, sem) {
+  const kelasN = kelasAngka(siswa.kelas), peta = capaianSantri(siswa.id, kelasN, sem);
+  return KAT_URUT.map(kat => {
+    const items = targetMateri(siswa.kelas, sem, kat).map(id => {
+      const rec = peta[id];
+      return { id, judul: (MATERI.m[id] || [kat, id])[1], hasil: rec ? String(rec.nilai).trim().toUpperCase() : '' };
+    });
+    return { kat, total: items.length, lulus: items.filter(i => i.hasil === 'B').length, items };
   });
 }
-function podiumHTML(top) {
-  return '<div class="podium">' + [1, 0, 2].map((k, pos) => `<div class="pod p${k + 1}" style="--i:${pos}"><span class="pod-av">${escapeHtml(String(top[k].nama || 'S')[0])}</span><b>${escapeHtml(top[k].nama)}</b><small>${escapeHtml(top[k].sub)}</small><div class="pod-bar">${k + 1}</div></div>`).join('') + '</div>';
-}
-function infoPanel(p, L, tab) {
-  if (!L.length) { q(p + '-stats').innerHTML = ''; q(p + '-podium').innerHTML = ''; return; }
-  const ids = new Set(L.map(s => String(s.id).trim()));
-  const avg = f => Math.round(L.reduce((a, s) => a + f(s), 0) / L.length);
-  const lim = new Date(Date.now() - 30 * 864e5).toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' }), t = hariIni();
-  const rec = [...db.setoran, ...db.hafalan].filter(r => ids.has(String(r.siswaId).trim()));
-  const r30 = rec.filter(r => tglKey(r.tanggal) >= lim && r.status !== 'tidak_hadir');
-  const lancar = r30.length ? Math.round(r30.filter(r => r.status === 'lancar').length / r30.length * 100) : 0;
-  const n = rec.filter(r => tglKey(r.tanggal) === t && r.status !== 'tidak_hadir').length;
-  q(p + '-stats').innerHTML = statsHTML([
-    { l: 'Santri', v: L.length, d: 'terdaftar aktif' },
-    { l: 'Rata-rata Jilid', v: avg(s => hitungPersenNgaji(s.jilidSaatIni || 'jilid1')), s: '%', d: 'capaian BTQ', c: 'gold' },
-    { l: 'Rata-rata Juz 30', v: avg(s => hitungPersenHafalan(s.suratTerakhir || 'Belum Hafal')), s: '%', d: 'progres hafalan', c: 'blue' },
-    { l: 'Lancar 30 hari', v: lancar, s: '%', d: n + ' setoran hari ini', c: 'dark' }]);
-  countUp(q(p + '-stats'));
-  const haf = tab === 'hafalan';
-  const top = [...L].sort((a, b) => haf ? skorHaf(b) - skorHaf(a) : skorNgaji(b) - skorNgaji(a)).slice(0, 3)
-    .map(s => ({ nama: s.nama, sub: haf ? (s.suratTerakhir || 'Belum Hafal') : (JILID_LABEL[s.jilidSaatIni || 'jilid1'] + ' · Hal ' + (s.halTerakhir || 1)) }));
-  q(p + '-podium').innerHTML = top.length >= 3 ? podiumHTML(top) : '';
-}
-const _rd = renderDash;
-renderDash = function () { _rd(); const fk = q('df-kelas').value; infoPanel('dash', fk ? db.siswa.filter(s => String(s.kelas).trim() === fk) : db.siswa, currentDashTab); };
-const _ro = renderOrtuLeaderboard;
-renderOrtuLeaderboard = function () { _ro(); const k = q('of-kelas').value; infoPanel('ortu', db.siswa.filter(s => String(s.kelas).trim() === String(k).trim()), currentOrtuTab); };
-const _ld = lihatDetailAnakOrtu;
-lihatDetailAnakOrtu = function (id) {
-  _ld(id);
-  const sid = String(id).trim(), rec = [...db.setoran, ...db.hafalan].filter(r => String(r.siswaId).trim() === sid), n = rec.length;
-  const hero = document.querySelector('#detail-anak-box .siswa-hero'); if (!n || !hero) return;
-  const c = k => rec.filter(r => r.status === k).length;
-  hero.insertAdjacentHTML('afterend', '<div class="stats" id="dt-stats"></div>');
-  q('dt-stats').innerHTML = statsHTML([
-    { l: 'Total Sesi', v: n, d: 'ngaji + hafalan' },
-    { l: 'Lancar', v: Math.round(c('lancar') / n * 100), s: '%', d: c('lancar') + ' sesi', c: 'gold' },
-    { l: 'Kehadiran', v: Math.round((n - c('tidak_hadir')) / n * 100), s: '%', d: c('tidak_hadir') + ' absen', c: 'blue' },
-    { l: 'Mengulang', v: c('perlu_ulang'), d: 'perlu penguatan', c: 'dark' }]);
-  countUp(q('dt-stats'));
-};
-function renderGateStats() {
-  const el = q('gate-stats'); if (!el || !db.siswa.length) return;
-  const m = hariIni().slice(0, 7);
-  const sesi = [...db.setoran, ...db.hafalan].filter(r => tglKey(r.tanggal).startsWith(m) && r.status !== 'tidak_hadir').length;
-  el.innerHTML = [['Santri', db.siswa.length], ['Kelas', new Set(db.siswa.map(s => s.kelas)).size], ['Setoran bulan ini', sesi]].map(([l, v]) => `<div class="gs"><b data-to="${v}">0</b>${l}</div>`).join('');
-  countUp(el);
-}
-const _mc = muatDataDariCloud;
-muatDataDariCloud = async function () { await _mc(); renderGateStats(); };
 
-// Efek sentuh: ripple + spotlight kartu gerbang
-document.addEventListener('pointerdown', e => {
-  const b = e.target.closest && e.target.closest('.btn,.gate-btn,.mode-btn,.nav-tab');
-  if (!b || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
-  const r = b.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2, sp = document.createElement('span');
-  sp.className = 'rip'; sp.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
-  b.appendChild(sp); setTimeout(() => sp.remove(), 650);
-});
-document.addEventListener('pointermove', e => {
-  const b = e.target.closest && e.target.closest('.gate-btn'); if (!b) return;
-  const r = b.getBoundingClientRect(); b.style.setProperty('--mx', (e.clientX - r.left) + 'px'); b.style.setProperty('--my', (e.clientY - r.top) + 'px');
-});
+// Isi pilihan materi pada halaman jurnal sesuai kelas, tanggal (semester), dan jenis materi
+function isiMateriTarget() {
+  const sel = document.getElementById('im-materi');
+  const kelas = document.getElementById('im-kelas').value;
+  const kat = document.getElementById('im-kat').value;
+  const sem = semesterDari(document.getElementById('im-tgl').value || hariIniKey());
+  const ids = kelas ? targetMateri(kelas, sem, kat) : [];
+  const lama = sel.value;
+  sel.innerHTML = ids.length ? ids.map(id => `<option value="${escapeHtml(id)}">${escapeHtml(MATERI.m[id][1])}</option>`).join('') : '<option value="">— Tidak ada target —</option>';
+  if (ids.includes(lama)) sel.value = lama;
+}
+
+function renderTargetMassal(siswaKelas, kelasDipilih, thHead) {
+  isiMateriTarget();
+  const tglIn = document.getElementById('im-tgl').value || hariIniKey();
+  const sem = semesterDari(tglIn), kelasN = kelasAngka(kelasDipilih);
+  const mid = document.getElementById('im-materi').value;
+  const info = document.getElementById('massal-info');
+  const tbl = document.querySelector('table.massal');
+  tbl.classList.add('target');
+  thHead.innerHTML = `<th>Nama Lengkap Siswa</th><th>Hasil Ujian</th><th>Evaluasi Guru</th>`;
+  if (!mid || !MATERI.m[mid]) {
+    info.style.display = 'none';
+    document.getElementById('massal-tbl').innerHTML = `<tr><td colspan="3" style="text-align:center; padding:30px; color:var(--text-muted)">Belum ada target materi untuk ${escapeHtml(kelasDipilih)} pada ${namaSemester(sem)}.</td></tr>`;
+    document.getElementById('massal-action-box').style.display = 'none';
+    return;
+  }
+  let sudahB = 0;
+  const rows = siswaKelas.map(s => {
+    const rec = capaianSantri(s.id, kelasN, sem)[mid];
+    const hasil = rec ? String(rec.nilai).trim().toUpperCase() : '';
+    if (hasil === 'B') sudahB++;
+    const riwayat = rec
+      ? `<div class="riwayat-box st-${hasil === 'B' ? 'lancar' : 'perlu_ulang'}"><div class="riwayat-head"><span class="riwayat-when">⏮️ ${formatTanggalIndonesia(rec.tanggal)}</span><span class="badge ${hasil === 'B' ? 'bg' : 'bgl'}">${hasil === 'B' ? '✅ Lulus (B)' : '🔄 Mengulang (C)'}</span></div></div>`
+      : `<div class="riwayat-box st-baru"><div class="riwayat-head"><span class="riwayat-when">✨ Belum pernah diuji</span></div></div>`;
+    return `<tr class="massal-row" data-siswaid="${escapeHtml(s.id)}" data-st="belum">
+      <td><strong>${escapeHtml(s.nama)}</strong>${riwayat}</td>
+      <td><select class="in-select row-bc" aria-label="Hasil ujian ${escapeHtml(s.nama)}"><option value="">— Tidak diuji hari ini —</option><option value="B">B · Benar, lanjut</option><option value="C">C · Belum benar, ulangi</option></select></td>
+      <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi" aria-label="Evaluasi ${escapeHtml(s.nama)}"></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('massal-tbl').innerHTML = rows;
+  info.style.display = 'block';
+  info.innerHTML = `<strong>${KAT_INFO[MATERI.m[mid][0]].ikon} ${escapeHtml(MATERI.m[mid][1])}</strong> · ${escapeHtml(kelasDipilih)} · ${namaSemester(sem)}<span class="massal-info-n">${sudahB} dari ${siswaKelas.length} santri sudah B</span>`;
+  document.getElementById('massal-action-box').style.display = 'block';
+}
+
+async function simpanTargetMassal(rows, tanggal) {
+  const mid = document.getElementById('im-materi').value;
+  if (!mid || !MATERI.m[mid]) return;
+  const kelasN = kelasAngka(document.getElementById('im-kelas').value), sem = semesterDari(tanggal), kat = MATERI.m[mid][0];
+  const data = [];
+  rows.forEach(row => {
+    const nilai = row.querySelector('.row-bc').value;
+    if (!nilai) return;
+    data.push({ id: 'cp' + Date.now() + String(data.length).padStart(2, '0'), siswaId: row.getAttribute('data-siswaid'), guruId: currentUser.id, tanggal, materiId: mid, kategori: kat, kelas: String(kelasN), semester: String(sem), nilai, catatan: row.querySelector('.row-catatan').value.trim() });
+  });
+  if (!data.length) { toast('Pilih hasil B atau C untuk minimal satu santri.', 'err'); return; }
+  document.getElementById('loading-overlay').style.display = 'flex';
+  const hasil = await kirimKeCloud('Capaian', data);
+  if (!hasil.ok) { tanganiGagalKirim(hasil.error); return; }
+  await muatDataDariCloud();
+  toast(`Hasil ujian ${data.length} santri tersimpan.`);
+  confetti();
+  loadSiswaMassal();
+}
+
+// Kartu "Target Semester" di halaman detail santri
+function targetSantriHTML(siswa) {
+  const sem = semesterDari(hariIniKey());
+  const ringkas = ringkasTarget(siswa, sem);
+  if (!ringkas.some(r => r.total)) return '';
+  const lulus = ringkas.reduce((a, r) => a + r.lulus, 0), total = ringkas.reduce((a, r) => a + r.total, 0);
+  const blok = ringkas.filter(r => r.total).map(r => {
+    const persen = Math.round(r.lulus / r.total * 100);
+    return `<div class="tgt-blok">
+      <div class="tgt-head"><span class="tgt-nama">${KAT_INFO[r.kat].ikon} ${KAT_INFO[r.kat].nama}</span><span class="badge ${r.lulus === r.total ? 'bg' : 'bbl'}">${r.lulus} / ${r.total}</span></div>
+      <div class="ptrack tgt-track"><div class="pfill${r.kat === 's' ? ' gold-bar' : ''}" style="width:${persen}%"></div></div>
+      <div class="kartu-grid">${(kartuCtx[r.kat] = r.items).map((it, n) => kartuHTML(r.kat, it, n)).join('')}</div>
+    </div>`;
+  }).join('');
+  return `<div class="card"><div class="card-header"><span class="card-title">🎴 Kartu Hafalan · ${namaSemester(sem)}</span><span class="card-note">${lulus} dari ${total} kartu lulus · ketuk kartu untuk membaca</span></div><div class="card-body">${blok}</div></div>`;
+}
+
+// Kartu dashboard admin: rata-rata target lulus per kelas
+function targetPerKelasHTML() {
+  const sem = semesterDari(hariIniKey());
+  const kelasList = [...new Set(db.siswa.map(s => String(s.kelas).trim()).filter(Boolean))].sort();
+  const baris = kelasList.map((k, i) => {
+    const santri = db.siswa.filter(s => String(s.kelas).trim() === k);
+    let lulus = 0, total = 0;
+    santri.forEach(s => ringkasTarget(s, sem).forEach(r => { lulus += r.lulus; total += r.total; }));
+    const persen = total ? Math.round(lulus / total * 100) : 0;
+    return `<div class="dist-row${persen === 0 ? ' nol' : ''}" style="grid-template-columns:74px 1fr 44px"><span>${escapeHtml(k)}</span><div class="dist-track"><div class="dist-fill" style="--w:${persen};--i:${i}"></div></div><span class="dist-n">${persen}%</span></div>`;
+  }).join('');
+  return `<div class="card reveal"><div class="card-header"><span class="card-title">Target ${namaSemester(sem)} per Kelas</span><span class="card-note">surat, doa, dan hadis yang sudah B</span></div><div class="card-body">${baris || '<div class="empty-state">Belum ada santri.</div>'}</div></div>`;
+}
 
 window.onload = () => {
   document.getElementById('im-tgl').value = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' });
-  muatDataDariCloud().then(pulihSesi);
+  muatDataDariCloud(); 
 };
 </script>
+<dialog id="kartu-dlg" class="kartu-dlg" aria-label="Kartu hafalan"></dialog>
 </body>
 </html>
