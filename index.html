@@ -613,6 +613,25 @@ table.massal.target th:nth-child(3) { width: 32% !important; }
   @keyframes kartuNaik { from { transform: translateY(100%); } to { transform: none; } }
 }
 @media (prefers-reduced-motion: reduce) { .kartu, .kartu::after, .kartu-dlg[open], .kd-stamp { animation: none !important; } .kartu:hover { transform: none; } }
+
+/* ===== Panel Murojaah (lembar penilaian) ===== */
+.mj { margin-bottom: 16px; border: 1.5px solid #ecd9ae; border-radius: 18px; background: #fffdf8; overflow: hidden; animation: pop .45s var(--spring) backwards; }
+.mj-head { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px; border: 0; background: linear-gradient(135deg, #fbf3e2, #fff); font: inherit; text-align: left; cursor: pointer; min-height: 48px; }
+.mj-head b { font-size: 14px; } .mj-head small { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+.mj-head .car { transition: transform .3s var(--ease); } .mj.tutup .car { transform: rotate(-90deg); }
+.mj.tutup .mj-isi { display: none; }
+.mj-isi { padding: 12px 16px 16px; }
+.mj-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.mj-chip { flex: none; scroll-snap-align: start; border: 1px solid var(--border-color); background: #fff; border-radius: 99px; padding: 6px 12px; font: inherit; font-size: 12.5px; cursor: pointer; white-space: nowrap; min-height: 36px; transition: transform .2s var(--spring), background .2s; }
+.mj-chip:hover { transform: translateY(-2px); }
+.mj-chip.on { background: #c9943a; border-color: #c9943a; color: #fff; font-weight: 600; }
+.mj-chip em { font-style: normal; opacity: .75; margin-left: 4px; font-size: 11px; }
+.mj-judul { font-size: 16px; font-weight: 700; margin: 6px 0 2px; } .mj-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+.mj-body { max-height: 46vh; overflow-y: auto; overscroll-behavior: contain; border-radius: 12px; }
+.mj-body .kd-arab { font-size: clamp(26px, 5vw, 34px); }
+.mj-body.hafal .kd-ayat:not(.buka) { filter: blur(9px); cursor: pointer; user-select: none; }
+.mj-nav { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.mj-nav .sp { flex: 1; text-align: center; font-size: 12px; color: var(--text-muted); }
 .tgt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .tgt-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; line-height: 1.3; border: 1px solid var(--border-color); background: #faf9f6; color: var(--text-muted); animation: pop .4s var(--spring) backwards; }
 .tgt-chip b { font-size: 12px; }
@@ -840,6 +859,7 @@ table.massal.target th:nth-child(3) { width: 32% !important; }
             </div>
           </div>
         </div>
+        <div id="murojaah-panel"></div>
         <div class="massal-info" id="massal-info" role="status"></div>
         <div style="overflow-x:auto">
           <table class="massal">
@@ -1344,6 +1364,7 @@ function loadSiswaMassal() {
   const thHead = document.getElementById('massal-th-head');
   document.querySelector('table.massal').classList.remove('target');
   document.getElementById('massal-info').style.display = 'none';
+  const mjBox = document.getElementById('murojaah-panel'); if (mjBox) mjBox.innerHTML = '';
   if(!kelasDipilih) {
     thHead.innerHTML = "<th>Informasi Instansional</th>";
     document.getElementById('massal-tbl').innerHTML = `<tr><td style="text-align:center; padding:30px; color:var(--text-muted)">Silakan tentukan kelas terlebih dahulu.</td></tr>`;
@@ -1910,6 +1931,57 @@ function isiMateriTarget() {
   if (ids.includes(lama)) sel.value = lama;
 }
 
+
+let murojaahTutup = false;
+function renderMurojaah(mid, kelasDipilih, sem) {
+  const box = document.getElementById('murojaah-panel'); if (!box) return;
+  const kat = MATERI.m[mid][0], ids = targetMateri(kelasDipilih, sem, kat), idx = ids.indexOf(mid);
+  const k = KARTU[mid] || {}, kelasN = kelasAngka(kelasDipilih);
+  const santri = db.siswa.filter(x => String(x.kelas).trim() === String(kelasDipilih).trim());
+  const chips = ids.map(id => {
+    const b = santri.filter(x => { const r = capaianSantri(x.id, kelasN, sem)[id]; return r && String(r.nilai).trim().toUpperCase() === 'B'; }).length;
+    return `<button type="button" class="mj-chip${id === mid ? ' on' : ''}" data-mid="${escapeHtml(id)}">${escapeHtml(MATERI.m[id][1])}<em>${b}/${santri.length}</em></button>`;
+  }).join('');
+  let meta = '';
+  if (kat === 's') meta = [k.n ? 'QS. ' + k.n : '', k.j ? k.j + ' ayat' : '', k.ar ? 'arti: ' + k.ar : ''].filter(Boolean).join(' · ');
+  else if (k.p) meta = k.p;
+  const isi = !(k.v || k.a)
+    ? `<div class="kd-kosong">Teks materi ini belum tersedia di aplikasi. Silakan lihat buku Pengembangan al-Islam.</div>`
+    : `<div class="kd-tools"><button type="button" class="kd-btn" id="mj-hafal" aria-pressed="false">🙈 Mode hafal</button>${k.l ? '<button type="button" class="kd-btn" id="mj-latin" aria-pressed="true">Aa Latin</button>' : ''}</div>
+       <div class="kd-arab arab" lang="ar" dir="rtl">${k.v ? k.v.map((a, n) => `<span class="kd-ayat">${escapeHtml(a)}<span class="no">﴿${angkaArab(n + 1)}﴾</span></span>`).join('') : `<span class="kd-ayat">${escapeHtml(k.a)}</span>`}</div>
+       ${k.l ? `<div class="kd-sec" id="mj-sec-latin"><h4>Bacaan Latin</h4><p class="kd-latin">${escapeHtml(k.l)}</p></div>` : ''}
+       ${k.t ? `<div class="kd-sec"><h4>Artinya</h4>${String(k.t).split('\n').map(p => `<p>${escapeHtml(p)}</p>`).join('')}</div>` : ''}
+       ${k.w ? `<div class="kd-peringatan">⚠️ ${escapeHtml(k.w)}</div>` : ''}
+       <p class="kd-verif">Harakat belum diverifikasi, mohon dicek ke buku sebelum dipakai menguji.</p>`;
+  box.innerHTML = `<div class="mj${murojaahTutup ? ' tutup' : ''}">
+    <button type="button" class="mj-head" id="mj-toggle" aria-expanded="${!murojaahTutup}"><span aria-hidden="true">📖</span><b>Murojaah dulu sebelum ujian</b><small>${murojaahTutup ? 'ketuk untuk membuka' : 'ketuk untuk melipat'}</small><span class="car" aria-hidden="true">▾</span></button>
+    <div class="mj-isi"><div class="mj-chips" role="group" aria-label="Pilih materi">${chips}</div>
+      <div class="mj-judul">${KAT_INFO[kat].ikon} ${escapeHtml(MATERI.m[mid][1])}</div>${meta ? `<div class="mj-meta">${escapeHtml(meta)}</div>` : ''}
+      <div class="mj-body" id="mj-body">${isi}</div>
+      <div class="mj-nav"><button type="button" class="kd-btn" id="mj-prev" ${idx <= 0 ? 'disabled' : ''}>‹ Sebelumnya</button><span class="sp">${idx + 1} / ${ids.length}</span><button type="button" class="kd-btn" id="mj-next" ${idx >= ids.length - 1 ? 'disabled' : ''}>Berikutnya ›</button></div>
+    </div></div>`;
+  box.dataset.ids = JSON.stringify(ids); box.dataset.idx = idx;
+}
+function murojaahPilih(id) {
+  const sel = document.getElementById('im-materi');
+  if (!id || !sel) return; sel.value = id; loadSiswaMassal();
+}
+document.addEventListener('click', e => {
+  const box = document.getElementById('murojaah-panel');
+  if (!box || !box.contains(e.target)) return;
+  const ids = JSON.parse(box.dataset.ids || '[]'), idx = +box.dataset.idx;
+  if (e.target.closest('#mj-toggle')) { murojaahTutup = !murojaahTutup; box.firstElementChild.classList.toggle('tutup', murojaahTutup); const h = document.getElementById('mj-toggle'); h.setAttribute('aria-expanded', !murojaahTutup); h.querySelector('small').textContent = murojaahTutup ? 'ketuk untuk membuka' : 'ketuk untuk melipat'; return; }
+  const c = e.target.closest('.mj-chip'); if (c) return murojaahPilih(c.dataset.mid);
+  if (e.target.closest('#mj-prev')) return murojaahPilih(ids[idx - 1]);
+  if (e.target.closest('#mj-next')) return murojaahPilih(ids[idx + 1]);
+  const h = e.target.closest('#mj-hafal');
+  if (h) { const on = h.getAttribute('aria-pressed') !== 'true'; h.setAttribute('aria-pressed', on); document.getElementById('mj-body').classList.toggle('hafal', on); box.querySelectorAll('.kd-ayat').forEach(a => a.classList.remove('buka')); return; }
+  const l = e.target.closest('#mj-latin');
+  if (l) { const on = l.getAttribute('aria-pressed') !== 'true'; l.setAttribute('aria-pressed', on); const sc = document.getElementById('mj-sec-latin'); if (sc) sc.style.display = on ? '' : 'none'; return; }
+  const ay = e.target.closest('.kd-ayat');
+  if (ay && document.getElementById('mj-body').classList.contains('hafal')) ay.classList.toggle('buka');
+});
+
 function renderTargetMassal(siswaKelas, kelasDipilih, thHead) {
   isiMateriTarget();
   const tglIn = document.getElementById('im-tgl').value || hariIniKey();
@@ -1925,6 +1997,7 @@ function renderTargetMassal(siswaKelas, kelasDipilih, thHead) {
     document.getElementById('massal-action-box').style.display = 'none';
     return;
   }
+  renderMurojaah(mid, kelasDipilih, sem);
   let sudahB = 0;
   const rows = siswaKelas.map(s => {
     const rec = capaianSantri(s.id, kelasN, sem)[mid];
