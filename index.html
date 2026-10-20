@@ -1337,13 +1337,16 @@ async function kirimKeCloud(table, data) {
   try {
     const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ table, data, token: authToken }) });
     const r = await res.json();
-    return (r && r.ok) ? { ok: true } : { ok: false, error: r && r.error };
+    if (r && r.ok) return { ok: true };
+    window._detailGagal = (r && r.pesan) || '';
+    return { ok: false, error: r && r.error };
   } catch (e) { return { ok: false, error: 'network' }; }
 }
 function tanganiGagalKirim(error) {
   document.getElementById('loading-overlay').style.display = 'none';
   if (error === 'unauthorized') { toast('Sesi berakhir. Silakan masuk kembali.', 'err'); doLogout(); }
   else if (error === 'forbidden') toast('Akun ini tidak punya izin untuk aksi tersebut.', 'err');
+  else if (error === 'ditolak' || error === 'server') toast('Server menolak penyimpanan' + (window._detailGagal ? ': ' + window._detailGagal : '') + '. Data belum tersimpan.', 'err');
   else toast('Gagal menyimpan. Periksa koneksi internet lalu coba lagi.', 'err');
 }
 
