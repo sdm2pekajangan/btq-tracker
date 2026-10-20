@@ -947,12 +947,16 @@ async function muatDataDariCloud() {
   try {
     let res = await fetch(SCRIPT_URL + "?action=read");
     let data = await res.json();
+    if (!data || data.ok === false || !Array.isArray(data.siswa)) {
+      toast('Data tidak bisa dimuat dari server (Apps Script). Periksa kode di Apps Script lalu deploy versi baru.', 'err');
+      return;
+    }
     db.siswa = data.siswa || [];
     db.setoran = data.setoran || [];
     db.hafalan = data.hafalan || [];
     db.users = data.users || [];
     db.capaian = data.capaian || [];
-  } catch (e) { console.error("Gagal sinkronisasi data cloud: ", e); }
+  } catch (e) { console.error("Gagal sinkronisasi data cloud: ", e); try { toast('Gagal memuat data dari server. Periksa Apps Script dan koneksi internet.', 'err'); } catch (e2) {} }
   finally { document.getElementById('loading-overlay').style.display = 'none'; try { renderGateStats(); } catch (e) {} }
 }
 
@@ -1268,11 +1272,12 @@ async function doLogin() {
       document.getElementById('lp').value = '';
       await muatDataDariCloud();
       initApp();
+      if (currentUser.role !== activeLoginRole) toast('Masuk sebagai ' + (currentUser.role === 'admin' ? 'Administrator' : 'Pengajar') + '.');
       return;
     }
-    if (++_gagalLogin >= 5) { _kunciLogin = Date.now() + 30000; _gagalLogin = 0; }
-    if (data && data.error === 'terkunci') _errLogin('Terlalu banyak percobaan gagal. Coba lagi dalam 10 menit.');
-    else if (data && data.error === 'salah') _errLogin('Username/Password akun internal salah.');
+    if (++_gagalLogin >= 8) { _kunciLogin = Date.now() + 15000; _gagalLogin = 0; }
+    if (data && data.error === 'terkunci') _errLogin('Terlalu banyak percobaan salah. Tunggu 1 menit lalu coba lagi.');
+    else if (data && data.error === 'salah') _errLogin('Username atau kata sandi salah. Periksa lagi, kata sandi membedakan huruf besar-kecil.');
     else _errLogin('Server belum mendukung login aman. Perbarui skrip Apps Script terlebih dahulu.');
   } catch (e) {
     _errLogin('Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.');
