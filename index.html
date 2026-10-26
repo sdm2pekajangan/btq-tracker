@@ -1278,6 +1278,7 @@ async function doLogin() {
     if (++_gagalLogin >= 8) { _kunciLogin = Date.now() + 15000; _gagalLogin = 0; }
     if (data && data.error === 'terkunci') _errLogin('Terlalu banyak percobaan salah. Tunggu 1 menit lalu coba lagi.');
     else if (data && data.error === 'salah') _errLogin('Username atau kata sandi salah. Periksa lagi, kata sandi membedakan huruf besar-kecil.');
+    else if (data && typeof data.error === 'string' && data.error.length > 8) _errLogin(data.error);   // pesan langsung dari server (Code.gs)
     else _errLogin('Server belum mendukung login aman. Perbarui skrip Apps Script terlebih dahulu.');
   } catch (e) {
     _errLogin('Gagal terhubung ke server. Periksa koneksi internet lalu coba lagi.');
@@ -1338,15 +1339,15 @@ async function kirimKeCloud(table, data) {
     const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ table, data, token: authToken }) });
     const r = await res.json();
     if (r && r.ok) return { ok: true };
-    window._detailGagal = (r && r.pesan) || '';
-    return { ok: false, error: r && r.error };
+    window._detailGagal = (r && (r.pesan || r.error)) || '';
+    return { ok: false, error: (r && r.auth) ? 'unauthorized' : (r && r.error) };
   } catch (e) { return { ok: false, error: 'network' }; }
 }
 function tanganiGagalKirim(error) {
   document.getElementById('loading-overlay').style.display = 'none';
   if (error === 'unauthorized') { toast('Sesi berakhir. Silakan masuk kembali.', 'err'); doLogout(); }
   else if (error === 'forbidden') toast('Akun ini tidak punya izin untuk aksi tersebut.', 'err');
-  else if (error === 'ditolak' || error === 'server') toast('Server menolak penyimpanan' + (window._detailGagal ? ': ' + window._detailGagal : '') + '. Data belum tersimpan.', 'err');
+  else if (error && error !== 'network') toast('Server menolak penyimpanan' + (window._detailGagal ? ': ' + window._detailGagal : '') + '. Data belum tersimpan.', 'err');
   else toast('Gagal menyimpan. Periksa koneksi internet lalu coba lagi.', 'err');
 }
 
@@ -1554,7 +1555,7 @@ function loadSiswaMassal() {
       const riwayat = ambilRiwayatSebelum(db.setoran, s.id, tglBatas);
       const infoKemarin = riwayatHTML(riwayat, riwayat ? `${escapeHtml(JILID_LABEL[riwayat.jilid] || riwayat.jilid)} · ${escapeHtml(halLabel(riwayat.jilid, riwayat.halaman))}` : '', tglBatas);
 
-      return `<tr class="massal-row${isQ ? ' is-q' : ''}" data-siswaid="${s.id}">
+      return `<tr class="massal-row${isQ ? ' is-q' : ''}" data-siswaid="${s.id}" data-st="${keadaanTerakhir(histori).status}">
         <td><strong>${s.nama}</strong>${infoKemarin}</td>
         <td><select class="in-select row-jilid" onchange="ngajiBaris(this)">
           ${Object.keys(JILID_LABEL).map(k=>`<option value="${k}" ${defJilid===k?'selected':''}>${JILID_LABEL[k]}</option>`).join('')}
@@ -1562,8 +1563,8 @@ function loadSiswaMassal() {
         <td><input type="text" class="in-input row-hal" value="${escapeHtml(defHal)}" aria-label="Halaman" style="${isQ ? 'display:none' : ''}">
           <div class="q-wrap" style="display:${isQ ? 'flex' : 'none'}"><select class="in-select row-qsurat" aria-label="Surat" onchange="ngajiBaris(this)">${QURAN_NAMA.map((n, i) => `<option value="${escapeHtml(n)}" ${qDef && qDef.idx === i ? 'selected' : ''}>${i + 1}. ${escapeHtml(n)}</option>`).join('')}</select>
           <input type="number" inputmode="numeric" min="1" class="in-input row-qayat" placeholder="Ayat" aria-label="Ayat" value="${qDef ? qDef.ayat || '' : ''}"></div></td>
-        <td>${nilaiSelectHTML()}</td>
-        <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
+        <td>${nilaiSelectHTML(keadaanTerakhir(histori).nilai)}</td>
+        <td>${statusSelectHTML(keadaanTerakhir(histori).status)}</td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi baru"></td>
       </tr>`;
     }).join('');
@@ -1580,14 +1581,14 @@ function loadSiswaMassal() {
       const riwayat = ambilRiwayatSebelum(db.hafalan, s.id, tglBatas);
       const infoKemarin = riwayatHTML(riwayat, riwayat ? `Surat ${escapeHtml(riwayat.surat)} · Ayat ${escapeHtml(riwayat.ayat)}` : '', tglBatas);
 
-      return `<tr class="massal-row" data-siswaid="${s.id}">
+      return `<tr class="massal-row" data-siswaid="${s.id}" data-st="${keadaanTerakhir(histori).status}">
         <td><strong>${s.nama}</strong>${infoKemarin}</td>
         <td><select class="in-select row-surat">
           ${JUZ30_LIST.map(surat => `<option value="${surat}" ${defSurat===surat?'selected':''}>${surat}</option>`).join('')}
         </select></td>
         <td><input type="text" class="in-input row-ayat" value="${defAyat}"></td>
-        <td>${nilaiSelectHTML()}</td>
-        <td><select class="in-select row-status"><option value="lancar">✅ Lancar</option><option value="perlu_ulang">🔄 Ulang</option><option value="tidak_hadir">❌ Absen</option></select></td>
+        <td>${nilaiSelectHTML(keadaanTerakhir(histori).nilai)}</td>
+        <td>${statusSelectHTML(keadaanTerakhir(histori).status)}</td>
         <td><input type="text" class="in-input row-catatan" placeholder="Evaluasi hafalan"></td>
       </tr>`;
     }).join('');
@@ -1597,6 +1598,18 @@ function loadSiswaMassal() {
 
 // Nilai berupa grade: hanya 60, 70, atau 80 (bawaan 80)
 const NILAI_PILIHAN = ['60','70','80'];
+function statusSelectHTML(def='lancar') {
+  const o = [['lancar','✅ Lancar'],['perlu_ulang','🔄 Ulang'],['tidak_hadir','❌ Absen']];
+  return `<select class="in-select row-status">${o.map(([v,t])=>`<option value="${v}" ${v===def?'selected':''}>${t}</option>`).join('')}</select>`;
+}
+// Keadaan terakhir anak: nilai & status dari catatan terbaru (histori sudah urut terbaru dulu).
+// Status Absen ikut dibawa; nilai diambil dari catatan hadir terakhir (absen bernilai 0).
+function keadaanTerakhir(histori) {
+  const hadir = histori.find(x => NILAI_PILIHAN.includes(String(x.nilai)) && x.status !== 'tidak_hadir');
+  const last = histori[0];
+  let status = last && ['lancar','perlu_ulang','tidak_hadir'].includes(last.status) ? last.status : 'lancar';
+  return { nilai: hadir ? String(hadir.nilai) : '80', status };
+}
 function nilaiSelectHTML(def='80') {
   return `<select class="in-select row-nilai" aria-label="Nilai">${NILAI_PILIHAN.map(n=>`<option value="${n}" ${n===def?'selected':''}>${n}</option>`).join('')}</select>`;
 }
