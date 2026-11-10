@@ -2471,8 +2471,10 @@ function hariDari(key) { return NAMA_HARI_PENUH[new Date(key + 'T00:00:00Z').get
 function normNama(x) {
   return String(x || '').toLowerCase().replace(/\b(s|m)\.\s?(pd|kom|ag|t|si)(\.[a-z]+)?/g, ' ').replace(/\b(s\.pd\.?i|s\.pd\.sd|s\.pd\.or|s\.pd|st)\b/g, ' ').replace(/[.,]/g, ' ').replace(/\b(ustadzah|ustadz|ust|us|bu|ibu|pak|bapak)\b/g, ' ').replace(/\s+/g, ' ').trim();
 }
+// Id akun di sheet Users -> kode guru menurut SK (G01-G15). Ubah di sini bila ada guru baru/pindah.
+const KODE_AKUN = { u2:'G12', u3:'G13', u4:'G01', u5:'G09', u6:'G03', u7:'G08', u8:'G05', u9:'G02', u10:'G14', u11:'G06', u12:'G04', u13:'G07' };
 function cariGuruId(u) {
-  if (!u) return null; if (u.guruId) return u.guruId;
+  if (!u) return null; if (u.guruId) return u.guruId; if (u.id && KODE_AKUN[String(u.id)]) return KODE_AKUN[String(u.id)];
   const nu = normNama(u.nama); if (!nu) return null;
   const kata = new Set(nu.split(' ').filter(w => w.length > 2)); let skor = {}, maks = 0;
   JD.guru.forEach(g => { [normNama(g.nama), normNama(g.pan)].filter(Boolean).forEach(c => {
@@ -2595,7 +2597,7 @@ function ptPetaKode() {
   const ke = id => {
     id = String(id || '').trim(); if (!id) return '';
     if (peta[id] !== undefined) return peta[id];
-    let hasil = JD.guru.some(g => g.id === id) ? id : '';
+    let hasil = JD.guru.some(g => g.id === id) ? id : (KODE_AKUN[id] || '');
     const u = nm[id];
     if (!hasil && u) hasil = u.kode && JD.guru.some(g => g.id === u.kode) ? u.kode : (cariGuruId({ nama: u.nama }) || '');
     return (peta[id] = hasil);
